@@ -2,5 +2,17 @@
 src = 'src'
 out = 'out'
 libs = ['lib']
+solc = "0.8.17"
 
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config
+[profile.ci]
+solc = "0.8.17"
+fuzz-runs = 10_000
+
+[fmt]
+line_length = 100
+tab_width = 4
+bracket_spacing = true
+int_types = "long"
+func_attrs_with_params_multiline = false
+quote_style = "double"
+number_underscore = "thousands"
