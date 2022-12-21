@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import { IMinimalERC721 } from "./IMinimalERC721.sol";
 import { IPuzzle } from "./IPuzzle.sol";
 import { ITokenRenderer } from "./ITokenRenderer.sol";
 
@@ -9,21 +10,34 @@ interface ICurta {
     // Errors
     // -------------------------------------------------------------------------
 
+    /// @notice Emitted when an authorship token has already been used to add a
+    /// puzzle to Curta.
+    /// @param _tokenId The ID of an authorship token.
+    error AuthorshipTokenAlreadyUsed(uint256 _tokenId);
+
     /// @notice Emitted when a puzzle's solution is incorrect.
     error IncorrectSolution();
+
+    /// @notice Emitted when insufficient funds are sent during "Phase 2"
+    /// submissions.
+    error InsufficientFunds();
+
+    /// @notice Emitted when a puzzle is already marked as Fermat.
+    /// @param _puzzleId The ID of a puzzle.
+    error PuzzleAlreadyFermat(uint32 _puzzleId);
 
     /// @notice Emitted when a solver has already solved a puzzle.
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleAlreadySolved(uint32 _puzzleId);
 
+    /// @notice Emitted when a puzzle does not eixst.
+    /// @param _puzzleId The ID of a puzzle.
+    error PuzzleDoesNotExist(uint32 _puzzleId);
+
     /// @notice Emitted when the puzzle was not the one that went longest
     /// unsolved.
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleNotFermat(uint32 _puzzleId);
-
-    /// @notice Emitted when a puzzle does not eixst.
-    /// @param _puzzleId The ID of a puzzle.
-    error PuzzleDoesNotExist(uint32 _puzzleId);
 
     /// @notice Emitted when a puzzle has not been solved yet.
     /// @param _puzzleId The ID of a puzzle.
@@ -32,9 +46,22 @@ interface ICurta {
     /// @notice Emitted when submissions for a puzzle is closed.
     error SubmissionClosed();
 
+    /// @notice Emitted when `msg.sender` is not authorized.
+    error Unauthorized();
+
     // -------------------------------------------------------------------------
     // Structs
     // -------------------------------------------------------------------------
+
+    /// @notice A struct containing data about the puzzle corresponding to
+    /// Fermat (i.e. the puzzle who went longest unsolved).
+    /// @param puzzleId The ID of the puzzle.
+    /// @param timeTaken The number of seconds it took to first solve the
+    /// puzzle.
+    struct Fermat {
+        uint32 puzzleId;
+        uint40 timeTaken;
+    }
 
     /// @notice A struct containing data about a puzzle.
     /// @param puzzle The address of the puzzle.
@@ -84,6 +111,9 @@ interface ICurta {
     /// @return The contract of the fallback token renderer contract.
     function baseRenderer() external view returns (ITokenRenderer);
 
+    /// @return The authorship token contract.
+    function authorshipToken() external view returns (IMinimalERC721);
+
     // -------------------------------------------------------------------------
     // Storage
     // -------------------------------------------------------------------------
@@ -91,8 +121,9 @@ interface ICurta {
     /// @return The total number of puzzles.
     function puzzleId() external view returns (uint32);
 
-    /// @return The longest time it took for a puzzle to be solved.
-    function longestSolveTime() external view returns (uint40);
+    /// @return puzzleId The ID of the puzzle corresponding to Fermat.
+    /// @return timeTaken The number of seconds it took to solve the puzzle.
+    function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
     /// @notice Returns the number of solves for a puzzle in each phase.
     /// @param _puzzleId The ID of a puzzle.
@@ -129,6 +160,8 @@ interface ICurta {
     /// @return Whether `_solver` has solved the puzzle of ID `_puzzleId`.
     function hasSolvedPuzzle(address _solver, uint32 _puzzleId) external view returns (bool);
 
+    function hasUsedAuthorshipToken(uint256 _tokenId) external view returns (bool);
+
     // -------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------
@@ -142,10 +175,6 @@ interface ICurta {
     /// @param _puzzle The address of the puzzle.
     /// @param _id The ID of the authorship token to burn.
     function addPuzzle(IPuzzle _puzzle, uint256 _id) external;
-
-    /// @notice Mints an authorship token.
-    /// @param _to The address to mint the token to.
-    function mintAuthorshipToken(address _to) external;
 
     /// @notice Sets the fallback token renderer for a puzzle.
     /// @dev Only the author of the puzzle of ID `_puzzleId` may set its token
