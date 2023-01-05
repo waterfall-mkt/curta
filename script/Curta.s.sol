@@ -28,7 +28,8 @@ contract CurtaScript is Script {
         payable(curtaDeployerAddress).transfer(0.25 ether);
 
         // Deploy the authorship token.
-        IMinimalERC721 authorshipToken = new AuthorshipToken(curtaAddress, bytes32(uint256(0x01))); // TODO: give valid merkle root
+        IMinimalERC721 authorshipToken = new AuthorshipToken(curtaAddress,
+            bytes32(keccak256(abi.encodePacked(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)))); // TODO: give valid merkle root
 
         vm.stopBroadcast();
 

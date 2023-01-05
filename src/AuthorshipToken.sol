@@ -65,6 +65,15 @@ contract AuthorshipToken is IMinimalERC721, ERC721 {
         }
     }
 
+    function curtaMint(address _to) external {
+        require(msg.sender == curta, "Only Curta can mint");
+
+        unchecked {
+            uint256 tokenId = ++totalSupply;
+            _mint(_to, tokenId);
+        }
+    }
+
     function ownerOf(uint256 _tokenId) public view override(ERC721, IMinimalERC721) returns (address) {
         return ownerOf(_tokenId);
     }
