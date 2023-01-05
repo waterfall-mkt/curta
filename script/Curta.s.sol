@@ -7,6 +7,7 @@ import "forge-std/Test.sol";
 import "../src/BaseRenderer.sol";
 import "../src/Curta.sol";
 import "../src/AuthorshipToken.sol";
+import "../src/mock/MockPuzzle.sol";
 import { LibRLP } from "../src/utils/LibRLP.sol";
 import { ITokenRenderer } from "../src/interfaces/ITokenRenderer.sol";
 import { IMinimalERC721 } from "../src/interfaces/IMinimalERC721.sol";
@@ -30,6 +31,10 @@ contract CurtaScript is Script {
         // Deploy the authorship token.
         IMinimalERC721 authorshipToken = new AuthorshipToken(curtaAddress,
             bytes32(keccak256(abi.encodePacked(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)))); // TODO: give valid merkle root
+
+        // Deploy the Mock Puzzle
+        // TODO: Remove when deploying for production
+        MockPuzzle mockPuzzle = new MockPuzzle();
 
         vm.stopBroadcast();
 

@@ -116,6 +116,9 @@ contract Curta is ICurta, FlagsERC721 {
         // Update the puzzle's first solve timestamp if it was previously unset.
         if (firstSolveTimestamp == 0) {
             getPuzzle[_puzzleId].firstSolveTimestamp = solveTimestamp;
+
+            // Give first solver an Authorship Token
+            authorshipToken.curtaMint(msg.sender, _puzzleId);
         }
 
         // Mark the puzzle as solved.
