@@ -14,7 +14,7 @@ contract MockPuzzle is IPuzzle {
 
     // @inheritdoc IPuzzle
     function generate(address _seed) external returns (uint256) {
-        return uint256(_seed);
+        return uint256(uint160(_seed));
     }
 
     // @inheritdoc IPuzzle

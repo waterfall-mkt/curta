@@ -14,6 +14,9 @@ import { IMinimalERC721 } from "../src/interfaces/IMinimalERC721.sol";
 
 contract CurtaScript is Script {
     function run() public returns (Curta curta) {
+        
+        // Read readme for instructions on how to use this script.
+
         uint256 deployerPrivateKey = uint256(vm.envBytes32("PRIVATE_KEY"));
         uint256 curtaKey = vm.envUint("CURTA_PRIVATE_KEY");
 
@@ -32,9 +35,13 @@ contract CurtaScript is Script {
         IMinimalERC721 authorshipToken = new AuthorshipToken(curtaAddress,
             bytes32(keccak256(abi.encodePacked(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)))); // TODO: give valid merkle root
 
+        console.log("Authorship Token Address: ", address(authorshipToken));
+
         // Deploy the Mock Puzzle
         // TODO: Remove when deploying for production
         MockPuzzle mockPuzzle = new MockPuzzle();
+
+        console.log("Mock Puzzle Address: ", address(mockPuzzle));
 
         vm.stopBroadcast();
 
