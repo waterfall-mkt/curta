@@ -5,7 +5,9 @@ import "forge-std/Test.sol";
 import "../src/Curta.sol";
 
 contract CurtaTest is Test {
-    Curta public curta;
+    Curta internal curta;
 
-    function setUp() public { }
+    function setUp() public {
+        curta = new Curta();
+    }
 }
