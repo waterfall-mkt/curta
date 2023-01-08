@@ -2,8 +2,9 @@
 pragma solidity ^0.8.17;
 
 import { ERC721 } from "solmate/tokens/ERC721.sol";
-import { IMinimalERC721 } from "./interfaces/IMinimalERC721.sol";
 import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
+
+import { IMinimalERC721 } from "@/interfaces/IMinimalERC721.sol";
 
 contract AuthorshipToken is IMinimalERC721, ERC721 {
     // -------------------------------------------------------------------------
@@ -74,7 +75,12 @@ contract AuthorshipToken is IMinimalERC721, ERC721 {
         }
     }
 
-    function ownerOf(uint256 _tokenId) public view override(ERC721, IMinimalERC721) returns (address) {
+    function ownerOf(uint256 _tokenId)
+        public
+        view
+        override (ERC721, IMinimalERC721)
+        returns (address)
+    {
         return ownerOf(_tokenId);
     }
 

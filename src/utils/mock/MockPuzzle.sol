@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IPuzzle } from "../interfaces/IPuzzle.sol";
+import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 
 // @title MockPuzzle
 // @author proofofbeef
 contract MockPuzzle is IPuzzle {
-
     // @inheritdoc IPuzzle
     function name() external pure returns (string memory) {
         return "MockPuzzle";
@@ -21,5 +20,4 @@ contract MockPuzzle is IPuzzle {
     function verify(uint256 _start, uint256 _solution) external returns (bool) {
         return _solution == 1;
     }
-
 }

@@ -3,11 +3,11 @@ pragma solidity ^0.8.17;
 
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
-import { ICurta } from "./interfaces/ICurta.sol";
-import { IMinimalERC721 } from "./interfaces/IMinimalERC721.sol";
-import { IPuzzle } from "./interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "./interfaces/ITokenRenderer.sol";
-import "./FlagsERC721.sol";
+import { FlagsERC721 } from "./FlagsERC721.sol";
+import { ICurta } from "@/interfaces/ICurta.sol";
+import { IMinimalERC721 } from "@/interfaces/IMinimalERC721.sol";
+import { IPuzzle } from "@/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 
 // .===========================================================================.
 // | The Curta is a hand-held mechanical calculator designed by Curt           |
