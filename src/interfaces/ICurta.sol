@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IMinimalERC721 } from "./IMinimalERC721.sol";
 import { IPuzzle } from "./IPuzzle.sol";
 import { ITokenRenderer } from "./ITokenRenderer.sol";
+import { AuthorshipToken } from "@/AuthorshipToken.sol";
 
 interface ICurta {
     // -------------------------------------------------------------------------
@@ -112,7 +112,7 @@ interface ICurta {
     function baseRenderer() external view returns (ITokenRenderer);
 
     /// @return The authorship token contract.
-    function authorshipToken() external view returns (IMinimalERC721);
+    function authorshipToken() external view returns (AuthorshipToken);
 
     // -------------------------------------------------------------------------
     // Storage

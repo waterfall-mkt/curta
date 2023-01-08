@@ -2,10 +2,9 @@
 pragma solidity ^0.8.17;
 
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
-
+import { AuthorshipToken } from "./AuthorshipToken.sol";
 import { FlagsERC721 } from "./FlagsERC721.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
-import { IMinimalERC721 } from "@/interfaces/IMinimalERC721.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 
@@ -46,14 +45,14 @@ contract Curta is ICurta, FlagsERC721 {
     ITokenRenderer public immutable override baseRenderer;
 
     /// @inheritdoc ICurta
-    IMinimalERC721 public immutable override authorshipToken;
+    AuthorshipToken public immutable override authorshipToken;
 
     // -------------------------------------------------------------------------
     // Storage
     // -------------------------------------------------------------------------
 
     /// @inheritdoc ICurta
-    uint32 public override puzzleId = 1;
+    uint32 public override puzzleId = 0;
 
     /// @inheritdoc ICurta
     Fermat public override fermat;
@@ -82,7 +81,7 @@ contract Curta is ICurta, FlagsERC721 {
 
     /// @param _baseRenderer The address of the fallback token renderer
     /// contract.
-    constructor(ITokenRenderer _baseRenderer, IMinimalERC721 _authorshipToken)
+    constructor(ITokenRenderer _baseRenderer, AuthorshipToken _authorshipToken)
         FlagsERC721("Curta", "CTF")
     {
         baseRenderer = _baseRenderer;
@@ -163,7 +162,7 @@ contract Curta is ICurta, FlagsERC721 {
         hasUsedAuthorshipToken[_tokenId] = true;
 
         unchecked {
-            uint32 curPuzzleId = puzzleId++;
+            uint32 curPuzzleId = ++puzzleId;
 
             // Add puzzle.
             getPuzzle[curPuzzleId] = PuzzleData({
