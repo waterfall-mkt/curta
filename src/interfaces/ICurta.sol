@@ -44,7 +44,8 @@ interface ICurta {
     error PuzzleNotSolved(uint32 _puzzleId);
 
     /// @notice Emitted when submissions for a puzzle is closed.
-    error SubmissionClosed();
+    /// @param _puzzleId The ID of a puzzle.
+    error SubmissionClosed(uint32 _puzzleId);
 
     /// @notice Emitted when `msg.sender` is not authorized.
     error Unauthorized();

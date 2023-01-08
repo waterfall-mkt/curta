@@ -105,7 +105,7 @@ contract Curta is ICurta, FlagsERC721 {
         uint40 firstSolveTimestamp = puzzleData.firstSolveTimestamp;
         uint40 solveTimestamp = uint40(block.timestamp);
         uint8 phase = computePhase(firstSolveTimestamp, solveTimestamp);
-        if (phase == 3) revert SubmissionClosed();
+        if (phase == 3) revert SubmissionClosed(_puzzleId);
 
         // Revert if the solution is incorrect.
         if (!puzzle.verify(puzzle.generate(msg.sender), _solution)) {

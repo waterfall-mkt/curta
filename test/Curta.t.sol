@@ -140,6 +140,90 @@ contract CurtaTest is Test {
     // Solve Puzzle
     // -------------------------------------------------------------------------
 
+    /// @notice Test that a player may only solve a puzzle once.
+    function testSolvePuzzleTwice() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // Should be able to solve puzzle #1.
+        uint256 solution = puzzle.getSolution(address(this));
+        curta.solve(1, solution);
+
+        // `address(this)` has already solved Puzzle #1.
+        vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleAlreadySolved.selector, 1));
+        curta.solve(1, solution);
+    }
+
+    /// @notice Test that players may only submit solutions to puzzles that
+    /// exist.
+    /// @param _puzzleId The ID of the puzzle.
+    function testSolveNonExistantPuzzle(uint32 _puzzleId) public {
+        // Puzzle #1 does not exist.
+        vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleDoesNotExist.selector, _puzzleId));
+        curta.solve(_puzzleId, 0);
+    }
+
+    /// @notice Test that players may not submit solutions 5< days after first
+    /// blood.
+    /// @param _secondsPassed The number of seconds that have passed since first
+    /// blood.
+    function testSubmitDuringPhase3(uint256 _secondsPassed) public {
+        // Phase 3 starts after more than 5 days have passed after first blood.
+        vm.assume(_secondsPassed > 5 days && _secondsPassed < (type(uint256).max - block.timestamp));
+
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `0xBEEF` gets first blood.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        curta.solve(1, beefSolution);
+
+        // Warp to phase 3.
+        vm.warp(block.timestamp + _secondsPassed);
+        uint256 solution = puzzle.getSolution(address(this));
+        vm.expectRevert(abi.encodeWithSelector(ICurta.SubmissionClosed.selector, uint32(1)));
+        curta.solve(1, solution);
+    }
+
+    /// @notice Test submitting an incorrect solution.
+    /// @param _submission A submission.
+    function testSubmitIncorrectSolution(uint256 _submission) public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // Ensure that `_submission` is invalid.
+        vm.assume(_submission != puzzle.getSolution(address(this)));
+
+        // `address(this)` submits an incorrect solution.
+        vm.expectRevert(ICurta.IncorrectSolution.selector);
+        curta.solve(1, _submission);
+    }
+
+    /// @notice Test whether an Authorship Token is minted to the first solver
+    /// of a puzzle.
+    function testFirstBloodMintsAuthorshipToken() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` has 1 Authorship Token.
+        assertEq(authorshipToken.balanceOf(address(this)), 1);
+        // Authorship Token #2 is not minted yet.
+        vm.expectRevert("NOT_MINTED");
+        authorshipToken.ownerOf(2);
+
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        // 1 more Authorship Token has been minted to `address(this)`.
+        assertEq(authorshipToken.balanceOf(address(this)), 2);
+        // Authorship Token #2 was minted to `address(this)`.
+        assertEq(authorshipToken.ownerOf(2), address(this));
+    }
+
     // -------------------------------------------------------------------------
     // Fermat
     // -------------------------------------------------------------------------
