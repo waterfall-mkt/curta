@@ -27,6 +27,11 @@ contract CurtaTest is Test {
     /// @param puzzle The address of the puzzle.
     event PuzzleAdded(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event PuzzleTokenRendererUpdated(uint32 indexed id, ITokenRenderer tokenRenderer);
+
     /// @notice Emitted when a puzzle is solved.
     /// @param id The ID of the puzzle.
     /// @param solver The address of the solver.
@@ -105,7 +110,7 @@ contract CurtaTest is Test {
         assertTrue(curta.hasUsedAuthorshipToken(1));
     }
 
-    /// @notice Test evesnts emitted and storage variable changes upon adding a
+    /// @notice Test events emitted and storage variable changes upon adding a
     /// puzzle.
     function testAddPuzzle() public {
         MockPuzzle puzzle = new MockPuzzle();
@@ -140,8 +145,42 @@ contract CurtaTest is Test {
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
-    // Setter Functions
+    // Set Puzzle Token Renderer
     // -------------------------------------------------------------------------
+
+    /// @notice Test that sender is the author of the puzzle they are trying to
+    /// update.
+    function testUnauthorizedSetPuzzleTokenRenderer() public {
+        MockPuzzle puzzle = new MockPuzzle();
+        ITokenRenderer tokenRenderer = new BaseRenderer();
+        mintAuthorshipToken(address(0xBEEF));
+
+        vm.prank(address(0xBEEF));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` is not the author of puzzle #1.
+        vm.expectRevert(ICurta.Unauthorized.selector);
+        curta.setPuzzleTokenRenderer(1, tokenRenderer);
+    }
+
+    /// @notice Test events emitted and storage variable changes upon setting a
+    /// new puzzle token renderer.
+    function testSetPuzzleTokenRenderer() public {
+        MockPuzzle puzzle = new MockPuzzle();
+        ITokenRenderer tokenRenderer = new BaseRenderer();
+        mintAuthorshipToken(address(this));
+
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // Token renderer should be `address(0)` by default.
+        assertEq(address(curta.getPuzzleTokenRenderer(1)), address(0));
+
+        vm.expectEmit(true, true, true, true);
+        emit PuzzleTokenRendererUpdated(1, tokenRenderer);
+        curta.setPuzzleTokenRenderer(1, tokenRenderer);
+
+        assertEq(address(curta.getPuzzleTokenRenderer(1)), address(tokenRenderer));
+    }
 
     // -------------------------------------------------------------------------
     // Helper Functions
@@ -153,7 +192,5 @@ contract CurtaTest is Test {
         vm.prank(address(curta));
 
         authorshipToken.curtaMint(_to);
-
-        vm.stopPrank();
     }
 }

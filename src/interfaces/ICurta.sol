@@ -94,6 +94,11 @@ interface ICurta {
     /// @param puzzle The address of the puzzle.
     event PuzzleAdded(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event PuzzleTokenRendererUpdated(uint32 indexed id, ITokenRenderer tokenRenderer);
+
     /// @notice Emitted when a puzzle is solved.
     /// @param id The ID of the puzzle.
     /// @param solver The address of the solver.

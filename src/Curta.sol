@@ -186,6 +186,9 @@ contract Curta is ICurta, FlagsERC721 {
 
         // Set token renderer.
         getPuzzleTokenRenderer[_puzzleId] = _tokenRenderer;
+
+        // Emit events.
+        emit PuzzleTokenRendererUpdated(_puzzleId, _tokenRenderer);
     }
 
     /// @inheritdoc ICurta

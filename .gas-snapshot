@@ -1,0 +1,7 @@
+CurtaTest:testAddPuzzle() (gas: 294992)
+CurtaTest:testAddPuzzleAuthorshipTokenOwnership() (gas: 197097)
+CurtaTest:testAuthorshipTokenMarkedUsed() (gas: 289858)
+CurtaTest:testCheckDeployAddresses() (gas: 11240)
+CurtaTest:testSetPuzzleTokenRenderer() (gas: 611151)
+CurtaTest:testUnauthorizedSetPuzzleTokenRenderer() (gas: 583893)
+CurtaTest:testUseAuthorshipTokenTwice() (gas: 406216)
