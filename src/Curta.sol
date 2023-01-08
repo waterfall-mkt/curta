@@ -267,11 +267,14 @@ contract Curta is ICurta, FlagsERC721 {
             //     + (_solveTimestamp > _firstSolveTimestamp + PHASE_ONE_LENGTH)     Phase 2 Over
             //     + (_solveTimestamp > _firstSolveTimestamp + SUBMISSION_LENGTH)    Phase 3 Over
             phase :=
-                add(
-                    gt(_solveTimestamp, _firstSolveTimestamp),
+                mul(
+                    iszero(iszero(_firstSolveTimestamp)),
                     add(
-                        gt(_solveTimestamp, add(_firstSolveTimestamp, PHASE_ONE_LENGTH)),
-                        gt(_solveTimestamp, add(_firstSolveTimestamp, SUBMISSION_LENGTH))
+                        1,
+                        add(
+                            gt(_solveTimestamp, add(_firstSolveTimestamp, PHASE_ONE_LENGTH)),
+                            gt(_solveTimestamp, add(_firstSolveTimestamp, SUBMISSION_LENGTH))
+                        )
                     )
                 )
         }
