@@ -9,7 +9,7 @@ import { Curta } from "@/Curta.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
+import { CollatzPuzzle } from "@/utils/mock/CollatzPuzzle.sol";
 import { LibRLP } from "@/utils/LibRLP.sol";
 
 contract CurtaTest is Test {
@@ -72,7 +72,7 @@ contract CurtaTest is Test {
     /// @notice Test that sender must own an unused Authorship Token to add a
     /// puzzle.
     function testAddPuzzleAuthorshipTokenOwnership() public {
-        MockPuzzle puzzle = new MockPuzzle();
+        CollatzPuzzle puzzle = new CollatzPuzzle();
         mintAuthorshipToken(address(0xBEEF));
 
         // `address(this)` does not own Authorship Token #1.
@@ -82,8 +82,8 @@ contract CurtaTest is Test {
 
     /// @notice Test that sender may only use an Authorship Token once.
     function testUseAuthorshipTokenTwice() public {
-        MockPuzzle puzzleOne = new MockPuzzle();
-        MockPuzzle puzzleTwo = new MockPuzzle();
+        CollatzPuzzle puzzleOne = new CollatzPuzzle();
+        CollatzPuzzle puzzleTwo = new CollatzPuzzle();
         mintAuthorshipToken(address(this));
 
         // Should be able to add puzzle #1.
@@ -97,7 +97,7 @@ contract CurtaTest is Test {
     /// @notice Test that an Authorship Token is marked used after a puzzle is
     /// added with it.
     function testAuthorshipTokenMarkedUsed() public {
-        MockPuzzle puzzle = new MockPuzzle();
+        CollatzPuzzle puzzle = new CollatzPuzzle();
         mintAuthorshipToken(address(this));
 
         // Authorship Token #1 has not been used yet.
@@ -113,7 +113,7 @@ contract CurtaTest is Test {
     /// @notice Test events emitted and storage variable changes upon adding a
     /// puzzle.
     function testAddPuzzle() public {
-        MockPuzzle puzzle = new MockPuzzle();
+        CollatzPuzzle puzzle = new CollatzPuzzle();
         mintAuthorshipToken(address(this));
 
         // There are 0 puzzles.
@@ -151,7 +151,7 @@ contract CurtaTest is Test {
     /// @notice Test that sender is the author of the puzzle they are trying to
     /// update.
     function testUnauthorizedSetPuzzleTokenRenderer() public {
-        MockPuzzle puzzle = new MockPuzzle();
+        CollatzPuzzle puzzle = new CollatzPuzzle();
         ITokenRenderer tokenRenderer = new BaseRenderer();
         mintAuthorshipToken(address(0xBEEF));
 
@@ -166,7 +166,7 @@ contract CurtaTest is Test {
     /// @notice Test events emitted and storage variable changes upon setting a
     /// new puzzle token renderer.
     function testSetPuzzleTokenRenderer() public {
-        MockPuzzle puzzle = new MockPuzzle();
+        CollatzPuzzle puzzle = new CollatzPuzzle();
         ITokenRenderer tokenRenderer = new BaseRenderer();
         mintAuthorshipToken(address(this));
 
