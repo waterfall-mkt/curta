@@ -38,7 +38,8 @@ contract CollatzPuzzle is IPuzzle {
 
     /// @dev This function is just used as a util function in tests. DO NOT
     /// include a function like this in your puzzle contract.
-    function solve(address _seed) external pure returns (uint256) {
+    /// @param _seed The seed to generate the puzzle from.
+    function getSolution(address _seed) external pure returns (uint256) {
         uint256 start = generate(_seed);
 
         // Retrieve the last 8 bits.
