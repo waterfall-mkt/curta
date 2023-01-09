@@ -39,6 +39,9 @@ contract CurtaTest is Test {
     /// @param phase The phase in which the puzzle was solved.
     event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
 
+    /// @notice Emitted when an NFT is minted.
+    event Transfer(address indexed from, address indexed to, uint256 indexed id);
+
     // -------------------------------------------------------------------------
     // Setup
     // -------------------------------------------------------------------------
@@ -291,6 +294,36 @@ contract CurtaTest is Test {
 
         // `address(this)` has solved Puzzle #1.
         assertTrue(curta.hasSolvedPuzzle(address(this), 1));
+    }
+
+    /// @notice Test whether a Flag NFT is minted after a solve.
+    function testMintFlagFromSolve() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` owns 0 Flag NFTs.
+        assertEq(curta.balanceOf(address(this)), 0);
+
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        // `address(this)` now owns Flag NFT #`(1 << 128) | 0`.
+        assertEq(curta.balanceOf(address(this)), 1);
+        assertEq(curta.ownerOf((1 << 128) | 0), address(this));
+    }
+
+    function testPhase1SolveUpdated() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+    }
+
+    function testSendEth() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        curta.solve{value: 0.01 ether}(1, puzzle.getSolution(address(this)));
     }
 
     // -------------------------------------------------------------------------
