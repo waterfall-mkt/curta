@@ -304,12 +304,8 @@ contract CurtaTest is Test {
     /// @notice Test that sender is the author of the puzzle they are trying to
     /// update.
     function testUnauthorizedSetPuzzleTokenRenderer() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
         ITokenRenderer tokenRenderer = new BaseRenderer();
-        mintAuthorshipToken(address(0xBEEF));
-
-        vm.prank(address(0xBEEF));
-        curta.addPuzzle(IPuzzle(puzzle), 1);
+        deployAndAddPuzzle(address(0xBEEF));
 
         // `address(this)` is not the author of puzzle #1.
         vm.expectRevert(ICurta.Unauthorized.selector);
@@ -319,11 +315,8 @@ contract CurtaTest is Test {
     /// @notice Test events emitted and storage variable changes upon setting a
     /// new puzzle token renderer.
     function testSetPuzzleTokenRenderer() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
         ITokenRenderer tokenRenderer = new BaseRenderer();
-        mintAuthorshipToken(address(this));
-
-        curta.addPuzzle(IPuzzle(puzzle), 1);
+        deployAndAddPuzzle(address(this));
 
         // Token renderer should be `address(0)` by default.
         assertEq(address(curta.getPuzzleTokenRenderer(1)), address(0));
@@ -345,5 +338,16 @@ contract CurtaTest is Test {
         vm.prank(address(curta));
 
         authorshipToken.curtaMint(_to);
+    }
+
+    /// @notice Deploys and adds a puzzle to Curta.
+    /// @param _as The address to deploy the puzzle as.
+    function deployAndAddPuzzle(address _as) internal {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(_as);
+
+        vm.startPrank(_as);
+        curta.addPuzzle(IPuzzle(puzzle), authorshipToken.totalSupply());
+        vm.stopPrank();
     }
 }

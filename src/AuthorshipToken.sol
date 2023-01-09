@@ -27,7 +27,7 @@ contract AuthorshipToken is ERC721 {
     bytes32 public immutable merkleRoot;
 
     /// @notice The total supply of tokens.
-    uint256 totalSupply = 0;
+    uint256 public totalSupply;
 
     /// @notice Mapping to keep track of which addresses have claimed from
     // the mint list.
