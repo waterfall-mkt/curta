@@ -437,9 +437,118 @@ contract CurtaTest is Test {
         assertEq(address(this).balance, authorBalance + _payment);
     }
 
-    // -------------------------------------------------------------------------
-    // Fermat
-    // -------------------------------------------------------------------------
+    /// @notice Test events emitted and storage variable changes upon solving a
+    /// puzzle in phases 0, 1, and 2.
+    function testSolve() public {
+        uint40 start = uint40(block.timestamp);
+        uint40 firstBloodTimestamp;
+        uint256 authorBalance = address(this).balance;
+
+        MockPuzzle puzzle = new MockPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `firstSolveTimestamp` should not be set yet.
+        {
+            (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(firstSolveTimestamp, 0);
+        }
+
+        // `address(this)` has not solved the puzzle yet.
+        assertTrue(!curta.hasSolvedPuzzle(address(this), 1));
+
+        // `address(this)` gets first blood.
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 1);
+
+            (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(firstSolveTimestamp, start);
+            firstBloodTimestamp = uint40(block.timestamp);
+
+            assertTrue(curta.hasSolvedPuzzle(address(this), 1));
+
+            // Authorship Token #2 should have been minted to `address(this)`.
+            assertEq(authorshipToken.balanceOf(address(this)), 2);
+            assertEq(authorshipToken.ownerOf(2), address(this));
+
+            // `address(this)` now owns Flag NFT #`(1 << 128) | 0`.
+            assertEq(curta.balanceOf(address(this)), 1);
+            assertEq(curta.ownerOf((1 << 128) | 0), address(this));
+        }
+
+        vm.warp(firstBloodTimestamp + 0.5 days);
+    
+        // `address(0xBEEF)` has not solved the puzzle yet.
+        assertTrue(!curta.hasSolvedPuzzle(address(0xBEEF), 1));
+
+        // `0xBEEF` gets a phase 1 solve.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        curta.solve(1, beefSolution);
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 1);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 2);
+
+            // Both `addedTimestamp` and `firstSolveTimestamp` should not have
+            // been affected.
+            (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(firstSolveTimestamp, start);
+            assertEq(firstSolveTimestamp, firstBloodTimestamp);
+
+            assertTrue(curta.hasSolvedPuzzle(address(0xBEEF), 1));
+
+            // No Authorship Token should have been minted to `0xBEEF`.
+            assertEq(authorshipToken.balanceOf(address(0xBEEF)), 0);
+
+            // `0xBEEF` now owns Flag NFT #`(1 << 128) | 1`.
+            assertEq(curta.balanceOf(address(0xBEEF)), 1);
+            assertEq(curta.ownerOf((1 << 128) | 1), address(0xBEEF));
+        }
+
+        vm.warp(firstBloodTimestamp + 2 days + 1);
+
+        // `address(0xC0FFEE)` has not solved the puzzle yet.
+        assertTrue(!curta.hasSolvedPuzzle(address(0xC0FFEE), 1));
+
+        // `0xC0FFEE` gets a phase 2 solve.
+        uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
+        vm.prank(address(0xC0FFEE));
+        curta.solve{value: 0.01 ether}(1, coffeeSolution);
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 1);
+            assertEq(phase2Solves, 1);
+            assertEq(solves, 3);
+
+            assertTrue(curta.hasSolvedPuzzle(address(0xC0FFEE), 1));
+
+            // Both `addedTimestamp` and `firstSolveTimestamp` should not have
+            // been affected.
+            (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(firstSolveTimestamp, start);
+            assertEq(firstSolveTimestamp, firstBloodTimestamp);
+
+            // No Authorship Token should have been minted to `0xC0FFEE`.
+            assertEq(authorshipToken.balanceOf(address(0xC0FFEE)), 0);
+
+            // `0xC0FFEE` now owns Flag NFT #`(1 << 128) | 2`.
+            assertEq(curta.balanceOf(address(0xC0FFEE)), 1);
+            assertEq(curta.ownerOf((1 << 128) | 2), address(0xC0FFEE));
+        }
+
+        // Funds were transferred during `0xC0FFEE`'s phase 2 solve to the
+        // author.
+        assertEq(address(this).balance, authorBalance + 0.01 ether);
+    }
 
     // -------------------------------------------------------------------------
     // Set Puzzle Token Renderer
