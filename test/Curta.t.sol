@@ -9,7 +9,7 @@ import { Curta } from "@/Curta.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { CollatzPuzzle } from "@/utils/mock/CollatzPuzzle.sol";
+import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 import { LibRLP } from "@/utils/LibRLP.sol";
 
 contract CurtaTest is Test {
@@ -38,9 +38,6 @@ contract CurtaTest is Test {
     /// @param solution The solution.
     /// @param phase The phase in which the puzzle was solved.
     event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
-
-    /// @notice Emitted when an NFT is minted.
-    event Transfer(address indexed from, address indexed to, uint256 indexed id);
 
     // -------------------------------------------------------------------------
     // Setup
@@ -75,7 +72,7 @@ contract CurtaTest is Test {
     /// @notice Test that sender must own an unused Authorship Token to add a
     /// puzzle.
     function testAddPuzzleAuthorshipTokenOwnership() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(0xBEEF));
 
         // `address(this)` does not own Authorship Token #1.
@@ -85,8 +82,8 @@ contract CurtaTest is Test {
 
     /// @notice Test that sender may only use an Authorship Token once.
     function testUseAuthorshipTokenTwice() public {
-        CollatzPuzzle puzzleOne = new CollatzPuzzle();
-        CollatzPuzzle puzzleTwo = new CollatzPuzzle();
+        MockPuzzle puzzleOne = new MockPuzzle();
+        MockPuzzle puzzleTwo = new MockPuzzle();
         mintAuthorshipToken(address(this));
 
         // Should be able to add puzzle #1.
@@ -100,7 +97,7 @@ contract CurtaTest is Test {
     /// @notice Test that an Authorship Token is marked used after a puzzle is
     /// added with it.
     function testAuthorshipTokenMarkedUsed() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
 
         // Authorship Token #1 has not been used yet.
@@ -116,7 +113,7 @@ contract CurtaTest is Test {
     /// @notice Test events emitted and storage variable changes upon adding a
     /// puzzle.
     function testAddPuzzle() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
 
         // There are 0 puzzles.
@@ -145,7 +142,7 @@ contract CurtaTest is Test {
 
     /// @notice Test that a player may only solve a puzzle once.
     function testSolvePuzzleTwice() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -175,7 +172,7 @@ contract CurtaTest is Test {
         // Phase 3 starts after more than 5 days have passed after first blood.
         vm.assume(_secondsPassed > 5 days && _secondsPassed < (type(uint256).max - block.timestamp));
 
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -194,7 +191,7 @@ contract CurtaTest is Test {
     /// @notice Test submitting an incorrect solution.
     /// @param _submission A submission.
     function testSubmitIncorrectSolution(uint256 _submission) public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -209,7 +206,7 @@ contract CurtaTest is Test {
     /// @notice Test whether the first solve timestamp is set to the timestamp
     /// the puzzle was solved in.
     function testFirstSolveTimestampSetOnFirstBlood(uint40 _timestamp) public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -237,7 +234,7 @@ contract CurtaTest is Test {
                 && _secondsPassed < (type(uint40).max - uint40(block.timestamp))
         );
 
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(0xBEEF));
         vm.prank(address(0xBEEF));
         // Add puzzle as `0xBEEF`.
@@ -263,7 +260,7 @@ contract CurtaTest is Test {
     /// @notice Test whether an Authorship Token is minted to the first solver
     /// of a puzzle.
     function testFirstBloodMintsAuthorshipToken() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -283,7 +280,7 @@ contract CurtaTest is Test {
 
     /// @notice Test whether Curta marks a player as having solved a puzzle.
     function testPlayerMarkedAsSolved() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -298,7 +295,7 @@ contract CurtaTest is Test {
 
     /// @notice Test whether a Flag NFT is minted after a solve.
     function testMintFlagFromSolve() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -313,13 +310,13 @@ contract CurtaTest is Test {
     }
 
     function testPhase1SolveUpdated() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
     }
 
     function testSendEth() public {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
@@ -376,7 +373,7 @@ contract CurtaTest is Test {
     /// @notice Deploys and adds a puzzle to Curta.
     /// @param _as The address to deploy the puzzle as.
     function deployAndAddPuzzle(address _as) internal {
-        CollatzPuzzle puzzle = new CollatzPuzzle();
+        MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(_as);
 
         vm.startPrank(_as);
