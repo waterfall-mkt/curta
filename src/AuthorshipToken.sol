@@ -2,10 +2,9 @@
 pragma solidity ^0.8.17;
 
 import { ERC721 } from "solmate/tokens/ERC721.sol";
-import { IMinimalERC721 } from "./interfaces/IMinimalERC721.sol";
 import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
 
-contract AuthorshipToken is IMinimalERC721, ERC721 {
+contract AuthorshipToken is ERC721 {
     // -------------------------------------------------------------------------
     // Errors
     // -------------------------------------------------------------------------
@@ -28,7 +27,7 @@ contract AuthorshipToken is IMinimalERC721, ERC721 {
     bytes32 public immutable merkleRoot;
 
     /// @notice The total supply of tokens.
-    uint256 totalSupply = 0;
+    uint256 public totalSupply;
 
     /// @notice Mapping to keep track of which addresses have claimed from
     // the mint list.
@@ -72,10 +71,6 @@ contract AuthorshipToken is IMinimalERC721, ERC721 {
             uint256 tokenId = ++totalSupply;
             _mint(_to, tokenId);
         }
-    }
-
-    function ownerOf(uint256 _tokenId) public view override(ERC721, IMinimalERC721) returns (address) {
-        return ownerOf(_tokenId);
     }
 
     // -------------------------------------------------------------------------

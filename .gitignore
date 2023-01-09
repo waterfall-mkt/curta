@@ -1,3 +1,8 @@
+# foundry
 cache/
 out/
 broadcast/
+
+# local env files
+.env
+.env*.local

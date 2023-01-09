@@ -2,7 +2,8 @@
 pragma solidity ^0.8.17;
 
 import { LibString } from "solmate/utils/LibString.sol";
-import { ITokenRenderer } from "./interfaces/ITokenRenderer.sol";
+
+import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 
 contract BaseRenderer is ITokenRenderer {
     // -------------------------------------------------------------------------

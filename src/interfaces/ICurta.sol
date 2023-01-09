@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IMinimalERC721 } from "./IMinimalERC721.sol";
 import { IPuzzle } from "./IPuzzle.sol";
 import { ITokenRenderer } from "./ITokenRenderer.sol";
+import { AuthorshipToken } from "@/AuthorshipToken.sol";
 
 interface ICurta {
     // -------------------------------------------------------------------------
@@ -44,7 +44,8 @@ interface ICurta {
     error PuzzleNotSolved(uint32 _puzzleId);
 
     /// @notice Emitted when submissions for a puzzle is closed.
-    error SubmissionClosed();
+    /// @param _puzzleId The ID of a puzzle.
+    error SubmissionClosed(uint32 _puzzleId);
 
     /// @notice Emitted when `msg.sender` is not authorized.
     error Unauthorized();
@@ -94,6 +95,11 @@ interface ICurta {
     /// @param puzzle The address of the puzzle.
     event PuzzleAdded(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event PuzzleTokenRendererUpdated(uint32 indexed id, ITokenRenderer tokenRenderer);
+
     /// @notice Emitted when a puzzle is solved.
     /// @param id The ID of the puzzle.
     /// @param solver The address of the solver.
@@ -112,7 +118,7 @@ interface ICurta {
     function baseRenderer() external view returns (ITokenRenderer);
 
     /// @return The authorship token contract.
-    function authorshipToken() external view returns (IMinimalERC721);
+    function authorshipToken() external view returns (AuthorshipToken);
 
     // -------------------------------------------------------------------------
     // Storage
