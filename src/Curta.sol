@@ -144,7 +144,7 @@ contract Curta is ICurta, FlagsERC721 {
 
         // Transfer fee to the puzzle author. Refunds are not checked, in case
         // someone wants to "tip" the author.
-        // SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], msg.value);
+        SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], msg.value);
 
         // Emit events.
         emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});

@@ -380,4 +380,7 @@ contract CurtaTest is Test {
         curta.addPuzzle(IPuzzle(puzzle), authorshipToken.totalSupply());
         vm.stopPrank();
     }
+
+    /// @dev We add this so `address(this)` can receive funds for testing.
+    receive() external payable {}
 }
