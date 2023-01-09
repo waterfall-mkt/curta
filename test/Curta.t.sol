@@ -377,6 +377,66 @@ contract CurtaTest is Test {
         curta.solve{value: _payment}(1, beefSolution);
     }
 
+    /// @notice Test whether the ETH amount sent to solve a puzzle during phase
+    /// 2 is paid out to the author.
+    /// @dev Since this is during phase 1, there is no minimum requirement.
+    /// Regardless, the author should still receive the ETH amount sent.
+    /// @param _payment The ETH amount sent via `solve()` during a phase 1
+    /// solve.
+    function testPhase1PaymentPaidOutToAuthor(uint256 _payment) public {
+        vm.assume(_payment >= 0.01 ether && _payment <= 100 ether);
+
+        MockPuzzle puzzle = new MockPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` gets first blood.
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        vm.warp(block.timestamp + 1 days + 1);
+
+        // `address(this)` is the author of puzzle #1.
+        uint256 authorBalance = address(this).balance;
+
+        // `0xBEEF` submits during phase 2.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        curta.solve{value: _payment}(1, beefSolution);
+
+        // `address(this)` should have received the full payment.
+        assertEq(address(this).balance, authorBalance + _payment);
+    }
+
+    /// @notice Test whether the ETH amount sent to solve a puzzle during phase
+    /// 2 is paid out to the author.
+    /// @dev The amount should be fully transferred to the author.
+    /// {Curta-PHASE_TWO_FEE} is just a minimum requirement.
+    /// @param _payment The ETH amount sent via `solve()` during a phase 2
+    /// solve.
+    function testPhase2PaymentPaidOutToAuthor(uint256 _payment) public {
+        vm.assume(_payment >= 0.01 ether && _payment <= 100 ether);
+
+        MockPuzzle puzzle = new MockPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` gets first blood.
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        vm.warp(block.timestamp + 2 days + 1);
+
+        // `address(this)` is the author of puzzle #1.
+        uint256 authorBalance = address(this).balance;
+
+        // `0xBEEF` submits during phase 2.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        curta.solve{value: _payment}(1, beefSolution);
+
+        // `address(this)` should have received the full payment.
+        assertEq(address(this).balance, authorBalance + _payment);
+    }
+
     // -------------------------------------------------------------------------
     // Fermat
     // -------------------------------------------------------------------------
