@@ -52,6 +52,9 @@ contract CurtaTest is Test {
         authorshipToken = new AuthorshipToken(curtaAddress, "");
 
         curta = new Curta(ITokenRenderer(address(tokenRenderer)), authorshipToken);
+
+        vm.deal(address(0xBEEF), 1000 ether);
+        vm.deal(address(0xC0FFEE), 1000 ether);
     }
 
     // -------------------------------------------------------------------------
@@ -168,9 +171,9 @@ contract CurtaTest is Test {
     /// blood.
     /// @param _secondsPassed The number of seconds that have passed since first
     /// blood.
-    function testSubmitDuringPhase3(uint256 _secondsPassed) public {
+    function testSubmitDuringPhase3(uint40 _secondsPassed) public {
         // Phase 3 starts after more than 5 days have passed after first blood.
-        vm.assume(_secondsPassed > 5 days && _secondsPassed < (type(uint256).max - block.timestamp));
+        vm.assume(_secondsPassed > 5 days && _secondsPassed < (type(uint40).max - block.timestamp));
 
         MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
@@ -309,18 +312,69 @@ contract CurtaTest is Test {
         assertEq(curta.ownerOf((1 << 128) | 0), address(this));
     }
 
-    function testPhase1SolveUpdated() public {
+    /// @notice Test whether a puzzle's solves counter is updated.
+    function testSolveCountersUpdated() public {
         MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` gets first blood.
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 1);
+        }
+
+        // `0xBEEF` gets a phase 1 solve.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        curta.solve(1, beefSolution);
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 1);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 2);
+        }
+
+        vm.warp(block.timestamp + 2 days + 1);
+        // `0xC0FFEE` gets a phase 2 solve.
+        uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
+        vm.prank(address(0xC0FFEE));
+        curta.solve{value: 0.01 ether}(1, coffeeSolution);
+
+        {
+            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            assertEq(phase1Solves, 1);
+            assertEq(phase2Solves, 1);
+            assertEq(solves, 3);
+        }
     }
 
-    function testSendEth() public {
+    /// @notice Test whether an ETH amount is required to solve a puzzle during
+    /// phase 2.
+    /// @param _payment The ETH amount sent via `solve()` during a phase 2
+    /// solve.
+    function testPhase2RequireETH(uint256 _payment) public {
+        vm.assume(_payment <= 100 ether);
+
         MockPuzzle puzzle = new MockPuzzle();
         mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
-        curta.solve{value: 0.01 ether}(1, puzzle.getSolution(address(this)));
+        // `address(this)` gets first blood.
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        vm.warp(block.timestamp + 2 days + 1);
+
+        // `0xBEEF` submits during phase 2.
+        uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        if (_payment < 0.01 ether) vm.expectRevert(ICurta.InsufficientFunds.selector);
+        curta.solve{value: _payment}(1, beefSolution);
     }
 
     // -------------------------------------------------------------------------
@@ -382,5 +436,5 @@ contract CurtaTest is Test {
     }
 
     /// @dev We add this so `address(this)` can receive funds for testing.
-    receive() external payable {}
+    receive() external payable { }
 }
