@@ -203,6 +203,60 @@ contract CurtaTest is Test {
         curta.solve(1, _submission);
     }
 
+    /// @notice Test whether the first solve timestamp is set to the timestamp
+    /// the puzzle was solved in.
+    function testFirstSolveTimestampSetOnFirstBlood(uint40 _timestamp) public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // Warp to `_timestamp`.
+        vm.warp(_timestamp);
+
+        // `address(this)` gets first blood.
+        uint256 solution = puzzle.getSolution(address(this));
+        curta.solve(1, solution);
+
+        // The first solve timestamp is set to `_timestamp`.
+        (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+        assertEq(firstSolveTimestamp, _timestamp);
+    }
+
+    /// @notice Test that the first solve timestamp is not set on any secondary
+    /// solves, no matter how far into the future.
+    /// @param _secondsPassed The number of seconds that have passed since first
+    /// blood.
+    function testFirstSolveTimestampOnlySetOnFirstBlood(uint40 _secondsPassed) public {
+        // We ignore timestamps that will cause an overflow or result in phase
+        // 3.
+        vm.assume(
+            _secondsPassed <= 5 days
+                && _secondsPassed < (type(uint40).max - uint40(block.timestamp))
+        );
+
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(0xBEEF));
+        vm.prank(address(0xBEEF));
+        // Add puzzle as `0xBEEF`.
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `0xC0FFEE` gets first blood at `timestamp`.
+        uint40 timestamp = uint40(block.timestamp);
+        uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
+        vm.prank(address(0xC0FFEE));
+        curta.solve(1, coffeeSolution);
+
+        // Warp to `_secondsPassed` after first blood.
+        vm.warp(timestamp + _secondsPassed);
+
+        // `address(this)` gets their solve at `timestamp + _secondsPassed`.
+        uint256 solution = puzzle.getSolution(address(this));
+        curta.solve{value: 0.01 ether}(1, solution);
+        (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+
+        assertEq(firstSolveTimestamp, timestamp);
+    }
+
     /// @notice Test whether an Authorship Token is minted to the first solver
     /// of a puzzle.
     function testFirstBloodMintsAuthorshipToken() public {
@@ -222,6 +276,21 @@ contract CurtaTest is Test {
         assertEq(authorshipToken.balanceOf(address(this)), 2);
         // Authorship Token #2 was minted to `address(this)`.
         assertEq(authorshipToken.ownerOf(2), address(this));
+    }
+
+    /// @notice Test whether Curta marks a player as having solved a puzzle.
+    function testPlayerMarkedAsSolved() public {
+        CollatzPuzzle puzzle = new CollatzPuzzle();
+        mintAuthorshipToken(address(this));
+        curta.addPuzzle(IPuzzle(puzzle), 1);
+
+        // `address(this)` has not solved Puzzle #1 yet.
+        assertTrue(!curta.hasSolvedPuzzle(address(this), 1));
+
+        curta.solve(1, puzzle.getSolution(address(this)));
+
+        // `address(this)` has solved Puzzle #1.
+        assertTrue(curta.hasSolvedPuzzle(address(this), 1));
     }
 
     // -------------------------------------------------------------------------
