@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import { Owned } from "solmate/auth/Owned.sol";
 import { ERC721 } from "solmate/tokens/ERC721.sol";
 import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
 
-contract AuthorshipToken is ERC721 {
+contract AuthorshipToken is ERC721, Owned {
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /// @notice The number of seconds an additional token is made available for
+    /// minting by the author.
+    uint256 constant ISSUE_LENGTH = 1 days;
+
     // -------------------------------------------------------------------------
     // Errors
     // -------------------------------------------------------------------------
@@ -16,11 +25,14 @@ contract AuthorshipToken is ERC721 {
     /// @notice Emitted if a merkle proof is invalid.
     error InvalidProof();
 
+    /// @notice Emitted when there are no tokens available to claim.
+    error NoTokensAvailable();
+
     /// @notice Emitted when `msg.sender` is not authorized.
     error Unauthorized();
 
     // -------------------------------------------------------------------------
-    // Storage
+    // Immutable Storage
     // -------------------------------------------------------------------------
 
     /// @notice The Curta / Flags contract.
@@ -28,6 +40,16 @@ contract AuthorshipToken is ERC721 {
 
     /// @notice Merkle root of addresses on the mintlist.
     bytes32 public immutable merkleRoot;
+
+    /// @notice The timestamp of when the contract was deployed.
+    uint256 public immutable deployTimestamp;
+
+    // -------------------------------------------------------------------------
+    // Storage
+    // -------------------------------------------------------------------------
+
+    /// @notice The number of tokens that have been claimed by the owner.
+    uint256 public numClaimedByOwner;
 
     /// @notice The total supply of tokens.
     uint256 public totalSupply;
@@ -42,9 +64,13 @@ contract AuthorshipToken is ERC721 {
 
     /// @param _curta The Curta / Flags contract.
     /// @param _merkleRoot Merkle root of addresses on the mintlist.
-    constructor(address _curta, bytes32 _merkleRoot) ERC721("Authorship Token", "AUTH") {
+    constructor(address _curta, bytes32 _merkleRoot)
+        ERC721("Authorship Token", "AUTH")
+        Owned(msg.sender)
+    {
         curta = _curta;
         merkleRoot = _merkleRoot;
+        deployTimestamp = block.timestamp;
     }
 
     // -------------------------------------------------------------------------
@@ -77,9 +103,29 @@ contract AuthorshipToken is ERC721 {
     /// @dev Only the Curta contract can call this function.
     /// @param _to The address to mint the token to.
     function curtaMint(address _to) external {
+        // Revert if the sender is not the Curta contract.
         if (msg.sender != curta) revert Unauthorized();
 
         unchecked {
+            uint256 tokenId = ++totalSupply;
+
+            _mint(_to, tokenId);
+        }
+    }
+
+    /// @notice Mints a token to `_to`.
+    /// @dev Only the owner can call this function. The owner may claim a token
+    /// every `ISSUE_LENGTH` seconds.
+    /// @param _to The address to mint the token to.
+    function ownerMint(address _to) external onlyOwner {
+        unchecked {
+            uint256 numIssued = (block.timestamp - deployTimestamp) / ISSUE_LENGTH;
+            uint256 numMintable = numIssued - numClaimedByOwner++;
+
+            // Revert if no tokens are available to mint.
+            if (numMintable == 0) revert NoTokensAvailable();
+
+            // Mint token
             uint256 tokenId = ++totalSupply;
 
             _mint(_to, tokenId);
