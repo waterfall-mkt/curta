@@ -29,6 +29,11 @@ contract BaseTest is Test {
     /// @notice The Curta contract.
     Curta internal curta;
 
+    /// @notice A mock puzzle contract.
+    /// @dev This instance of `MockPuzzle` is just used for its functions (i.e.
+    /// not directly accessed in tests).
+    MockPuzzle internal puzzle;
+
     // -------------------------------------------------------------------------
     // Setup
     // -------------------------------------------------------------------------
@@ -45,6 +50,8 @@ contract BaseTest is Test {
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);
+
+        puzzle = new MockPuzzle();
     }
 
     // -------------------------------------------------------------------------
@@ -68,5 +75,13 @@ contract BaseTest is Test {
         vm.prank(address(curta));
 
         authorshipToken.curtaMint(_to);
+    }
+
+    function solveMockPuzzle(uint32 _puzzleId, address _as) internal {
+        uint256 solution = puzzle.getSolution(_as);
+
+        vm.startPrank(_as);
+        curta.solve(_puzzleId, solution);
+        vm.stopPrank();
     }
 }
