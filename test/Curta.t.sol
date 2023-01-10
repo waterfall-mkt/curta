@@ -434,8 +434,11 @@ contract CurtaTest is BaseTest {
         // `address(this)` has not solved the puzzle yet.
         assertTrue(!curta.hasSolvedPuzzle(address(this), 1));
 
+        uint256 solution = puzzle.getSolution(address(this));
+        vm.expectEmit(true, true, true, true);
+        emit PuzzleSolved({id: 1, solver: address(this), solution: solution, phase: 0});
         // `address(this)` gets first blood.
-        curta.solve(1, puzzle.getSolution(address(this)));
+        curta.solve(1, solution);
 
         {
             (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
@@ -463,8 +466,10 @@ contract CurtaTest is BaseTest {
         // `address(0xBEEF)` has not solved the puzzle yet.
         assertTrue(!curta.hasSolvedPuzzle(address(0xBEEF), 1));
 
-        // `0xBEEF` gets a phase 1 solve.
         uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
+        vm.expectEmit(true, true, true, true);
+        emit PuzzleSolved({id: 1, solver: address(0xBEEF), solution: beefSolution, phase: 1});
+        // `0xBEEF` gets a phase 1 solve.
         vm.prank(address(0xBEEF));
         curta.solve(1, beefSolution);
 
@@ -495,8 +500,10 @@ contract CurtaTest is BaseTest {
         // `address(0xC0FFEE)` has not solved the puzzle yet.
         assertTrue(!curta.hasSolvedPuzzle(address(0xC0FFEE), 1));
 
-        // `0xC0FFEE` gets a phase 2 solve.
         uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
+        vm.expectEmit(true, true, true, true);
+        emit PuzzleSolved({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
+        // `0xC0FFEE` gets a phase 2 solve.
         vm.prank(address(0xC0FFEE));
         curta.solve{value: 0.01 ether}(1, coffeeSolution);
 
