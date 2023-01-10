@@ -3,8 +3,13 @@ pragma solidity ^0.8.17;
 
 import { Owned } from "solmate/auth/Owned.sol";
 import { ERC721 } from "solmate/tokens/ERC721.sol";
+import { LibString } from "solmate/utils/LibString.sol";
 import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
 
+import { ICurta } from "@/interfaces/ICurta.sol";
+import { Base64 } from "@/utils/Base64.sol";
+
+/// @title AuthorshipToken
 contract AuthorshipToken is ERC721, Owned {
     // -------------------------------------------------------------------------
     // Constants
@@ -136,7 +141,27 @@ contract AuthorshipToken is ERC721, Owned {
     // ERC721Metadata
     // -------------------------------------------------------------------------
 
+    /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        return "";
+        return string.concat(
+            "data:application/json;base64,",
+            Base64.encode(
+                abi.encodePacked(
+                    '{"name":"Authorship Token #',
+                    LibString.toString(_tokenId),
+                    '","description":"Token that grants user permission to add a puzzle to Curta",',
+                    '"image_data":"data:image/svg+xml;base64,',
+                    // TODO: Update this to use the actual SVG
+                    Base64.encode(
+                        abi.encodePacked(
+                            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="100%" height="100%"/><text x="8" y="40" style="fill:#fff;font-family:serif;font-size:32px">Authorship Token</text></svg>'
+                        )
+                    ),
+                    '","attributes":[{"trait_type":"Used","value":',
+                    ICurta(curta).hasUsedAuthorshipToken(_tokenId) ? "true" : "false",
+                    "]}"
+                )
+            )
+        );
     }
 }
