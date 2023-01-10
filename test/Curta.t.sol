@@ -170,7 +170,10 @@ contract CurtaTest is BaseTest {
     function test_solve_SubmitDuringPhase3(uint40 _secondsPassed) public {
         // Phase 3 starts after more than `SUBMISSION_LENGTH` days have passed
         // after first blood.
-        vm.assume(_secondsPassed > SUBMISSION_LENGTH && _secondsPassed < (type(uint40).max - block.timestamp));
+        vm.assume(
+            _secondsPassed > SUBMISSION_LENGTH
+                && _secondsPassed < (type(uint40).max - block.timestamp)
+        );
 
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
