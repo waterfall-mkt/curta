@@ -22,11 +22,11 @@ contract AuthorshipTokenTest is BaseTest {
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
 
     // -------------------------------------------------------------------------
-    // Merkle Mint
+    // `mint`
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
-    // Curta Mint
+    // `curtaMint`
     // -------------------------------------------------------------------------
 
     /// @notice Test that `curtaMint` must be called by `curta`.
@@ -58,7 +58,7 @@ contract AuthorshipTokenTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Owner Mint
+    // `ownerMint`
     // -------------------------------------------------------------------------
 
     /// @notice Test that `ownerMint` must be called by the owner.
@@ -139,11 +139,11 @@ contract AuthorshipTokenTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Token URI
+    // `tokenURI`
     // -------------------------------------------------------------------------
 
     /// @notice Test that `tokenURI` reverts for nonexistant tokens.
-    function testTokenURIForUnmintedToken() public {
+    function test_tokenURI_UnmintedToken() public {
         vm.expectRevert("NOT_MINTED");
         authorshipToken.tokenURI(1);
     }

@@ -63,12 +63,12 @@ contract CurtaTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Add Puzzle
+    // `addPuzzle`
     // -------------------------------------------------------------------------
 
     /// @notice Test that sender must own an unused Authorship Token to add a
     /// puzzle.
-    function testAddPuzzleAuthorshipTokenOwnership() public {
+    function test_addPuzzle_AuthorshipTokenOwnership() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(0xBEEF));
 
@@ -78,7 +78,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test that sender may only use an Authorship Token once.
-    function testUseAuthorshipTokenTwice() public {
+    function test_addPuzzle_UseAuthorshipTokenTwice() public {
         MockPuzzle puzzleOne = new MockPuzzle();
         MockPuzzle puzzleTwo = new MockPuzzle();
         _mintAuthorshipToken(address(this));
@@ -93,7 +93,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that an Authorship Token is marked used after a puzzle is
     /// added with it.
-    function testAuthorshipTokenMarkedUsed() public {
+    function test_addPuzzle_AuthorshipTokenMarkedUsed() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
 
@@ -109,7 +109,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test events emitted and storage variable changes upon adding a
     /// puzzle.
-    function testAddPuzzle() public {
+    function test_addPuzzle() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
 
@@ -134,11 +134,11 @@ contract CurtaTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Solve Puzzle
+    // `solve`
     // -------------------------------------------------------------------------
 
     /// @notice Test that a player may only solve a puzzle once.
-    function testSolvePuzzleTwice() public {
+    function test_solve_SolveTwice() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -155,7 +155,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test that players may only submit solutions to puzzles that
     /// exist.
     /// @param _puzzleId The ID of the puzzle.
-    function testSolveNonExistantPuzzle(uint32 _puzzleId) public {
+    function test_solve_NonExistantPuzzle(uint32 _puzzleId) public {
         // Puzzle #1 does not exist.
         vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleDoesNotExist.selector, _puzzleId));
         curta.solve(_puzzleId, 0);
@@ -165,7 +165,7 @@ contract CurtaTest is BaseTest {
     /// days after first blood.
     /// @param _secondsPassed The number of seconds that have passed since first
     /// blood.
-    function testSubmitDuringPhase3(uint40 _secondsPassed) public {
+    function test_solve_SubmitDuringPhase3(uint40 _secondsPassed) public {
         // Phase 3 starts after more than `SUBMISSION_LENGTH` days have passed
         // after first blood.
         vm.assume(_secondsPassed > SUBMISSION_LENGTH && _secondsPassed < (type(uint40).max - block.timestamp));
@@ -188,7 +188,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test submitting an incorrect solution.
     /// @param _submission A submission.
-    function testSubmitIncorrectSolution(uint256 _submission) public {
+    function test_solve_SubmitIncorrectSolution(uint256 _submission) public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -203,7 +203,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test whether the first solve timestamp is set to the timestamp
     /// the puzzle was solved in.
-    function testFirstSolveTimestampSetOnFirstBlood(uint40 _timestamp) public {
+    function test_solve_FirstSolveTimestampSetOnFirstBlood(uint40 _timestamp) public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -224,7 +224,7 @@ contract CurtaTest is BaseTest {
     /// solves, no matter how far into the future.
     /// @param _secondsPassed The number of seconds that have passed since first
     /// blood.
-    function testFirstSolveTimestampOnlySetOnFirstBlood(uint40 _secondsPassed) public {
+    function test_solve_FirstSolveTimestampOnlySetOnFirstBlood(uint40 _secondsPassed) public {
         // We ignore timestamps that will cause an overflow or result in phase
         // 3.
         vm.assume(
@@ -257,7 +257,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test whether an Authorship Token is minted to the first solver
     /// of a puzzle.
-    function testFirstBloodMintsAuthorshipToken() public {
+    function test_solve_FirstBloodMintsAuthorshipToken() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -277,7 +277,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test whether Curta marks a player as having solved a puzzle.
-    function testPlayerMarkedAsSolved() public {
+    function test_solve_PlayerMarkedAsSolved() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -292,7 +292,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test whether a Flag NFT is minted after a solve.
-    function testMintFlagFromSolve() public {
+    function test_solve_MintFlagFromSolve() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -308,7 +308,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test whether a puzzle's solves counter is updated.
-    function testSolveCountersUpdated() public {
+    function test_solve_SolveCountersUpdated() public {
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
@@ -353,7 +353,7 @@ contract CurtaTest is BaseTest {
     /// phase 2.
     /// @param _payment The ETH amount sent via `solve()` during a phase 2
     /// solve.
-    function testPhase2RequireETH(uint256 _payment) public {
+    function test_solve_Phase2RequireETH(uint256 _payment) public {
         vm.assume(_payment <= 100 ether);
 
         MockPuzzle puzzle = new MockPuzzle();
@@ -378,7 +378,7 @@ contract CurtaTest is BaseTest {
     /// Regardless, the author should still receive the ETH amount sent.
     /// @param _payment The ETH amount sent via `solve()` during a phase 1
     /// solve.
-    function testPhase1PaymentPaidOutToAuthor(uint256 _payment) public {
+    function test_solve_Phase1PaymentPaidOutToAuthor(uint256 _payment) public {
         vm.assume(_payment >= PHASE_TWO_FEE && _payment <= 100 ether);
 
         MockPuzzle puzzle = new MockPuzzle();
@@ -408,7 +408,7 @@ contract CurtaTest is BaseTest {
     /// {Curta-PHASE_TWO_FEE} is just a minimum requirement.
     /// @param _payment The ETH amount sent via `solve()` during a phase 2
     /// solve.
-    function testPhase2PaymentPaidOutToAuthor(uint256 _payment) public {
+    function test_solve_Phase2PaymentPaidOutToAuthor(uint256 _payment) public {
         vm.assume(_payment >= PHASE_TWO_FEE && _payment <= 100 ether);
 
         MockPuzzle puzzle = new MockPuzzle();
@@ -434,7 +434,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test events emitted and storage variable changes upon solving a
     /// puzzle in phases 0, 1, and 2.
-    function testSolve() public {
+    function test_solve() public {
         uint40 start = uint40(block.timestamp);
         uint40 firstBloodTimestamp;
         uint256 authorBalance = address(this).balance;
@@ -443,9 +443,11 @@ contract CurtaTest is BaseTest {
         _mintAuthorshipToken(address(this));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
-        // `firstSolveTimestamp` should not be set yet.
+        // `addedTimestamp` should be unaffected, and `firstSolveTimestamp`
+        // should not be set yet.
         {
             (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(addedTimestamp, start);
             assertEq(firstSolveTimestamp, 0);
         }
 
@@ -465,6 +467,7 @@ contract CurtaTest is BaseTest {
             assertEq(solves, 1);
 
             (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(addedTimestamp, start);
             assertEq(firstSolveTimestamp, start);
             firstBloodTimestamp = uint40(block.timestamp);
 
@@ -500,6 +503,7 @@ contract CurtaTest is BaseTest {
             // Both `addedTimestamp` and `firstSolveTimestamp` should not have
             // been affected.
             (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(addedTimestamp, start);
             assertEq(firstSolveTimestamp, start);
             assertEq(firstSolveTimestamp, firstBloodTimestamp);
 
@@ -536,6 +540,7 @@ contract CurtaTest is BaseTest {
             // Both `addedTimestamp` and `firstSolveTimestamp` should not have
             // been affected.
             (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
+            assertEq(addedTimestamp, start);
             assertEq(firstSolveTimestamp, start);
             assertEq(firstSolveTimestamp, firstBloodTimestamp);
 
@@ -553,12 +558,12 @@ contract CurtaTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Set Puzzle Token Renderer
+    // `setPuzzleTokenRenderer`
     // -------------------------------------------------------------------------
 
     /// @notice Test that sender is the author of the puzzle they are trying to
     /// update.
-    function testUnauthorizedSetPuzzleTokenRenderer() public {
+    function test_setPuzzleTokenRenderer_Unauthorized() public {
         ITokenRenderer tokenRenderer = new BaseRenderer();
         _deployAndAddPuzzle(address(0xBEEF));
 
@@ -569,7 +574,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test events emitted and storage variable changes upon setting a
     /// new puzzle token renderer.
-    function testSetPuzzleTokenRenderer() public {
+    function test_setPuzzleTokenRenderer() public {
         ITokenRenderer tokenRenderer = new BaseRenderer();
         _deployAndAddPuzzle(address(this));
 
@@ -584,14 +589,18 @@ contract CurtaTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
-    // Token URI
+    // `tokenURI`
     // -------------------------------------------------------------------------
 
     /// @notice Test that `tokenURI` reverts for nonexistant tokens.
-    function testTokenURIForUnmintedToken() public {
+    function test_tokenURI_UnmintedToken() public {
         vm.expectRevert("NOT_MINTED");
         authorshipToken.tokenURI(1);
     }
+
+    // -------------------------------------------------------------------------
+    // Miscellaneous
+    // -------------------------------------------------------------------------
 
     /// @dev We add this so `address(this)` can receive funds for testing.
     receive() external payable { }
