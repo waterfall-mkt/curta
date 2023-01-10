@@ -77,6 +77,10 @@ contract BaseTest is Test {
         authorshipToken.curtaMint(_to);
     }
 
+    /// @notice Submits a solution to the puzzle of ID `_puzzleId` as `_as`.
+    /// @dev The puzzle is assumed to be `MockPuzzle`.
+    /// @param _puzzleId The ID of the puzzle to solve.
+    /// @param _as The address to solve the puzzle as.
     function solveMockPuzzle(uint32 _puzzleId, address _as) internal {
         uint256 solution = puzzle.getSolution(_as);
 
