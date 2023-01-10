@@ -8,6 +8,8 @@ import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 
+/// @notice Unit tests for `CurtaTest`, organized by functions.
+/// @author fiveoutofnine
 contract CurtaTest is BaseTest {
     // -------------------------------------------------------------------------
     // Constants

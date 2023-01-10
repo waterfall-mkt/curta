@@ -32,26 +32,30 @@ contract BaseTest is Test {
     /// @notice A mock puzzle contract.
     /// @dev This instance of `MockPuzzle` is just used for its functions (i.e.
     /// not directly accessed in tests).
-    MockPuzzle internal puzzle;
+    MockPuzzle internal mockPuzzle;
 
     // -------------------------------------------------------------------------
     // Setup
     // -------------------------------------------------------------------------
 
     function setUp() public {
+        // Transaction #1.
         tokenRenderer = new BaseRenderer();
 
-        address authorshipTokenAddress = LibRLP.computeAddress(address(this), 2);
+        // Curta will be deployed on transaction #3.
         address curtaAddress = LibRLP.computeAddress(address(this), 3);
 
+        // Transaction #2.
         authorshipToken = new AuthorshipToken(curtaAddress, "");
 
+        // Transaction #3.
         curta = new Curta(ITokenRenderer(address(tokenRenderer)), authorshipToken);
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);
 
-        puzzle = new MockPuzzle();
+        // Transaction #4.
+        mockPuzzle = new MockPuzzle();
     }
 
     // -------------------------------------------------------------------------
@@ -82,7 +86,7 @@ contract BaseTest is Test {
     /// @param _puzzleId The ID of the puzzle to solve.
     /// @param _as The address to solve the puzzle as.
     function _solveMockPuzzle(uint32 _puzzleId, address _as) internal {
-        uint256 solution = puzzle.getSolution(_as);
+        uint256 solution = mockPuzzle.getSolution(_as);
 
         vm.startPrank(_as);
         curta.solve(_puzzleId, solution);

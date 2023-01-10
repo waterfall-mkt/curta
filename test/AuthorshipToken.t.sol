@@ -4,6 +4,8 @@ pragma solidity ^0.8.17;
 import { BaseTest } from "./utils/BaseTest.sol";
 import { AuthorshipToken } from "@/AuthorshipToken.sol";
 
+/// @notice Unit tests for `AuthorshipToken`, organized by functions.
+/// @author fiveoutofnine
 contract AuthorshipTokenTest is BaseTest {
     // -------------------------------------------------------------------------
     // Constants
@@ -20,10 +22,6 @@ contract AuthorshipTokenTest is BaseTest {
 
     /// @dev Copied from EIP-721.
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
-
-    // -------------------------------------------------------------------------
-    // `mint`
-    // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
     // `curtaMint`
