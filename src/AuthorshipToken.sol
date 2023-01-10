@@ -16,6 +16,9 @@ contract AuthorshipToken is ERC721 {
     /// @notice Emitted if a merkle proof is invalid.
     error InvalidProof();
 
+    /// @notice Emitted when `msg.sender` is not authorized.
+    error Unauthorized();
+
     // -------------------------------------------------------------------------
     // Storage
     // -------------------------------------------------------------------------
@@ -23,7 +26,7 @@ contract AuthorshipToken is ERC721 {
     /// @notice The Curta / Flags contract.
     address public immutable curta;
 
-    /// @notice Merkle root of mint mintlist.
+    /// @notice Merkle root of addresses on the mintlist.
     bytes32 public immutable merkleRoot;
 
     /// @notice The total supply of tokens.
@@ -37,6 +40,8 @@ contract AuthorshipToken is ERC721 {
     // Constructor
     // -------------------------------------------------------------------------
 
+    /// @param _curta The Curta / Flags contract.
+    /// @param _merkleRoot Merkle root of addresses on the mintlist.
     constructor(address _curta, bytes32 _merkleRoot) ERC721("Authorship Token", "AUTH") {
         curta = _curta;
         merkleRoot = _merkleRoot;
@@ -46,6 +51,9 @@ contract AuthorshipToken is ERC721 {
     // Functions
     // -------------------------------------------------------------------------
 
+    /// @notice Mints a token to `msg.sender` if the merkle proof is valid, and
+    /// `msg.sender` has not claimed a token yet.
+    /// @param _proof The merkle proof.
     function mint(bytes32[] calldata _proof) external {
         // Revert if the user has already claimed.
         if (hasClaimed[msg.sender]) revert AlreadyClaimed(msg.sender);
@@ -60,15 +68,20 @@ contract AuthorshipToken is ERC721 {
 
         unchecked {
             uint256 tokenId = ++totalSupply;
+
             _mint(msg.sender, tokenId);
         }
     }
 
+    /// @notice Mints a token to `_to`.
+    /// @dev Only the Curta contract can call this function.
+    /// @param _to The address to mint the token to.
     function curtaMint(address _to) external {
-        require(msg.sender == curta, "Only Curta can mint");
+        if (msg.sender != curta) revert Unauthorized();
 
         unchecked {
             uint256 tokenId = ++totalSupply;
+
             _mint(_to, tokenId);
         }
     }

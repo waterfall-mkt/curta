@@ -482,7 +482,7 @@ contract CurtaTest is Test {
         }
 
         vm.warp(firstBloodTimestamp + 0.5 days);
-    
+
         // `address(0xBEEF)` has not solved the puzzle yet.
         assertTrue(!curta.hasSolvedPuzzle(address(0xBEEF), 1));
 
