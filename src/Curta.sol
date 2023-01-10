@@ -243,7 +243,10 @@ contract Curta is ICurta, FlagsERC721 {
     // ERC721Metadata
     // -------------------------------------------------------------------------
 
+    /// @inheritdoc FlagsERC721
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
+        require(ownerOf(_tokenId) != address(0), "NOT_MINTED");
+
         return "";
     }
 

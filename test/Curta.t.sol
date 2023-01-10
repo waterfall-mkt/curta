@@ -583,6 +583,16 @@ contract CurtaTest is BaseTest {
         assertEq(address(curta.getPuzzleTokenRenderer(1)), address(tokenRenderer));
     }
 
+    // -------------------------------------------------------------------------
+    // Token URI
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that `tokenURI` reverts for nonexistant tokens.
+    function testTokenURIForUnmintedToken() public {
+        vm.expectRevert("NOT_MINTED");
+        authorshipToken.tokenURI(1);
+    }
+
     /// @dev We add this so `address(this)` can receive funds for testing.
     receive() external payable { }
 }

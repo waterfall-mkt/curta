@@ -141,4 +141,10 @@ contract AuthorshipTokenTest is BaseTest {
     // -------------------------------------------------------------------------
     // Token URI
     // -------------------------------------------------------------------------
+
+    /// @notice Test that `tokenURI` reverts for nonexistant tokens.
+    function testTokenURIForUnmintedToken() public {
+        vm.expectRevert("NOT_MINTED");
+        authorshipToken.tokenURI(1);
+    }
 }
