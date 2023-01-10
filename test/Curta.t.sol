@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-
+import { BaseTest } from "./utils/BaseTest.sol";
 import { AuthorshipToken } from "@/AuthorshipToken.sol";
 import { BaseRenderer } from "@/BaseRenderer.sol";
 import { Curta } from "@/Curta.sol";
@@ -12,50 +11,31 @@ import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 import { LibRLP } from "@/utils/LibRLP.sol";
 
-contract CurtaTest is Test {
-    BaseRenderer internal tokenRenderer;
-    AuthorshipToken internal authorshipToken;
-    Curta internal curta;
-
+contract CurtaTest is BaseTest {
     // -------------------------------------------------------------------------
-    // Events (NOTE: copied from {ICurta})
+    // Events
     // -------------------------------------------------------------------------
 
     /// @notice Emitted when a puzzle is added.
+    /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
     /// @param author The address of the puzzle author.
     /// @param puzzle The address of the puzzle.
     event PuzzleAdded(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
     /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
     /// @param tokenRenderer The token renderer.
     event PuzzleTokenRendererUpdated(uint32 indexed id, ITokenRenderer tokenRenderer);
 
     /// @notice Emitted when a puzzle is solved.
+    /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
     /// @param solver The address of the solver.
     /// @param solution The solution.
     /// @param phase The phase in which the puzzle was solved.
     event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
-
-    // -------------------------------------------------------------------------
-    // Setup
-    // -------------------------------------------------------------------------
-
-    function setUp() public {
-        tokenRenderer = new BaseRenderer();
-
-        address authorshipTokenAddress = LibRLP.computeAddress(address(this), 2);
-        address curtaAddress = LibRLP.computeAddress(address(this), 3);
-
-        authorshipToken = new AuthorshipToken(curtaAddress, "");
-
-        curta = new Curta(ITokenRenderer(address(tokenRenderer)), authorshipToken);
-
-        vm.deal(address(0xBEEF), 1000 ether);
-        vm.deal(address(0xC0FFEE), 1000 ether);
-    }
 
     // -------------------------------------------------------------------------
     // Initialization
@@ -579,29 +559,6 @@ contract CurtaTest is Test {
         curta.setPuzzleTokenRenderer(1, tokenRenderer);
 
         assertEq(address(curta.getPuzzleTokenRenderer(1)), address(tokenRenderer));
-    }
-
-    // -------------------------------------------------------------------------
-    // Helper Functions
-    // -------------------------------------------------------------------------
-
-    /// @notice Mints an Authorship Token to `_to` by acting as Curta.
-    /// @param _to The address to mint the token to.
-    function mintAuthorshipToken(address _to) internal {
-        vm.prank(address(curta));
-
-        authorshipToken.curtaMint(_to);
-    }
-
-    /// @notice Deploys and adds a puzzle to Curta.
-    /// @param _as The address to deploy the puzzle as.
-    function deployAndAddPuzzle(address _as) internal {
-        MockPuzzle puzzle = new MockPuzzle();
-        mintAuthorshipToken(_as);
-
-        vm.startPrank(_as);
-        curta.addPuzzle(IPuzzle(puzzle), authorshipToken.totalSupply());
-        vm.stopPrank();
     }
 
     /// @dev We add this so `address(this)` can receive funds for testing.
