@@ -2,14 +2,11 @@
 pragma solidity ^0.8.17;
 
 import { BaseTest } from "./utils/BaseTest.sol";
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
 import { BaseRenderer } from "@/BaseRenderer.sol";
-import { Curta } from "@/Curta.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
-import { LibRLP } from "@/utils/LibRLP.sol";
 
 contract CurtaTest is BaseTest {
     // -------------------------------------------------------------------------
