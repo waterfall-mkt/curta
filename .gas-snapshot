@@ -11,7 +11,7 @@ CurtaTest:testPhase2PaymentPaidOutToAuthor(uint256) (runs: 256, μ: 505320, ~: 5
 CurtaTest:testPhase2RequireETH(uint256) (runs: 256, μ: 495824, ~: 495888)
 CurtaTest:testPlayerMarkedAsSolved() (gas: 416235)
 CurtaTest:testSetPuzzleTokenRenderer() (gas: 614357)
-CurtaTest:testSolve() (gas: 617866)
+CurtaTest:testSolve() (gas: 625402)
 CurtaTest:testSolveCountersUpdated() (gas: 586486)
 CurtaTest:testSolveNonExistantPuzzle(uint32) (runs: 256, μ: 13735, ~: 13735)
 CurtaTest:testSolvePuzzleTwice() (gas: 415484)
