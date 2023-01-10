@@ -6,6 +6,13 @@ import { AuthorshipToken } from "@/AuthorshipToken.sol";
 
 contract AuthorshipTokenTest is BaseTest {
     // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// @dev Copied from EIP-721.
+    event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+
+    // -------------------------------------------------------------------------
     // Merkle Mint
     // -------------------------------------------------------------------------
 
@@ -82,7 +89,7 @@ contract AuthorshipTokenTest is BaseTest {
     /// warping forward by `_warpLength` 1000 times and testing whether to
     /// expect a revert or minting all possible amounts.
     /// @param _warpLength The length of time (in seconds) to warp forward by.
-    function testOwnerMintIssuanceLimit(uint256 _warpLength) public {
+    function testOwnerMintIssuance(uint256 _warpLength) public {
         vm.assume(_warpLength >= 1000 && _warpLength <= 2 days);
 
         uint256 deployTimestamp = authorshipToken.deployTimestamp();
@@ -100,6 +107,8 @@ contract AuthorshipTokenTest is BaseTest {
                 if (numMintable > 0) {
                     // Mint all issued tokens that have not been minted.
                     for (uint256 j; j < numMintable; ++j) {
+                        vm.expectEmit(true, true, true, true);
+                        emit Transfer(address(0), address(0xBEEF), numMinted + j + 1);
                         authorshipToken.ownerMint(address(0xBEEF));
                     }
                     numMinted += numMintable;
