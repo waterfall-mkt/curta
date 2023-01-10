@@ -60,9 +60,9 @@ contract BaseTest is Test {
 
     /// @notice Deploys and adds a puzzle to Curta.
     /// @param _as The address to deploy the puzzle as.
-    function deployAndAddPuzzle(address _as) internal {
+    function _deployAndAddPuzzle(address _as) internal {
         MockPuzzle puzzle = new MockPuzzle();
-        mintAuthorshipToken(_as);
+        _mintAuthorshipToken(_as);
 
         vm.startPrank(_as);
         curta.addPuzzle(IPuzzle(puzzle), authorshipToken.totalSupply());
@@ -71,7 +71,7 @@ contract BaseTest is Test {
 
     /// @notice Mints an Authorship Token to `_to` by acting as Curta.
     /// @param _to The address to mint the token to.
-    function mintAuthorshipToken(address _to) internal {
+    function _mintAuthorshipToken(address _to) internal {
         vm.prank(address(curta));
 
         authorshipToken.curtaMint(_to);
@@ -81,7 +81,7 @@ contract BaseTest is Test {
     /// @dev The puzzle is assumed to be `MockPuzzle`.
     /// @param _puzzleId The ID of the puzzle to solve.
     /// @param _as The address to solve the puzzle as.
-    function solveMockPuzzle(uint32 _puzzleId, address _as) internal {
+    function _solveMockPuzzle(uint32 _puzzleId, address _as) internal {
         uint256 solution = puzzle.getSolution(_as);
 
         vm.startPrank(_as);
