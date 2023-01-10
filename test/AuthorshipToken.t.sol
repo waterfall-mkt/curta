@@ -6,6 +6,15 @@ import { AuthorshipToken } from "@/AuthorshipToken.sol";
 
 contract AuthorshipTokenTest is BaseTest {
     // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /// @notice The number of seconds an additional token is made available for
+    /// minting by the author.
+    /// @dev Copied from {AuthorshipToken}.
+    uint256 constant ISSUE_LENGTH = 1 days;
+
+    // -------------------------------------------------------------------------
     // Events
     // -------------------------------------------------------------------------
 
@@ -68,7 +77,7 @@ contract AuthorshipTokenTest is BaseTest {
     /// @notice Test that the owner of the contract can mint tokens via
     /// `ownerMint`.
     function testOwnerCanOwnerMint() public {
-        vm.warp(block.timestamp + 1 days);
+        vm.warp(block.timestamp + ISSUE_LENGTH);
 
         // `0xBEEF` should have no tokens before minting.
         assertEq(authorshipToken.balanceOf(address(0xBEEF)), 0);
@@ -101,7 +110,7 @@ contract AuthorshipTokenTest is BaseTest {
             for (uint256 i; i < 1000; ++i) {
                 vm.warp(deployTimestamp + _warpLength * i);
 
-                uint256 numIssued = (_warpLength * i) / 1 days;
+                uint256 numIssued = (_warpLength * i) / ISSUE_LENGTH;
                 uint256 numMintable = numIssued - numMinted;
 
                 if (numMintable > 0) {

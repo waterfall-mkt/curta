@@ -10,6 +10,23 @@ import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 
 contract CurtaTest is BaseTest {
     // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /// @notice The length of "Phase 1" in seconds.
+    /// @dev Copied from {Curta}.
+    uint256 constant PHASE_ONE_LENGTH = 2 days;
+
+    /// @notice The length of "Phase 1" and "Phase 2" combined (i.e. the solving
+    /// period) in seconds.
+    /// @dev Copied from {Curta}.
+    uint256 constant SUBMISSION_LENGTH = 5 days;
+
+    /// @notice The fee required to submit a solution during "Phase 2".
+    /// @dev Copied from {Curta}.
+    uint256 constant PHASE_TWO_FEE = 0.01 ether;
+
+    // -------------------------------------------------------------------------
     // Events
     // -------------------------------------------------------------------------
 
@@ -144,13 +161,14 @@ contract CurtaTest is BaseTest {
         curta.solve(_puzzleId, 0);
     }
 
-    /// @notice Test that players may not submit solutions 5< days after first
-    /// blood.
+    /// @notice Test that players may not submit solutions `SUBMISSION_LENGTH`<
+    /// days after first blood.
     /// @param _secondsPassed The number of seconds that have passed since first
     /// blood.
     function testSubmitDuringPhase3(uint40 _secondsPassed) public {
-        // Phase 3 starts after more than 5 days have passed after first blood.
-        vm.assume(_secondsPassed > 5 days && _secondsPassed < (type(uint40).max - block.timestamp));
+        // Phase 3 starts after more than `SUBMISSION_LENGTH` days have passed
+        // after first blood.
+        vm.assume(_secondsPassed > SUBMISSION_LENGTH && _secondsPassed < (type(uint40).max - block.timestamp));
 
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
@@ -210,7 +228,7 @@ contract CurtaTest is BaseTest {
         // We ignore timestamps that will cause an overflow or result in phase
         // 3.
         vm.assume(
-            _secondsPassed <= 5 days
+            _secondsPassed <= SUBMISSION_LENGTH
                 && _secondsPassed < (type(uint40).max - uint40(block.timestamp))
         );
 
@@ -231,7 +249,7 @@ contract CurtaTest is BaseTest {
 
         // `address(this)` gets their solve at `timestamp + _secondsPassed`.
         uint256 solution = puzzle.getSolution(address(this));
-        curta.solve{value: 0.01 ether}(1, solution);
+        curta.solve{value: PHASE_TWO_FEE}(1, solution);
         (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
 
         assertEq(firstSolveTimestamp, timestamp);
@@ -317,11 +335,11 @@ contract CurtaTest is BaseTest {
             assertEq(solves, 2);
         }
 
-        vm.warp(block.timestamp + 2 days + 1);
+        vm.warp(block.timestamp + PHASE_ONE_LENGTH + 1);
         // `0xC0FFEE` gets a phase 2 solve.
         uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: 0.01 ether}(1, coffeeSolution);
+        curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
 
         {
             (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
@@ -345,12 +363,12 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         curta.solve(1, puzzle.getSolution(address(this)));
 
-        vm.warp(block.timestamp + 2 days + 1);
+        vm.warp(block.timestamp + PHASE_ONE_LENGTH + 1);
 
         // `0xBEEF` submits during phase 2.
         uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
         vm.prank(address(0xBEEF));
-        if (_payment < 0.01 ether) vm.expectRevert(ICurta.InsufficientFunds.selector);
+        if (_payment < PHASE_TWO_FEE) vm.expectRevert(ICurta.InsufficientFunds.selector);
         curta.solve{value: _payment}(1, beefSolution);
     }
 
@@ -361,7 +379,7 @@ contract CurtaTest is BaseTest {
     /// @param _payment The ETH amount sent via `solve()` during a phase 1
     /// solve.
     function testPhase1PaymentPaidOutToAuthor(uint256 _payment) public {
-        vm.assume(_payment >= 0.01 ether && _payment <= 100 ether);
+        vm.assume(_payment >= PHASE_TWO_FEE && _payment <= 100 ether);
 
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
@@ -391,7 +409,7 @@ contract CurtaTest is BaseTest {
     /// @param _payment The ETH amount sent via `solve()` during a phase 2
     /// solve.
     function testPhase2PaymentPaidOutToAuthor(uint256 _payment) public {
-        vm.assume(_payment >= 0.01 ether && _payment <= 100 ether);
+        vm.assume(_payment >= PHASE_TWO_FEE && _payment <= 100 ether);
 
         MockPuzzle puzzle = new MockPuzzle();
         _mintAuthorshipToken(address(this));
@@ -400,7 +418,7 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         curta.solve(1, puzzle.getSolution(address(this)));
 
-        vm.warp(block.timestamp + 2 days + 1);
+        vm.warp(block.timestamp + PHASE_ONE_LENGTH + 1);
 
         // `address(this)` is the author of puzzle #1.
         uint256 authorBalance = address(this).balance;
@@ -495,7 +513,7 @@ contract CurtaTest is BaseTest {
             assertEq(curta.ownerOf((1 << 128) | 1), address(0xBEEF));
         }
 
-        vm.warp(firstBloodTimestamp + 2 days + 1);
+        vm.warp(firstBloodTimestamp + PHASE_ONE_LENGTH + 1);
 
         // `address(0xC0FFEE)` has not solved the puzzle yet.
         assertTrue(!curta.hasSolvedPuzzle(address(0xC0FFEE), 1));
@@ -505,7 +523,7 @@ contract CurtaTest is BaseTest {
         emit PuzzleSolved({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
         // `0xC0FFEE` gets a phase 2 solve.
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: 0.01 ether}(1, coffeeSolution);
+        curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
 
         {
             (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
@@ -531,7 +549,7 @@ contract CurtaTest is BaseTest {
 
         // Funds were transferred during `0xC0FFEE`'s phase 2 solve to the
         // author.
-        assertEq(address(this).balance, authorBalance + 0.01 ether);
+        assertEq(address(this).balance, authorBalance + PHASE_TWO_FEE);
     }
 
     // -------------------------------------------------------------------------
