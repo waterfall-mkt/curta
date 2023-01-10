@@ -7,6 +7,7 @@ import { FlagsERC721 } from "./FlagsERC721.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
+import { Base64 } from "@/utils/Base64.sol";
 
 // .===========================================================================.
 // | The Curta is a hand-held mechanical calculator designed by Curt           |
