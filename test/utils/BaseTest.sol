@@ -20,11 +20,11 @@ contract BaseTest is Test {
     // Contracts
     // -------------------------------------------------------------------------
 
-    /// @notice The base renderer contract for Curta.
-    BaseRenderer internal tokenRenderer;
-
     /// @notice The Authorship Token contract.
     AuthorshipToken internal authorshipToken;
+
+    /// @notice The base renderer contract for Curta.
+    BaseRenderer internal tokenRenderer;
 
     /// @notice The Curta contract.
     Curta internal curta;
@@ -51,14 +51,6 @@ contract BaseTest is Test {
     // Helper Functions
     // -------------------------------------------------------------------------
 
-    /// @notice Mints an Authorship Token to `_to` by acting as Curta.
-    /// @param _to The address to mint the token to.
-    function mintAuthorshipToken(address _to) internal {
-        vm.prank(address(curta));
-
-        authorshipToken.curtaMint(_to);
-    }
-
     /// @notice Deploys and adds a puzzle to Curta.
     /// @param _as The address to deploy the puzzle as.
     function deployAndAddPuzzle(address _as) internal {
@@ -68,5 +60,13 @@ contract BaseTest is Test {
         vm.startPrank(_as);
         curta.addPuzzle(IPuzzle(puzzle), authorshipToken.totalSupply());
         vm.stopPrank();
+    }
+
+    /// @notice Mints an Authorship Token to `_to` by acting as Curta.
+    /// @param _to The address to mint the token to.
+    function mintAuthorshipToken(address _to) internal {
+        vm.prank(address(curta));
+
+        authorshipToken.curtaMint(_to);
     }
 }
