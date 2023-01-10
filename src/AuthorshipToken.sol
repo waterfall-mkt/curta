@@ -118,23 +118,8 @@ contract AuthorshipToken is ERC721, Owned {
         }
     }
 
-    /// @notice Mints a token to `_to`.
-    /// @dev Only the owner can call this function. The owner may claim a token
-    /// every `ISSUE_LENGTH` seconds.
-    /// @param _to The address to mint the token to.
-    function ownerMint(address _to) external onlyOwner {
-        unchecked {
-            uint256 numIssued = (block.timestamp - deployTimestamp) / ISSUE_LENGTH;
-            uint256 numMintable = numIssued - numClaimedByOwner++;
-
-            // Revert if no tokens are available to mint.
-            if (numMintable == 0) revert NoTokensAvailable();
-
-            // Mint token
-            uint256 tokenId = ++totalSupply;
-
-            _mint(_to, tokenId);
-        }
+    function ownerOf(uint256 _tokenId) public view override(ERC721, IMinimalERC721) returns (address) {
+        return ownerOf(_tokenId);
     }
 
     // -------------------------------------------------------------------------

@@ -20,9 +20,8 @@ abstract contract DeployBase is Script {
     AuthorshipToken public authorshipToken;
     Curta public curta;
 
-    constructor(ITokenRenderer _tokenRenderer, IPuzzle _puzzle, address _owner) {
+    constructor(ITokenRenderer _tokenRenderer, address _owner) {
         tokenRenderer = _tokenRenderer;
-        puzzle = _puzzle;
         owner = _owner;
     }
 
