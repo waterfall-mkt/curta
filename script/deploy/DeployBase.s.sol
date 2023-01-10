@@ -6,7 +6,6 @@ import "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/AuthorshipToken.sol";
 import { Curta } from "@/Curta.sol";
-import { IMinimalERC721 } from "@/interfaces/IMinimalERC721.sol";
 import { IPuzzle } from "@/interfaces/IPuzzle.sol";
 import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 import { LibRLP } from "@/utils/LibRLP.sol";

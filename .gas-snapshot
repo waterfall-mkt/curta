@@ -1,6 +1,6 @@
 AuthorshipTokenTest:testCurtaMint() (gas: 83455)
 AuthorshipTokenTest:testOwnerCanOwnerMint() (gas: 108433)
-AuthorshipTokenTest:testOwnerMintIssuance(uint256) (runs: 256, μ: 7240118, ~: 6498225)
+AuthorshipTokenTest:testOwnerMintIssuance(uint256) (runs: 256, μ: 7208784, ~: 6498225)
 AuthorshipTokenTest:testUnauthorizedCurtaMint(address) (runs: 256, μ: 10324, ~: 10324)
 AuthorshipTokenTest:testUnauthorizedOwnerMint(address) (runs: 256, μ: 13226, ~: 13226)
 AuthorshipTokenTest:test_tokenURI_UnmintedToken() (gas: 11203)
