@@ -13,4 +13,14 @@ contract DeployTest is DeployBase {
             0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E
         )
     { }
+
+    function run() external {
+        // Deploy the Mock Puzzles
+        MockPuzzle mockPuzzleA = new MockPuzzle();
+        MockPuzzle mockPuzzleB = new MockPuzzle();
+
+        console.log("Mock Puzzle A Address: ", address(mockPuzzleA));
+        console.log("Mock Puzzle B Address: ", address(mockPuzzleB));
+    }
+
 }
