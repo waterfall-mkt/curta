@@ -214,7 +214,7 @@ contract Curta is ICurta, FlagsERC721 {
 
         // Transfer Fermat to puzzle author.
         address puzzleAuthor = getPuzzleAuthor[_puzzleId];
-        address currentOwner = ownerOf(0);
+        address currentOwner = getTokenData[0].owner;
 
         unchecked {
             // Delete ownership information about Fermat, if the owner is not

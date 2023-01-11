@@ -594,6 +594,169 @@ contract CurtaTest is BaseTest {
     }
 
     // -------------------------------------------------------------------------
+    // `setFermat`
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that a puzzle requires a solve before it can be set Fermat.
+    function test_setFermat_PuzzleNotSolved() public {
+        _deployAndAddPuzzle(address(this));
+
+        // Puzzle #1 has not been solved yet.
+        vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleNotSolved.selector, 1));
+        curta.setFermat(1);
+    }
+
+    /// @notice Test that a puzzle can be set Fermat as soon as there is a
+    /// solve, even if there was no prior `fermat` set.
+    function test_setFermat_InitialSet() public {
+        vm.expectRevert("NOT_MINTED");
+        curta.ownerOf(0);
+
+        _deployAndAddPuzzle(address(0xBEEF));
+        vm.warp(block.timestamp + 1 days);
+        _solveMockPuzzle({_puzzleId: 1, _as: address(0xC0FFEE)});
+        curta.setFermat(1);
+
+        assertEq(curta.ownerOf(0), address(0xBEEF));
+        assertEq(curta.balanceOf(address(0xBEEF)), 1);
+        (uint32 puzzleId, uint40 timeTaken) = curta.fermat();
+        assertEq(puzzleId, 1);
+        assertEq(timeTaken, 1 days);
+    }
+
+    /// @notice Test that anybody can set Fermat.
+    /// @param _sender The address to call `setFermat` from.
+    function test_setFermat_Access(address _sender) public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        vm.prank(_sender);
+        curta.setFermat(1);
+    }
+
+    /// @notice Test that a puzzle that is already set Fermat can not be set
+    /// Fermat again.
+    function test_setFermat_PuzzleAlreadyFermat() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        curta.setFermat(1);
+
+        // Puzzle #1 has already been Fermat.
+        vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleAlreadyFermat.selector, 1));
+        curta.setFermat(1);
+    }
+
+    /// @notice Test that a puzzle that did not take the longest to go unsolved
+    ///  can not be set Fermat.
+    function test_setFermat_PuzzleNotFermat() public {
+        uint256 start = block.timestamp;
+
+        // Add puzzle as ID #1, and solve it 2 days later.
+        _deployAndAddPuzzle(address(this));
+        vm.warp(start + 2 days);
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        curta.setFermat(1);
+
+        // Add puzzle as ID #2, and solve it 1 day later. Since puzzle #1 took
+        // longer to solve, puzzle #2 should not be eligible for Fermat.
+        vm.warp(start);
+        _deployAndAddPuzzle(address(this));
+        vm.warp(start + 1 days);
+        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+        vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleNotFermat.selector, 2));
+        curta.setFermat(2);
+    }
+
+    /// @notice Test that the contract sets Fermat correctly, even if there was
+    /// a previous Fermat set.
+    function test_setFermat_SetTwice() public {
+        uint256 start = block.timestamp;
+
+        // Add puzzle as ID #1 from `0xBEEF`, and solve it 2 days later.
+        _deployAndAddPuzzle(address(0xBEEF));
+        vm.warp(start + 2 days);
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        // Add puzzle as ID #2 from `0xC0FEE`, and solve it 1 day later.
+        vm.warp(start);
+        _deployAndAddPuzzle(address(0xC0FFEE));
+        vm.warp(start + 1 days);
+        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+
+        // Although puzzle #2 took less time to solve, puzzle #1 was not set
+        // Fermat, so puzzle #2 should be eligible for Fermat.
+        curta.setFermat(2);
+
+        // `0xC0FFEE` should own token #0.
+        {
+            assertEq(curta.ownerOf(0), address(0xC0FFEE));
+            assertEq(curta.balanceOf(address(0xC0FFEE)), 1);
+            (uint32 puzzleId, uint40 timeTaken) = curta.fermat();
+            assertEq(puzzleId, 2);
+            assertEq(timeTaken, 1 days);
+        }
+
+        // Puzzle #1 should also be eligible for Fermat.
+        curta.setFermat(1);
+
+        // Should have been transferred from `0xC0FFEE` to `0xBEEF`.
+        {
+            assertEq(curta.balanceOf(address(0xC0FFEE)), 0);
+            assertEq(curta.ownerOf(0), address(0xBEEF));
+            assertEq(curta.balanceOf(address(0xBEEF)), 1);
+            (uint32 puzzleId, uint40 timeTaken) = curta.fermat();
+            assertEq(puzzleId, 1);
+            assertEq(timeTaken, 2 days);
+        }
+    }
+
+    /// @notice Test that Fermat can still be set even if the initial author
+    /// transfers the token.
+    /// @param _to The address to transfer the token to.
+    function test_setFermat_SetAfterTransfer(address _to) public {
+        vm.assume(_to != address(0) && _to != address(0xC0FFEE));
+
+        uint256 start = block.timestamp;
+
+        // Add puzzle as ID #1 from `0xBEEF`, and solve it 2 days later.
+        _deployAndAddPuzzle(address(0xBEEF));
+        vm.warp(start + 2 days);
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        // Add puzzle as ID #2 from `0xC0FEE`, and solve it 1 day later.
+        vm.warp(start);
+        _deployAndAddPuzzle(address(0xC0FFEE));
+        vm.warp(start + 1 days);
+        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+
+        // Although puzzle #2 took less time to solve, puzzle #1 was not set
+        // Fermat, so puzzle #2 should be eligible for Fermat.
+        curta.setFermat(2);
+
+        vm.prank(address(0xC0FFEE));
+
+        // Transfer token #0.
+        curta.transferFrom(address(0xC0FFEE), _to, 0);
+        assertEq(curta.balanceOf(address(0xC0FFEE)), 0);
+        assertEq(curta.ownerOf(0), _to);
+        // `address(this)` should have a balance of 3 because it has 2
+        // additional tokens from solving puzzles.
+        assertEq(curta.balanceOf(_to), _to == address(this) ? 3 : 1);
+
+        // Puzzle #1 should still be eligible for Fermat.
+        curta.setFermat(1);
+
+        // Should have been transferred from `_to` to `0xBEEF`.
+        {
+            assertEq(curta.ownerOf(0), address(0xBEEF));
+            assertEq(curta.balanceOf(address(0xBEEF)), 1);
+            (uint32 puzzleId, uint40 timeTaken) = curta.fermat();
+            assertEq(puzzleId, 1);
+            assertEq(timeTaken, 2 days);
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // `tokenURI`
     // -------------------------------------------------------------------------
 
