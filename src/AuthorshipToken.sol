@@ -85,7 +85,7 @@ contract AuthorshipToken is ERC721, Owned {
     /// @notice Mints a token to `msg.sender` if the merkle proof is valid, and
     /// `msg.sender` has not claimed a token yet.
     /// @param _proof The merkle proof.
-    function mint(bytes32[] calldata _proof) external {
+    function claim(bytes32[] calldata _proof) external {
         // Revert if the user has already claimed.
         if (hasClaimed[msg.sender]) revert AlreadyClaimed(msg.sender);
 
@@ -143,6 +143,8 @@ contract AuthorshipToken is ERC721, Owned {
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
+        require(ownerOf(_tokenId) != address(0), "NOT_MINTED");
+
         return string.concat(
             "data:application/json;base64,",
             Base64.encode(

@@ -73,6 +73,10 @@ abstract contract FlagsERC721 {
     }
 
     function _mint(address _to, uint256 _id, uint32 _puzzleId, uint8 _phase) internal {
+        require(_to != address(0), "INVALID_RECIPIENT");
+
+        require(getTokenData[_id].owner == address(0), "ALREADY_MINTED");
+
         getTokenData[_id] =
             TokenData({owner: _to, puzzleId: _puzzleId, solveTimestamp: uint40(block.timestamp)});
 

@@ -105,7 +105,7 @@ contract Curta is ICurta, FlagsERC721 {
         // Revert if submissions are closed.
         uint40 firstSolveTimestamp = puzzleData.firstSolveTimestamp;
         uint40 solveTimestamp = uint40(block.timestamp);
-        uint8 phase = computePhase(firstSolveTimestamp, solveTimestamp);
+        uint8 phase = _computePhase(firstSolveTimestamp, solveTimestamp);
         if (phase == 3) revert SubmissionClosed(_puzzleId);
 
         // Revert if the solution is incorrect.
@@ -214,7 +214,7 @@ contract Curta is ICurta, FlagsERC721 {
 
         // Transfer Fermat to puzzle author.
         address puzzleAuthor = getPuzzleAuthor[_puzzleId];
-        address currentOwner = ownerOf(0);
+        address currentOwner = getTokenData[0].owner;
 
         unchecked {
             // Delete ownership information about Fermat, if the owner is not
@@ -243,7 +243,10 @@ contract Curta is ICurta, FlagsERC721 {
     // ERC721Metadata
     // -------------------------------------------------------------------------
 
+    /// @inheritdoc FlagsERC721
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
+        require(ownerOf(_tokenId) != address(0), "NOT_MINTED");
+
         return "";
     }
 
@@ -258,15 +261,24 @@ contract Curta is ICurta, FlagsERC721 {
     /// before the puzzle has been solved, "Phase 1" refers to the period 2 days
     /// after the first solve, "Phase 2" refers to the period 3 days after the
     /// end of "Phase 1", and "Phase 3" is when submissions are closed.
-    function computePhase(uint40 _firstSolveTimestamp, uint40 _solveTimestamp)
+    function _computePhase(uint40 _firstSolveTimestamp, uint40 _solveTimestamp)
         internal
         pure
         returns (uint8 phase)
     {
+        // Equivalent to:
+        // if (_firstSolveTimestamp == 0) {
+        //     phase = 0;
+        // } else {
+        //     if (_solveTimestamp > _firstSolveTimestamp + SUBMISSION_LENGTH) {
+        //         phase = 3;
+        //     } else if (_solveTimestamp > _firstSolveTimestamp + PHASE_ONE_LENGTH) {
+        //         phase = 2;
+        //     } else {
+        //         phase = 1;
+        //     }
+        // }
         assembly {
-            // (_solveTimestamp > _firstSolveTimestamp)                              Phase 1 Over
-            //     + (_solveTimestamp > _firstSolveTimestamp + PHASE_ONE_LENGTH)     Phase 2 Over
-            //     + (_solveTimestamp > _firstSolveTimestamp + SUBMISSION_LENGTH)    Phase 3 Over
             phase :=
                 mul(
                     iszero(iszero(_firstSolveTimestamp)),
