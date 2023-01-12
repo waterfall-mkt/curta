@@ -18,13 +18,21 @@ contract DeployTest is DeployBase {
             // Owner:
             0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E
         )
-    { 
-                // Deploy the Mock Puzzles
+    { }
+
+    function run() public override {
+        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        vm.startBroadcast(deployerKey);
+
+        // Deploy the Mock Puzzles
         MockPuzzle mockPuzzleA = new MockPuzzle();
         MockPuzzle mockPuzzleB = new MockPuzzle();
 
         console.log("Mock Puzzle A Address: ", address(mockPuzzleA));
         console.log("Mock Puzzle B Address: ", address(mockPuzzleB));
+        vm.stopBroadcast();
+
+        super.run();
     }
 
 }

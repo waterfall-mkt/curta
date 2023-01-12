@@ -80,7 +80,7 @@ contract Curta is ICurta, FlagsERC721 {
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
-    /// @param _baseRenderer The address of the fallback token renderer
+    /// @param _baseRenderer The address of the fallback s renderer
     /// contract.
     constructor(ITokenRenderer _baseRenderer, AuthorshipToken _authorshipToken)
         FlagsERC721("Curta", "CTF")
@@ -124,6 +124,10 @@ contract Curta is ICurta, FlagsERC721 {
         // Mark the puzzle as solved.
         hasSolvedPuzzle[msg.sender][_puzzleId] = true;
 
+        // Emit event
+        // TODO: change back when done
+        emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
+
         // Mint NFT.
         unchecked {
             _mint({
@@ -146,14 +150,11 @@ contract Curta is ICurta, FlagsERC721 {
         // Transfer fee to the puzzle author. Refunds are not checked, in case
         // someone wants to "tip" the author.
         SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], msg.value);
-
-        // Emit events.
-        emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
     }
 
     /// @inheritdoc ICurta
     function addPuzzle(IPuzzle _puzzle, uint256 _tokenId) external {
-        // Revert if the puzzle belongs to `msg.sender`.
+        // Revert if authorship token doesn't belong to sender.
         if (msg.sender != authorshipToken.ownerOf(_tokenId)) revert Unauthorized();
 
         // Revert if the puzzle has already been used.

@@ -20,13 +20,17 @@ abstract contract DeployBase is Script {
     AuthorshipToken public authorshipToken;
     Curta public curta;
 
-    constructor(ITokenRenderer _tokenRenderer, IPuzzle _puzzle, address _owner) {
+    constructor(
+        ITokenRenderer _tokenRenderer,
+        IPuzzle _puzzle,
+        address _owner
+    ) {
         tokenRenderer = _tokenRenderer;
         puzzle = _puzzle;
         owner = _owner;
     }
 
-    function run() external {
+    function run() public virtual {
         uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         uint256 curtaKey = vm.envUint("CURTA_PRIVATE_KEY");
         uint256 authorshipTokenKey = vm.envUint("AUTHORSHIP_TOKEN_PRIVATE_KEY");
