@@ -16,7 +16,9 @@ contract DeployTest is DeployBase {
             // Puzzle:
             IPuzzle(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
             // Owner:
-            0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E
+            0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E,
+            // Merkle root:
+            ""
         )
     { }
 

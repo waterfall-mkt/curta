@@ -18,16 +18,19 @@ abstract contract DeployBase is Script {
 
     // Deploy addresses.
     AuthorshipToken public authorshipToken;
+    bytes32 authorshipTokenMerkleRoot;
     Curta public curta;
 
     constructor(
         ITokenRenderer _tokenRenderer,
         IPuzzle _puzzle,
-        address _owner
+        address _owner,
+        bytes32 _authorshipTokenMerkleRoot
     ) {
         tokenRenderer = _tokenRenderer;
         puzzle = _puzzle;
         owner = _owner;
+        authorshipTokenMerkleRoot = _authorshipTokenMerkleRoot;
     }
 
     function run() public virtual {
@@ -56,8 +59,7 @@ abstract contract DeployBase is Script {
         authorshipToken = new AuthorshipToken(
             // Curta contract address:
             curtaAddress,
-            // Merkle root (TODO: replace with actual merkle root):
-            ""
+            authorshipTokenMerkleRoot
         );
         console.log("Authorship Token Address: ", address(authorshipToken));
         // authorshipToken.transferOwnership(owner);
