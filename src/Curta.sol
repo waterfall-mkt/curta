@@ -80,7 +80,7 @@ contract Curta is ICurta, FlagsERC721 {
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
-    /// @param _baseRenderer The address of the fallback s renderer
+    /// @param _baseRenderer The address of the fallback token renderer
     /// contract.
     constructor(ITokenRenderer _baseRenderer, AuthorshipToken _authorshipToken)
         FlagsERC721("Curta", "CTF")
