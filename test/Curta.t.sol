@@ -53,6 +53,9 @@ contract CurtaTest is BaseTest {
     /// @param phase The phase in which the puzzle was solved.
     event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
 
+    /// @dev Copied from EIP-721.
+    event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+
     // -------------------------------------------------------------------------
     // Initialization
     // -------------------------------------------------------------------------
@@ -615,6 +618,8 @@ contract CurtaTest is BaseTest {
         _deployAndAddPuzzle(address(0xBEEF));
         vm.warp(block.timestamp + 1 days);
         _solveMockPuzzle({_puzzleId: 1, _as: address(0xC0FFEE)});
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xBEEF), 0);
         curta.setFermat(1);
 
         assertEq(curta.ownerOf(0), address(0xBEEF));
@@ -685,6 +690,8 @@ contract CurtaTest is BaseTest {
 
         // Although puzzle #2 took less time to solve, puzzle #1 was not set
         // Fermat, so puzzle #2 should be eligible for Fermat.
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xC0FFEE), 0);
         curta.setFermat(2);
 
         // `0xC0FFEE` should own token #0.
@@ -697,6 +704,10 @@ contract CurtaTest is BaseTest {
         }
 
         // Puzzle #1 should also be eligible for Fermat.
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0xC0FFEE), address(0), 0);
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xBEEF), 0);
         curta.setFermat(1);
 
         // Should have been transferred from `0xC0FFEE` to `0xBEEF`.
@@ -723,7 +734,7 @@ contract CurtaTest is BaseTest {
         vm.warp(start + 2 days);
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
-        // Add puzzle as ID #2 from `0xC0FEE`, and solve it 1 day later.
+        // Add puzzle as ID #2 from `0xC0FFEE`, and solve it 1 day later.
         vm.warp(start);
         _deployAndAddPuzzle(address(0xC0FFEE));
         vm.warp(start + 1 days);
@@ -731,6 +742,8 @@ contract CurtaTest is BaseTest {
 
         // Although puzzle #2 took less time to solve, puzzle #1 was not set
         // Fermat, so puzzle #2 should be eligible for Fermat.
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xC0FFEE), 0);
         curta.setFermat(2);
 
         vm.prank(address(0xC0FFEE));
@@ -744,6 +757,10 @@ contract CurtaTest is BaseTest {
         assertEq(curta.balanceOf(_to), _to == address(this) ? 3 : 1);
 
         // Puzzle #1 should still be eligible for Fermat.
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(_to), address(0), 0);
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xBEEF), 0);
         curta.setFermat(1);
 
         // Should have been transferred from `_to` to `0xBEEF`.
