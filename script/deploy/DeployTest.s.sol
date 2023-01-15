@@ -22,6 +22,7 @@ contract DeployTest is DeployBase {
 
     /// @notice See description for {DeployTest}.
     function run() public override {
+        // Read private key from the environment.
         uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
 
         // ---------------------------------------------------------------------
