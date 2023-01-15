@@ -15,13 +15,13 @@ import { LibRLP } from "@/utils/LibRLP.sol";
 /// other's initialization values (e.g. the `Curta` deploy will be initialized
 /// with with the `AuthorshipToken` and `BaseRenderer` deploys, etc.).
 /// @dev The script requires 3 private keys: `DEPLOYER_PRIVATE_KEY`,
-/// `AUTHORSHIP_TOKEN_PRIVATE_KEY` and `CURTA_DEPLOYER_PRIVATE_KEY`, which are
-/// all read as environment variables via `vm.envUint`. The account specified
-/// by `DEPLOYER_PRIVATE_KEY` will fund the other 2 accounts 0.25 ETH each for
-/// gas. Note that if accounts specified by `AUTHORSHIP_TOKEN_PRIVATE_KEY or
-/// `CURTA_DEPLOYER_PRIVATE_KEY` have a nonzero account nonce or are equal,
-/// the script will most likely fail due to incorrect contract address
-/// precomputation (the script assumes each account has a nonce of 0).
+/// `AUTHORSHIP_TOKEN_PRIVATE_KEY` and `CURTA_PRIVATE_KEY`, which are all read
+/// as environment variables via `vm.envUint`. The account specified by
+/// `DEPLOYER_PRIVATE_KEY` will fund the other 2 accounts 0.25 ETH each for gas.
+/// Note that if accounts specified by `AUTHORSHIP_TOKEN_PRIVATE_KEY` or
+/// `CURTA_PRIVATE_KEY` have a nonzero account nonce or are equal, the script
+/// will most likely fail due to incorrect contract address precomputation
+/// (the script assumes each account has a nonce of 0).
 abstract contract DeployBase is Script {
     // -------------------------------------------------------------------------
     // Environment specific variables
@@ -95,8 +95,8 @@ abstract contract DeployBase is Script {
         baseRenderer = new BaseRenderer();
 
         // Fund each of the other deployer addresses.
-        payable(curtaDeployerAddress).transfer(0.25 ether);
         payable(authorshipTokenDeployerAddress).transfer(0.25 ether);
+        payable(curtaDeployerAddress).transfer(0.25 ether);
 
         vm.stopBroadcast();
 
