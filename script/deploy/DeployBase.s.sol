@@ -112,6 +112,7 @@ abstract contract DeployBase is Script {
             authorshipTokenMerkleRoot
         );
         console.log("Authorship Token Address: ", address(authorshipToken));
+        // Transfer ownership to `owner`.
         authorshipToken.transferOwnership(owner);
 
         vm.stopBroadcast();
