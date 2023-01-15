@@ -13,3 +13,12 @@ int_types = "long"
 func_attrs_with_params_multiline = false
 quote_style = "double"
 number_underscore = "thousands"
+
+[rpc_endpoints]
+constellation = "${RPC_URL_CONSTELLATION}"
+goerli = "${RPC_URL_GOERLI}"
+mainnet = "${RPC_URL_MAINNET}"
+
+[etherscan]
+goerli = {key = "${ETHERSCAN_KEY}", url = "https://api-goerli.etherscan.io/api"}
+mainnet = {key = "${ETHERSCAN_KEY}"}
