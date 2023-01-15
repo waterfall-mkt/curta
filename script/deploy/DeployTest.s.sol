@@ -11,14 +11,14 @@ import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 
 contract DeployTest is DeployBase {
     constructor()
+        // Token renderer
         DeployBase(
-            // Token renderer:
             ITokenRenderer(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Puzzle:
+            // Puzzle
             IPuzzle(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Owner:
+            // Owner
             0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E,
-            // Merkle root:
+            // Authorship Token Merkle Root
             ""
         )
     { }
@@ -37,5 +37,4 @@ contract DeployTest is DeployBase {
 
         super.run();
     }
-
 }

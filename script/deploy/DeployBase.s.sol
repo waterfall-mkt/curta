@@ -15,10 +15,10 @@ abstract contract DeployBase is Script {
     ITokenRenderer private immutable tokenRenderer;
     IPuzzle private immutable puzzle;
     address private immutable owner;
+    bytes32 private immutable authorshipTokenMerkleRoot;
 
     // Deploy addresses.
     AuthorshipToken public authorshipToken;
-    bytes32 authorshipTokenMerkleRoot;
     Curta public curta;
 
     constructor(
@@ -62,7 +62,7 @@ abstract contract DeployBase is Script {
             authorshipTokenMerkleRoot
         );
         console.log("Authorship Token Address: ", address(authorshipToken));
-        // authorshipToken.transferOwnership(owner);
+        authorshipToken.transferOwnership(owner);
 
         vm.stopBroadcast();
 

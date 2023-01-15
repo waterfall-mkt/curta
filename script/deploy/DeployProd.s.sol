@@ -7,15 +7,15 @@ import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 
 contract DeployMainnet is DeployBase {
     constructor()
-        // Token renderer:
+        // Token renderer
         DeployBase(
             ITokenRenderer(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Puzzle:
+            // Puzzle
             IPuzzle(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Owner:
+            // Owner
             0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E,
-            // Merkle root:
-            "To be filled in later."
+            // Authorship Token Merkle Root
+            ""
         )
     { }
 }
