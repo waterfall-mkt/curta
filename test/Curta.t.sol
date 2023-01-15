@@ -32,6 +32,12 @@ contract CurtaTest is BaseTest {
     // Events
     // -------------------------------------------------------------------------
 
+    /// @dev Copied from EIP-721.
+    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
+
+    /// @dev Copied from EIP-721.
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
     /// @notice Emitted when a puzzle is added.
     /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
@@ -52,6 +58,9 @@ contract CurtaTest is BaseTest {
     /// @param solution The solution.
     /// @param phase The phase in which the puzzle was solved.
     event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
+
+    /// @dev Copied from EIP-721.
+    event Transfer(address indexed from, address indexed to, uint256 indexed id);
 
     // -------------------------------------------------------------------------
     // Initialization
@@ -223,6 +232,20 @@ contract CurtaTest is BaseTest {
         // The first solve timestamp is set to `_timestamp`.
         (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
         assertEq(firstSolveTimestamp, _timestamp);
+    }
+
+    /// @notice Test that a token can not be minted to `address(0)`.
+    /// @dev This case will never happen as long as `authorshipToken` and
+    /// `curta` correctly initialize each other's addresses at deploy, but we
+    /// test for it anyway.
+    function test_solve_FirstBloodAuthorshipTokenMint() public {
+        _deployAndAddPuzzle(address(this));
+
+        uint256 solution = mockPuzzle.getSolution(address(0));
+
+        vm.prank(address(0));
+        vm.expectRevert("INVALID_RECIPIENT");
+        curta.solve(1, solution);
     }
 
     /// @notice Test that the first solve timestamp is not set on any secondary
@@ -772,6 +795,221 @@ contract CurtaTest is BaseTest {
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
         curta.tokenURI((1 << 128) | 0);
+    }
+
+    // -------------------------------------------------------------------------
+    // Remaining `FlagsERC721` functions
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that querying the balance of `address(0)` reverts.
+    function test_balanceOf_ZeroAddress() public {
+        vm.expectRevert("ZERO_ADDRESS");
+        curta.balanceOf(address(0));
+    }
+
+    /// @notice Test that sender must own the token to approve a token.
+    function test_approve_SenderIsNotOwner() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        vm.prank(address(0xBEEF));
+        vm.expectRevert("NOT_AUTHORIZED");
+        curta.approve(address(0xBEEF), (1 << 128) | 0);
+    }
+
+    /// @notice Test that sender can approve a token if they have been granted
+    /// permissions to set approval for all tokens.
+    function test_approve_WithApprovalForAllTrue() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        uint256 tokenId = (1 << 128) | 0;
+
+        curta.setApprovalForAll(address(0xBEEF), true);
+        vm.prank(address(0xBEEF));
+        curta.approve(address(0xBEEF), tokenId);
+    }
+
+    /// @notice Test events emitted and state changes when approval is set.
+    function test_approve() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        uint256 tokenId = (1 << 128) | 0;
+
+        vm.expectEmit(true, true, true, true);
+        emit Approval(address(this), address(0xBEEF), tokenId);
+        curta.approve(address(0xBEEF), tokenId);
+        assertEq(curta.getApproved(tokenId), address(0xBEEF));
+    }
+
+    /// @notice Test events emitted and state changes when approval for all is
+    /// set to false.
+    function test_setApprovalForAll_False() public {
+        vm.expectEmit(true, true, true, true);
+        emit ApprovalForAll(address(this), address(0xBEEF), false);
+        curta.setApprovalForAll(address(0xBEEF), false);
+        assertTrue(!curta.isApprovedForAll(address(this), address(0xBEEF)));
+    }
+
+    /// @notice Test events emitted and state changes when approval for all is
+    /// set to true.
+    function test_setApprovalForAll_True() public {
+        vm.expectEmit(true, true, true, true);
+        emit ApprovalForAll(address(this), address(0xBEEF), true);
+        curta.setApprovalForAll(address(0xBEEF), true);
+        assertTrue(curta.isApprovedForAll(address(this), address(0xBEEF)));
+    }
+
+    /// @notice Test that the address the token is transferred from must own the
+    /// token.
+    function test_transferFrom_WrongFrom() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        vm.expectRevert("WRONG_FROM");
+        curta.transferFrom(address(0xBEEF), address(this), (1 << 128) | 0);
+    }
+
+    /// @notice Test that tokens can not be transferred to the zero address.
+    function test_transferFrom_ToZeroAddress() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        vm.expectRevert("INVALID_RECIPIENT");
+        curta.transferFrom(address(this), address(0), (1 << 128) | 0);
+    }
+
+    /// @notice Test that a token can not be transferred if the sender is not
+    /// authorized in any way.
+    function test_transferFrom_Unauthorized() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        vm.expectRevert("NOT_AUTHORIZED");
+        vm.prank(address(0xBEEF));
+        curta.transferFrom(address(this), address(0xBEEF), (1 << 128) | 0);
+    }
+
+    /// @notice Test that sender can transfer a token if they own it.
+    function test_transferFrom_SenderIsOwner() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        curta.transferFrom(address(this), address(0xBEEF), (1 << 128) | 0);
+    }
+
+    /// @notice Test that sender can transfer a token if they have been granted
+    /// permissions to transfer all tokens.
+    function test_transferFrom_WithApprovalForAllTrue() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        uint256 tokenId = (1 << 128) | 0;
+
+        curta.setApprovalForAll(address(0xBEEF), true);
+        vm.prank(address(0xBEEF));
+        curta.transferFrom(address(this), address(0xBEEF), tokenId);
+    }
+
+    /// @notice Test that sender can transfer a token if they have been granted
+    /// permissions to transfer that token.
+    function test_transferFrom_WithTokenApproval() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        uint256 tokenId = (1 << 128) | 0;
+
+        curta.approve(address(0xBEEF), tokenId);
+        vm.prank(address(0xBEEF));
+        curta.transferFrom(address(this), address(0xBEEF), tokenId);
+    }
+
+    /// @notice Test events emitted and state changes when a token is
+    /// transferred.
+    function test_transferFrom() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        uint256 tokenId = (1 << 128) | 0;
+
+        // Check state prior to transferring the token.
+        {
+            (
+                uint32 phase0Solves,
+                uint32 phase1Solves,
+                uint32 phase2Solves,
+                uint32 solves,
+                uint32 balance
+            ) = curta.getUserBalances(address(this));
+            assertEq(phase0Solves, 1);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 1);
+            assertEq(balance, 1);
+
+            (address owner, uint32 puzzleId, uint40 solveTimestamp) = curta.getTokenData(tokenId);
+            assertEq(owner, address(this));
+            assertEq(puzzleId, 1);
+            assertEq(solveTimestamp, uint40(block.timestamp));
+        }
+        {
+            (
+                uint32 phase0Solves,
+                uint32 phase1Solves,
+                uint32 phase2Solves,
+                uint32 solves,
+                uint32 balance
+            ) = curta.getUserBalances(address(0xBEEF));
+            assertEq(phase0Solves, 0);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 0);
+            assertEq(balance, 0);
+        }
+
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(this), address(0xBEEF), tokenId);
+        curta.transferFrom(address(this), address(0xBEEF), tokenId);
+
+        // Check state after transferring the token.
+        {
+            (
+                uint32 phase0Solves,
+                uint32 phase1Solves,
+                uint32 phase2Solves,
+                uint32 solves,
+                uint32 balance
+            ) = curta.getUserBalances(address(this));
+            assertEq(phase0Solves, 1);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 1);
+            assertEq(balance, 0);
+            assertEq(curta.getApproved(tokenId), address(0));
+        }
+        {
+            (
+                uint32 phase0Solves,
+                uint32 phase1Solves,
+                uint32 phase2Solves,
+                uint32 solves,
+                uint32 balance
+            ) = curta.getUserBalances(address(0xBEEF));
+            assertEq(phase0Solves, 0);
+            assertEq(phase1Solves, 0);
+            assertEq(phase2Solves, 0);
+            assertEq(solves, 0);
+            assertEq(balance, 1);
+
+            (address owner, uint32 puzzleId, uint40 solveTimestamp) = curta.getTokenData(tokenId);
+            assertEq(owner, address(0xBEEF));
+            assertEq(puzzleId, 1);
+            assertEq(solveTimestamp, uint40(block.timestamp));
+        }
+    }
+
+    /// @notice Test that `supportsInterface` returns `true` for the correct
+    /// interface IDs.
+    function test_supportsInterface() public {
+        assertEq(curta.supportsInterface(0x01FFC9A7), true); // ERC165
+        assertEq(curta.supportsInterface(0x80AC58CD), true); // ERC721
+        assertEq(curta.supportsInterface(0x5B5E139F), true); // ERC721Metadata
     }
 
     // -------------------------------------------------------------------------
