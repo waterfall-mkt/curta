@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "../../src/BaseRenderer.sol";
-import "../../src/utils/mock/MockPuzzle.sol";
+import { console } from "forge-std/Test.sol";
+
 import { DeployBase } from "./DeployBase.s.sol";
-import { ITokenRenderer } from "../../src/interfaces/ITokenRenderer.sol";
+import { BaseRenderer } from "@/BaseRenderer.sol";
+import { IPuzzle } from "@/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
+import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 
 contract DeployTest is DeployBase {
     constructor()
-    // Values below are all bogus and not used for testing purposes.
         DeployBase(
             // Token renderer:
             ITokenRenderer(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),

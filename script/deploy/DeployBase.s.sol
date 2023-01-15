@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { Script } from "forge-std/Script.sol";
-import "forge-std/Test.sol";
+import { console } from "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/AuthorshipToken.sol";
 import { Curta } from "@/Curta.sol";
