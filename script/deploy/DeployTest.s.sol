@@ -5,21 +5,15 @@ import { console } from "forge-std/Test.sol";
 
 import { DeployBase } from "./DeployBase.s.sol";
 import { BaseRenderer } from "@/BaseRenderer.sol";
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
 
 contract DeployTest is DeployBase {
     constructor()
-        // Token renderer
+        // Authorship Token Merkle Root
         DeployBase(
-            ITokenRenderer(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Puzzle
-            IPuzzle(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
+            "",
             // Owner
-            0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E,
-            // Authorship Token Merkle Root
-            ""
+            0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E
         )
     { }
 
