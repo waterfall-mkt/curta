@@ -763,7 +763,15 @@ contract CurtaTest is BaseTest {
     /// @notice Test that `tokenURI` reverts for nonexistant tokens.
     function test_tokenURI_UnmintedToken() public {
         vm.expectRevert("NOT_MINTED");
-        authorshipToken.tokenURI(1);
+        curta.tokenURI(1);
+    }
+
+    /// @notice Test that `tokenURI` does not revert for tokens that exist.
+    function test_tokenURI_MintedToken() public {
+        _deployAndAddPuzzle(address(this));
+        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+
+        curta.tokenURI((1 << 128) | 0);
     }
 
     // -------------------------------------------------------------------------
