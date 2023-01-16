@@ -17,12 +17,7 @@ contract DeployTest is DeployBase {
     /// to.
     address constant OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
 
-    constructor()
-        DeployBase(
-            AUTHORSHIP_TOKEN_MERKLE_ROOT,
-            OWNER
-        )
-    { }
+    constructor() DeployBase(AUTHORSHIP_TOKEN_MERKLE_ROOT, OWNER) { }
 
     /// @notice See description for {DeployTest}.
     function run() public override {

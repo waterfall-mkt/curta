@@ -81,10 +81,10 @@ interface ICurta {
         uint40 firstSolveTimestamp;
     }
 
-    /// @notice A struct containing the number of solves a player has.
-    /// @param phase1Solves The total number of Phase 1 solves an account has.
-    /// @param phase2Solves The total number of Phase 2 solves an account has.
-    /// @param solves The total number of solves an account has.
+    /// @notice A struct containing the number of solves a puzzle has.
+    /// @param phase1Solves The total number of Phase 1 solves a puzzle has.
+    /// @param phase2Solves The total number of Phase 2 solves a puzzle has.
+    /// @param solves The total number of solves a puzzle has.
     struct PuzzleSolves {
         uint32 phase1Solves;
         uint32 phase2Solves;
@@ -138,9 +138,9 @@ interface ICurta {
     function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
     /// @param _puzzleId The ID of a puzzle.
-    /// @return phase1Solves The total number of Phase 1 solves an account has.
-    /// @return phase2Solves The total number of Phase 2 solves an account has.
-    /// @return solves The total number of solves an account has.
+    /// @return phase1Solves The total number of Phase 1 solves a puzzle has.
+    /// @return phase2Solves The total number of Phase 2 solves a puzzle has.
+    /// @return solves The total number of solves a puzzle has.
     function getPuzzleSolves(uint32 _puzzleId)
         external
         view

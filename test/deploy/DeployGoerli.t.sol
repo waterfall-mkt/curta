@@ -34,12 +34,9 @@ contract DeployGoerliTest is Test {
     /// @notice Test that the addresses were set correctly in each contract's
     /// deploy.
     function test_AddressInitializationCorrectness() public {
+        assertEq(address(deployGoerli.curta().baseRenderer()), address(deployGoerli.baseRenderer()));
         assertEq(
-            address(deployGoerli.curta().baseRenderer()), address(deployGoerli.baseRenderer())
-        );
-        assertEq(
-            address(deployGoerli.curta().authorshipToken()),
-            address(deployGoerli.authorshipToken())
+            address(deployGoerli.curta().authorshipToken()), address(deployGoerli.authorshipToken())
         );
         assertEq(deployGoerli.authorshipToken().curta(), address(deployGoerli.curta()));
     }

@@ -35,19 +35,23 @@ contract DeployConstellationTest is Test {
     /// deploy.
     function test_AddressInitializationCorrectness() public {
         assertEq(
-            address(deployConstellation.curta().baseRenderer()), address(deployConstellation.baseRenderer())
+            address(deployConstellation.curta().baseRenderer()),
+            address(deployConstellation.baseRenderer())
         );
         assertEq(
             address(deployConstellation.curta().authorshipToken()),
             address(deployConstellation.authorshipToken())
         );
-        assertEq(deployConstellation.authorshipToken().curta(), address(deployConstellation.curta()));
+        assertEq(
+            deployConstellation.authorshipToken().curta(), address(deployConstellation.curta())
+        );
     }
 
     /// @notice Test that Authorship Token's merkle root was set correctly.
     function test_authorshipTokenMerkleRootEquality() public {
         assertEq(
-            deployConstellation.authorshipToken().merkleRoot(), deployConstellation.authorshipTokenMerkleRoot()
+            deployConstellation.authorshipToken().merkleRoot(),
+            deployConstellation.authorshipTokenMerkleRoot()
         );
     }
 

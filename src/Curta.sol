@@ -29,14 +29,14 @@ contract Curta is ICurta, FlagsERC721 {
     // Constants
     // -------------------------------------------------------------------------
 
-    /// @notice The length of ``Phase 1'' in seconds.
+    /// @notice The length of Phase 1 in seconds.
     uint256 constant PHASE_ONE_LENGTH = 2 days;
 
-    /// @notice The length of ``Phase 1'' and ``Phase 2'' combined (i.e. the solving
+    /// @notice The length of Phase 1 and Phase 2 combined (i.e. the solving
     /// period) in seconds.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during ``Phase 2.''
+    /// @notice The fee required to submit a solution during Phase 2.
     uint256 constant PHASE_TWO_FEE = 0.01 ether;
 
     // -------------------------------------------------------------------------
@@ -138,8 +138,8 @@ contract Curta is ICurta, FlagsERC721 {
             if (phase == 1) {
                 ++getPuzzleSolves[_puzzleId].phase1Solves;
             } else if (phase == 2) {
-                // Revert if the puzzle is in ``Phase 2,'' and insufficient
-                // funds were sent.
+                // Revert if the puzzle is in Phase 2, and insufficient funds
+                // were sent.
                 if (msg.value < PHASE_TWO_FEE) revert InsufficientFunds();
                 ++getPuzzleSolves[_puzzleId].phase2Solves;
             }

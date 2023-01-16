@@ -34,12 +34,9 @@ abstract contract FlagsERC721 {
         uint40 solveTimestamp;
     }
 
-    /// @param phase0Solves The number of puzzles someone solved during
-    /// ``Phase 0.''
-    /// @param phase1Solves The number of puzzles someone solved during
-    /// ``Phase 1.''
-    /// @param phase2Solves The number of puzzles someone solved during
-    /// ``Phase 2.''
+    /// @param phase0Solves The number of puzzles someone solved during Phase 0.
+    /// @param phase1Solves The number of puzzles someone solved during Phase 1.
+    /// @param phase2Solves The number of puzzles someone solved during Phase 2.
     /// @param solves The total number of solves someone has.
     /// @param balance The number of tokens someone owns.
     struct UserBalance {
@@ -98,8 +95,12 @@ abstract contract FlagsERC721 {
 
         unchecked {
             ++getUserBalances[_to].balance;
+
+            // `_mint` is only called when a puzzle is solved, so we can safely
+            // increment the solve count.
             ++getUserBalances[_to].solves;
 
+            // Same logic as the previous comment here.
             if (_phase == 0) ++getUserBalances[_to].phase0Solves;
             else if (_phase == 1) ++getUserBalances[_to].phase1Solves;
             else ++getUserBalances[_to].phase2Solves;
@@ -108,6 +109,7 @@ abstract contract FlagsERC721 {
         getTokenData[_id] =
             TokenData({owner: _to, puzzleId: _puzzleId, solveTimestamp: uint40(block.timestamp)});
 
+        // Emit event.
         emit Transfer(address(0), _to, _id);
     }
 
