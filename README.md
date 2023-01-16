@@ -27,6 +27,20 @@ To run tests, run the following command:
 forge test
 ```
 
+### Coverage
+To view coverage, run the following command:
+```sh
+forge coverage
+```
+
+To generate a report, run the following command:
+```sh
+forge coverage --report lcov
+```
+
+> **Note**
+> It may be helpful to use an extension like [**Coverage Gutters**](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) to display the coverage over the code.
+
 ### Deploying
 #### 1. Set environment variables
 Create a file named `.env` at the root of the project and copy the contents of `.env.example` into it. Then, fill out each of the variables:
