@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
+
 import { AuthorshipToken } from "./AuthorshipToken.sol";
 import { FlagsERC721 } from "./FlagsERC721.sol";
 import { ICurta } from "@/interfaces/ICurta.sol";
@@ -43,10 +44,10 @@ contract Curta is ICurta, FlagsERC721 {
     // -------------------------------------------------------------------------
 
     /// @inheritdoc ICurta
-    ITokenRenderer public immutable override baseRenderer;
+    AuthorshipToken public immutable override authorshipToken;
 
     /// @inheritdoc ICurta
-    AuthorshipToken public immutable override authorshipToken;
+    ITokenRenderer public immutable override baseRenderer;
 
     // -------------------------------------------------------------------------
     // Storage
@@ -80,13 +81,14 @@ contract Curta is ICurta, FlagsERC721 {
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
+    /// @param _authorshipToken The address of the Authorship Token contract.
     /// @param _baseRenderer The address of the fallback token renderer
     /// contract.
-    constructor(ITokenRenderer _baseRenderer, AuthorshipToken _authorshipToken)
+    constructor(AuthorshipToken _authorshipToken, ITokenRenderer _baseRenderer)
         FlagsERC721("Curta", "CTF")
     {
-        baseRenderer = _baseRenderer;
         authorshipToken = _authorshipToken;
+        baseRenderer = _baseRenderer;
     }
 
     /// @inheritdoc ICurta

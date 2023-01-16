@@ -125,8 +125,8 @@ abstract contract DeployBase is Script {
 
         // Deploy Curta contract,
         curta = new Curta(
-            ITokenRenderer(baseRenderer),
-            authorshipToken
+            authorshipToken,
+            ITokenRenderer(baseRenderer)
         );
         console.log("Curta Address: ", address(curta));
 
