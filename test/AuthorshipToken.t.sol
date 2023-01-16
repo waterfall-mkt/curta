@@ -2,7 +2,7 @@
 pragma solidity ^0.8.17;
 
 import { BaseTest } from "./utils/BaseTest.sol";
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
 /// @notice Unit tests for `AuthorshipToken`, organized by functions.
 /// @author fiveoutofnine

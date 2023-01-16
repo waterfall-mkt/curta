@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
+import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
 
 /// @title MockPuzzle
 /// @author proofofbeef

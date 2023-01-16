@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import { IPuzzle } from "./IPuzzle.sol";
 import { ITokenRenderer } from "./ITokenRenderer.sol";
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
 interface ICurta {
     // -------------------------------------------------------------------------

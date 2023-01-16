@@ -6,8 +6,8 @@ import { ERC721 } from "solmate/tokens/ERC721.sol";
 import { LibString } from "solmate/utils/LibString.sol";
 import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
 
-import { ICurta } from "@/interfaces/ICurta.sol";
-import { Base64 } from "@/utils/Base64.sol";
+import { ICurta } from "@/contracts/interfaces/ICurta.sol";
+import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title AuthorshipToken
 contract AuthorshipToken is ERC721, Owned {

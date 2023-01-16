@@ -4,11 +4,11 @@ pragma solidity ^0.8.17;
 import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/Test.sol";
 
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
-import { BaseRenderer } from "@/BaseRenderer.sol";
-import { Curta } from "@/Curta.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { LibRLP } from "@/utils/LibRLP.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
+import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
+import { Curta } from "@/contracts/Curta.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A script to deploy 1 instance each of `AuthorshipToken`,
 /// `BaseRenderer`, and `Curta`. Each of these deploys will be used as each

@@ -2,11 +2,11 @@
 pragma solidity ^0.8.17;
 
 import { BaseTest } from "./utils/BaseTest.sol";
-import { BaseRenderer } from "@/BaseRenderer.sol";
-import { ICurta } from "@/interfaces/ICurta.sol";
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
+import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
+import { ICurta } from "@/contracts/interfaces/ICurta.sol";
+import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 
 /// @notice Unit tests for `CurtaTest`, organized by functions.
 /// @author fiveoutofnine

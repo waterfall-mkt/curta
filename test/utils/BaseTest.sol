@@ -3,13 +3,13 @@ pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
 
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
-import { BaseRenderer } from "@/BaseRenderer.sol";
-import { Curta } from "@/Curta.sol";
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
-import { LibRLP } from "@/utils/LibRLP.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
+import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
+import { Curta } from "@/contracts/Curta.sol";
+import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
+import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A base test contract for Curta. In `setUp`, it deploys an instance
 /// of `AuthorshipToken` and `Curta`. Additionally, it funds 2 addresses
