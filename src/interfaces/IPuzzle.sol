@@ -1,8 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-/// @title IPuzzle
-/// @author fiveoutofnine
+/// @title The interface for a puzzle on Curta
+/// @notice The goal of players is to view the source code of the puzzle (may
+/// range from just the bytecode to Solidity—whatever the author wishes to
+/// provide), interpret the code, solve it as if it was a regular puzzle, then
+/// verify the solution on-chain.
+/// @dev Since puzzles are on-chain, everyone can view everyone else's
+/// submissions. The generative aspect prevents front-running and allows for
+/// multiple winners: even if players view someone else's solution, they still
+/// have to figure out what the rules/constraints of the puzzle are and apply
+/// the solution to their respective starting position.
 interface IPuzzle {
     /// @notice Returns the puzzle's name.
     /// @return The puzzle's name.
