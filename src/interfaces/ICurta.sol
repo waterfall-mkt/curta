@@ -76,8 +76,8 @@ interface ICurta {
     }
 
     /// @notice A struct containing the number of solves a puzzle has.
-    /// @param phase1Solves The total number of phase 1 solves for each puzzle.
-    /// @param phase2Solves The total number of phase 2 solves for each puzzle.
+    /// @param phase1Solves The total number of Phase 1 solves for each puzzle.
+    /// @param phase2Solves The total number of Phase 2 solves for each puzzle.
     /// @param solves The total number of solves for each puzzle.
     struct PuzzleSolves {
         uint32 phase1Solves;
@@ -133,8 +133,8 @@ interface ICurta {
 
     /// @notice Returns the number of solves for a puzzle in each phase.
     /// @param _puzzleId The ID of a puzzle.
-    /// @return phase1Solves The total number of phase 1 solves for each puzzle.
-    /// @return phase2Solves The total number of phase 2 solves for each puzzle.
+    /// @return phase1Solves The total number of Phase 1 solves for each puzzle.
+    /// @return phase2Solves The total number of Phase 2 solves for each puzzle.
     /// @return solves The total number of solves for each puzzle.
     function getPuzzleSolves(uint32 _puzzleId)
         external

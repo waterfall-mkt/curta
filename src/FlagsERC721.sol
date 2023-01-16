@@ -73,12 +73,9 @@ abstract contract FlagsERC721 {
     }
 
     function _mint(address _to, uint256 _id, uint32 _puzzleId, uint8 _phase) internal {
-        require(_to != address(0), "INVALID_RECIPIENT");
-
-        require(getTokenData[_id].owner == address(0), "ALREADY_MINTED");
-
-        getTokenData[_id] =
-            TokenData({owner: _to, puzzleId: _puzzleId, solveTimestamp: uint40(block.timestamp)});
+        // We do not check whether the `_to` is `address(0)` or that the token
+        // was previously minted because {Curta} ensures these conditions are
+        // never true.
 
         unchecked {
             ++getUserBalances[_to].balance;
@@ -88,6 +85,9 @@ abstract contract FlagsERC721 {
             else if (_phase == 1) ++getUserBalances[_to].phase1Solves;
             else ++getUserBalances[_to].phase2Solves;
         }
+
+        getTokenData[_id] =
+            TokenData({owner: _to, puzzleId: _puzzleId, solveTimestamp: uint40(block.timestamp)});
 
         emit Transfer(address(0), _to, _id);
     }
@@ -152,6 +152,19 @@ abstract contract FlagsERC721 {
         require(
             _to.code.length == 0
                 || ERC721TokenReceiver(_to).onERC721Received(msg.sender, _from, _id, "")
+                    == ERC721TokenReceiver.onERC721Received.selector,
+            "UNSAFE_RECIPIENT"
+        );
+    }
+
+    function safeTransferFrom(address _from, address _to, uint256 _id, bytes calldata _data)
+        external
+    {
+        transferFrom(_from, _to, _id);
+
+        require(
+            _to.code.length == 0
+                || ERC721TokenReceiver(_to).onERC721Received(msg.sender, _from, _id, _data)
                     == ERC721TokenReceiver.onERC721Received.selector,
             "UNSAFE_RECIPIENT"
         );

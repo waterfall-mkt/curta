@@ -1,18 +1,16 @@
-name: CI
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+name: tests
 
-env:
-  FOUNDRY_PROFILE: ci
+on: [push, pull_request]
 
 jobs:
-  run-ci:
+  check:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
+
+      - name: Copy env vars
+        run: cp .env.example .env
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
@@ -26,4 +24,4 @@ jobs:
         run: forge snapshot --check
 
       - name: Run tests
-        run: forge test
+        run: forge test -vvv

@@ -49,7 +49,7 @@ contract BaseTest is Test {
         authorshipToken = new AuthorshipToken(curtaAddress, "");
 
         // Transaction #3.
-        curta = new Curta(ITokenRenderer(address(tokenRenderer)), authorshipToken);
+        curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);
