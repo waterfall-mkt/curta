@@ -2,9 +2,6 @@ name: tests
 
 on: [push, pull_request]
 
-env:
-  FOUNDRY_PROFILE: ci
-
 jobs:
   check:
     runs-on: ubuntu-latest
