@@ -29,7 +29,7 @@ contract AuthorshipTokenTest is BaseTest {
 
     /// @notice Test that `curtaMint` must be called by `curta`.
     /// @param _sender The address to call `curtaMint` from.
-    function testUnauthorizedCurtaMint(address _sender) public {
+    function test_curtaMint_SenderIsNotCurta_RevertsUnauthorized(address _sender) public {
         vm.assume(_sender != address(authorshipToken.curta()));
 
         // Try to mint a token to `0xBEEF` as a sender that is not `curta`.
@@ -39,12 +39,14 @@ contract AuthorshipTokenTest is BaseTest {
     }
 
     /// @notice Test that `curtaMint` mints a token to the specified address.
-    function testCurtaMint() public {
+    function test_curtaMint() public {
         // `0xBEEF` should have no tokens before minting.
         assertEq(authorshipToken.balanceOf(address(0xBEEF)), 0);
         assertEq(authorshipToken.totalSupply(), 0);
 
         // Mint a token to `0xBEEF` as `curta`.
+        vm.expectEmit(true, true, true, true);
+        emit Transfer(address(0), address(0xBEEF), 1);
         vm.prank(address(authorshipToken.curta()));
         authorshipToken.curtaMint(address(0xBEEF));
 
@@ -61,10 +63,11 @@ contract AuthorshipTokenTest is BaseTest {
 
     /// @notice Test that `ownerMint` must be called by the owner.
     /// @param _sender The address to call `ownerMint` from.
-    function testUnauthorizedOwnerMint(address _sender) public {
+    function test_ownerMint_SenderIsNotOwner_RevertUnauthorized(address _sender) public {
         vm.assume(_sender != authorshipToken.owner());
 
-        vm.warp(block.timestamp + 1 days);
+        // Warp to a timestamp after at least 1 token has been issued.
+        vm.warp(block.timestamp + ISSUE_LENGTH);
 
         // Try to mint a token to `0xBEEF` as a sender that is not the owner.
         vm.expectRevert("UNAUTHORIZED");
@@ -74,7 +77,7 @@ contract AuthorshipTokenTest is BaseTest {
 
     /// @notice Test that the owner of the contract can mint tokens via
     /// `ownerMint`.
-    function testOwnerCanOwnerMint() public {
+    function test_ownerMint_SenderIsOwner_AllowsMint() public {
         vm.warp(block.timestamp + ISSUE_LENGTH);
 
         // `0xBEEF` should have no tokens before minting.
@@ -96,7 +99,7 @@ contract AuthorshipTokenTest is BaseTest {
     /// warping forward by `_warpLength` 1000 times and testing whether to
     /// expect a revert or minting all possible amounts.
     /// @param _warpLength The length of time (in seconds) to warp forward by.
-    function testOwnerMintIssuance(uint256 _warpLength) public {
+    function test_ownerMint_FuzzMintTimestamps_IssuesTokensCorrectly(uint256 _warpLength) public {
         vm.assume(_warpLength >= 1000 && _warpLength <= 2 days);
 
         uint256 deployTimestamp = authorshipToken.deployTimestamp();
@@ -140,9 +143,17 @@ contract AuthorshipTokenTest is BaseTest {
     // `tokenURI`
     // -------------------------------------------------------------------------
 
-    /// @notice Test that `tokenURI` reverts for nonexistent tokens.
-    function test_tokenURI_UnmintedToken() public {
+    /// @notice Test that `tokenURI` reverts for nonexistant tokens.
+    function test_tokenURI_UnmintedToken_Fails() public {
         vm.expectRevert("NOT_MINTED");
+        authorshipToken.tokenURI(1);
+    }
+
+    /// @notice Test that `tokenURI` does not revert for tokens that exist.
+    function test_tokenURI_MintedToken_Succeeds() public {
+        vm.prank(address(authorshipToken.curta()));
+        authorshipToken.curtaMint(address(this));
+
         authorshipToken.tokenURI(1);
     }
 }

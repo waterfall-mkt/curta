@@ -143,7 +143,7 @@ contract AuthorshipToken is ERC721, Owned {
 
     /// @inheritdoc ERC721
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
-        require(ownerOf(_tokenId) != address(0), "NOT_MINTED");
+        require(_ownerOf[_tokenId] != address(0), "NOT_MINTED");
 
         return string.concat(
             "data:application/json;base64,",
