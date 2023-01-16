@@ -22,18 +22,18 @@ import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 /// `CURTA_PRIVATE_KEY` have a nonzero account nonce or are equal, the script
 /// will most likely fail due to incorrect contract address precomputation
 /// (the script assumes each account has a nonce of 0).
-abstract contract DeployBase is Script {
+contract DeployBase is Script {
     // -------------------------------------------------------------------------
     // Environment specific variables
     // -------------------------------------------------------------------------
 
     /// @notice The merkle root of the addresses in the initial Authorship
     /// Token's mintlist.
-    bytes32 private immutable authorshipTokenMerkleRoot;
+    bytes32 public immutable authorshipTokenMerkleRoot;
 
     /// @notice The address to transfer the Authorship Token's ownership to
     /// immediately after deploy.
-    address private immutable owner;
+    address public immutable owner;
 
     // -------------------------------------------------------------------------
     // Deploy addresses
