@@ -1,4 +1,4 @@
-name: CI
+name: tests
 
 on: [push, pull_request]
 
@@ -6,14 +6,14 @@ env:
   FOUNDRY_PROFILE: ci
 
 jobs:
-  run-ci:
-    strategy:
-      fail-fast: true
-
+  check:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Copy env vars
+        run: cp .env.example .env
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
