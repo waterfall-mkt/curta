@@ -7,6 +7,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { DeployGoerli } from "@/script/deploy/DeployGoerli.s.sol";
 
+/// @notice Tests the Goerli deploy script.
 contract DeployGoerliTest is Test {
     // -------------------------------------------------------------------------
     // Contracts

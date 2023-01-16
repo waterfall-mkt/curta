@@ -7,6 +7,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { DeployConstellation } from "@/script/deploy/DeployConstellation.s.sol";
 
+/// @notice Tests the Constellation chain deploy script.
 contract DeployConstellationTest is Test {
     // -------------------------------------------------------------------------
     // Contracts

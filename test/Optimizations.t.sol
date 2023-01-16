@@ -3,13 +3,12 @@ pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
 
+/// @notice Various tests to test the correctness of obscure/esoteric
+/// optimizations.
 contract OptimizationsTest is Test {
-    /// @notice The length of "Phase 1" in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant PHASE_ONE_LENGTH = 2 days;
 
-    /// @notice The length of "Phase 1" and "Phase 2" combined (i.e. the solving
-    /// period) in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 

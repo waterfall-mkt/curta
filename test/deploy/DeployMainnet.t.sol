@@ -7,6 +7,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { DeployMainnet } from "@/script/deploy/DeployMainnet.s.sol";
 
+/// @notice Tests the mainnet deploy script.
 contract DeployMainnetTest is Test {
     // -------------------------------------------------------------------------
     // Contracts

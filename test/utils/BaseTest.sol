@@ -13,8 +13,8 @@ import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A base test contract for Curta. In `setUp`, it deploys an instance
 /// of `AuthorshipToken` and `Curta`. Additionally, it funds 2 addresses
-/// `0xBEEF` and `0xC0FFEE` with 1000 ether for testing. It also contains a few
-/// helper functions.
+/// `0xBEEF` and `0xC0FFEE` with 1000 ether each for testing. It also contains a
+/// few commonly used helper functions.
 contract BaseTest is Test {
     // -------------------------------------------------------------------------
     // Contracts

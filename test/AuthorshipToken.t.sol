@@ -5,7 +5,6 @@ import { BaseTest } from "./utils/BaseTest.sol";
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
 /// @notice Unit tests for `AuthorshipToken`, organized by functions.
-/// @author fiveoutofnine
 contract AuthorshipTokenTest is BaseTest {
     // -------------------------------------------------------------------------
     // Constants
