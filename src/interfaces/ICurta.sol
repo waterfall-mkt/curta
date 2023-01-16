@@ -82,10 +82,12 @@ interface ICurta {
     }
 
     /// @notice A struct containing the number of solves a puzzle has.
+    /// @param phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @param phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @param phase2Solves The total number of Phase 2 solves a puzzle has.
     /// @param solves The total number of solves a puzzle has.
     struct PuzzleSolves {
+        uint32 phase0Solves;
         uint32 phase1Solves;
         uint32 phase2Solves;
         uint32 solves;
@@ -138,13 +140,14 @@ interface ICurta {
     function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
     /// @param _puzzleId The ID of a puzzle.
+    /// @return phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @return phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @return phase2Solves The total number of Phase 2 solves a puzzle has.
     /// @return solves The total number of solves a puzzle has.
     function getPuzzleSolves(uint32 _puzzleId)
         external
         view
-        returns (uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
+        returns (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
 
     /// @param _puzzleId The ID of a puzzle.
     /// @return puzzle The address of the puzzle.

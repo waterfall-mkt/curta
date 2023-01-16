@@ -14,16 +14,16 @@ contract CurtaTest is BaseTest {
     // Constants
     // -------------------------------------------------------------------------
 
-    /// @notice The length of ``Phase 1'' in seconds.
+    /// @notice The length of Phase 1 in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant PHASE_ONE_LENGTH = 2 days;
 
-    /// @notice The length of ``Phase 1'' and ``Phase 2'' combined (i.e. the
-    /// solving period) in seconds.
+    /// @notice The length of Phase 1 and Phase 2 combined (i.e. the solving
+    /// period) in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during ``Phase 2.''
+    /// @notice The fee required to submit a solution during Phase 2.
     /// @dev Copied from {Curta}.
     uint256 constant PHASE_TWO_FEE = 0.01 ether;
 
@@ -324,7 +324,9 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         curta.solve(1, mockPuzzle.getSolution(address(this)));
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
             assertEq(solves, 1);
@@ -335,7 +337,9 @@ contract CurtaTest is BaseTest {
         vm.prank(address(0xBEEF));
         curta.solve(1, beefSolution);
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 0);
             assertEq(solves, 2);
@@ -348,7 +352,9 @@ contract CurtaTest is BaseTest {
         vm.prank(address(0xC0FFEE));
         curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 1);
             assertEq(solves, 3);
@@ -454,7 +460,9 @@ contract CurtaTest is BaseTest {
 
         // `address(this)` has not solved the puzzle yet.
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 0);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
             assertEq(solves, 0);
@@ -480,7 +488,9 @@ contract CurtaTest is BaseTest {
         curta.solve(1, solution);
 
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
             assertEq(solves, 1);
@@ -517,7 +527,9 @@ contract CurtaTest is BaseTest {
         curta.solve(1, beefSolution);
 
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 0);
             assertEq(solves, 2);
@@ -555,7 +567,9 @@ contract CurtaTest is BaseTest {
         curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
 
         {
-            (uint32 phase1Solves, uint32 phase2Solves, uint32 solves) = curta.getPuzzleSolves(1);
+            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleSolves(1);
+            assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 1);
             assertEq(solves, 3);
