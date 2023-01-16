@@ -812,7 +812,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test that sender must own the token to approve a token.
-    function test_approve_SenderIsNotOwner() public {
+    function test_approve_SenderIsNotOwner_RevertsUnauthorized() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
@@ -823,7 +823,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that sender can approve a token if they have been granted
     /// permissions to set approval for all tokens.
-    function test_approve_WithApprovalForAllTrue() public {
+    function test_approve_WithApprovalForAllTrue_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
         uint256 tokenId = (1 << 128) | 0;
@@ -847,7 +847,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test events emitted and state changes when approval for all is
     /// set to false.
-    function test_setApprovalForAll_False() public {
+    function test_setApprovalForAll_False_UpdatesStorage() public {
         vm.expectEmit(true, true, true, true);
         emit ApprovalForAll(address(this), address(0xBEEF), false);
         curta.setApprovalForAll(address(0xBEEF), false);
@@ -856,7 +856,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test events emitted and state changes when approval for all is
     /// set to true.
-    function test_setApprovalForAll_True() public {
+    function test_setApprovalForAll_True_UpdatesStorage() public {
         vm.expectEmit(true, true, true, true);
         emit ApprovalForAll(address(this), address(0xBEEF), true);
         curta.setApprovalForAll(address(0xBEEF), true);
@@ -865,7 +865,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that the address the token is transferred from must own the
     /// token.
-    function test_transferFrom_WrongFrom() public {
+    function test_transferFrom_WrongFrom_Fails() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
@@ -874,7 +874,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test that tokens can not be transferred to the zero address.
-    function test_transferFrom_ToZeroAddress() public {
+    function test_transferFrom_ToZeroAddress_Fails() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
@@ -884,7 +884,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that a token can not be transferred if the sender is not
     /// authorized in any way.
-    function test_transferFrom_Unauthorized() public {
+    function test_transferFrom_Unauthorized_RevertsUnauthorized() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
@@ -894,7 +894,7 @@ contract CurtaTest is BaseTest {
     }
 
     /// @notice Test that sender can transfer a token if they own it.
-    function test_transferFrom_SenderIsOwner() public {
+    function test_transferFrom_SenderIsOwner_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
 
@@ -903,7 +903,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that sender can transfer a token if they have been granted
     /// permissions to transfer all tokens.
-    function test_transferFrom_WithApprovalForAllTrue() public {
+    function test_transferFrom_WithApprovalForAllTrue_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
         uint256 tokenId = (1 << 128) | 0;
@@ -915,7 +915,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that sender can transfer a token if they have been granted
     /// permissions to transfer that token.
-    function test_transferFrom_WithTokenApproval() public {
+    function test_transferFrom_WithTokenApproval_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
         uint256 tokenId = (1 << 128) | 0;
