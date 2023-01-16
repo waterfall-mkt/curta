@@ -14,16 +14,16 @@ contract CurtaTest is BaseTest {
     // Constants
     // -------------------------------------------------------------------------
 
-    /// @notice The length of "Phase 1" in seconds.
+    /// @notice The length of ``Phase 1'' in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant PHASE_ONE_LENGTH = 2 days;
 
-    /// @notice The length of "Phase 1" and "Phase 2" combined (i.e. the solving
-    /// period) in seconds.
+    /// @notice The length of ``Phase 1'' and ``Phase 2'' combined (i.e. the
+    /// solving period) in seconds.
     /// @dev Copied from {Curta}.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during "Phase 2".
+    /// @notice The fee required to submit a solution during ``Phase 2.''
     /// @dev Copied from {Curta}.
     uint256 constant PHASE_TWO_FEE = 0.01 ether;
 

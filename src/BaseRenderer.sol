@@ -10,6 +10,7 @@ contract BaseRenderer is ITokenRenderer {
     // Constants
     // -------------------------------------------------------------------------
 
+    /// @notice A lookup table for hex characters.
     uint256 private constant UINT_LUT = 0x46454443424139383736353433323130;
 
     /// @notice The SVG header.

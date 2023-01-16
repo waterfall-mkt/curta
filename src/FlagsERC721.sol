@@ -3,6 +3,13 @@ pragma solidity ^0.8.17;
 
 import { ERC721TokenReceiver } from "solmate/tokens/ERC721.sol";
 
+/// @title The Flags ERC-721 token contract
+/// @author fiveoutofnine
+/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC721.sol)
+/// @notice A ``Flag'' is an NFT minted to a player when they successfuly solve
+/// a puzzle.
+/// @dev The NFT with token ID 0 is reserved to denote ``Fermat''—the author's
+/// whose puzzle went the longest unsolved.
 abstract contract FlagsERC721 {
     // -------------------------------------------------------------------------
     // Events
@@ -28,11 +35,11 @@ abstract contract FlagsERC721 {
     }
 
     /// @param phase0Solves The number of puzzles someone solved during
-    /// "Phase 0."
+    /// ``Phase 0.''
     /// @param phase1Solves The number of puzzles someone solved during
-    /// "Phase 1."
+    /// ``Phase 1.''
     /// @param phase2Solves The number of puzzles someone solved during
-    /// "Phase 2."
+    /// ``Phase 2.''
     /// @param solves The total number of solves someone has.
     /// @param balance The number of tokens someone owns.
     struct UserBalance {

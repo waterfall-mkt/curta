@@ -9,7 +9,16 @@ import { MerkleProofLib } from "solmate/utils/MerkleProofLib.sol";
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { Base64 } from "@/contracts/utils/Base64.sol";
 
-/// @title AuthorshipToken
+/// @title The Authorship Token ERC-721 token contract
+/// @author fiveoutofnine
+/// @author Modified from Solmate (https://github.com/transmissions11/solmate/blob/main/src/tokens/ERC721.sol)
+/// @notice ``Authorship Tokens'' are ERC-721 tokens that are required to add
+/// puzzles to Curta. Each Authorship Token may be used like a ticket once.
+/// After an Authorship Token has been used to add a puzzle, it can never be
+/// used again to add another puzzle. As soon as a puzzle has been deployed and
+/// added to Curta, anyone may attempt to solve it.
+/// @dev Other than the initial distribution, the only way to obtain an
+/// Authorship Token will be to be the first solver to any puzzle on Curta.
 contract AuthorshipToken is ERC721, Owned {
     // -------------------------------------------------------------------------
     // Constants
