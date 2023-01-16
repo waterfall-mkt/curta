@@ -1,16 +1,17 @@
 name: CI
-on:
-  push:
-    branches:
-      - master
-  pull_request:
+
+on: workflow_dispatch
 
 env:
   FOUNDRY_PROFILE: ci
 
 jobs:
   run-ci:
+    strategy:
+      fail-fast: true
+
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v2
 
@@ -26,4 +27,4 @@ jobs:
         run: forge snapshot --check
 
       - name: Run tests
-        run: forge test
+        run: forge test -vvv
