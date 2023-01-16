@@ -54,8 +54,10 @@ abstract contract FlagsERC721 {
     // ERC721Metadata Storage
     // -------------------------------------------------------------------------
 
+    /// @notice The name of the contract.
     string public name;
 
+    /// @notice An abbreviated name for the contract.
     string public symbol;
 
     // -------------------------------------------------------------------------
@@ -74,11 +76,21 @@ abstract contract FlagsERC721 {
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
+    /// @param _name The name of the contract.
+    /// @param _symbol An abbreviated name for the contract.
     constructor(string memory _name, string memory _symbol) {
         name = _name;
         symbol = _symbol;
     }
 
+    /// @notice Mints a Flag token to `_to`.
+    /// @dev This function is only called by {Curta}, so it makes a few
+    /// assumptions. For example, the ID of the token is always in the form
+    /// `(puzzleId << 128) + zeroIndexedSolveRanking`.
+    /// @param _to The address to mint the token to.
+    /// @param _id The ID of the token.
+    /// @param _puzzleId The ID of the puzzle that the token represents.
+    /// @param _phase The phase the token was solved in.
     function _mint(address _to, uint256 _id, uint32 _puzzleId, uint8 _phase) internal {
         // We do not check whether the `_to` is `address(0)` or that the token
         // was previously minted because {Curta} ensures these conditions are
@@ -116,40 +128,55 @@ abstract contract FlagsERC721 {
     function approve(address _spender, uint256 _id) external {
         address owner = getTokenData[_id].owner;
 
+        // Revert if the sender is not the owner, or the owner has not approved
+        // the sender to operate the token.
         require(msg.sender == owner || isApprovedForAll[owner][msg.sender], "NOT_AUTHORIZED");
 
+        // Set the spender as approved for the token.
         getApproved[_id] = _spender;
 
+        // Emit event.
         emit Approval(owner, _spender, _id);
     }
 
     function setApprovalForAll(address _operator, bool _approved) external {
+        // Set the operator as approved for the sender.
         isApprovedForAll[msg.sender][_operator] = _approved;
 
+        // Emit event.
         emit ApprovalForAll(msg.sender, _operator, _approved);
     }
 
     function transferFrom(address _from, address _to, uint256 _id) public virtual {
+        // Revert if the token is not being transferred from the current owner.
         require(_from == getTokenData[_id].owner, "WRONG_FROM");
 
+        // Revert if the recipient is the zero address.
         require(_to != address(0), "INVALID_RECIPIENT");
 
+        // Revert if the sender is not the owner, or the owner has not approved
+        // the sender to operate the token.
         require(
             msg.sender == _from || isApprovedForAll[_from][msg.sender]
                 || msg.sender == getApproved[_id],
             "NOT_AUTHORIZED"
         );
 
+        // Update balances.
         unchecked {
+            // Will never underflow because of the token ownership check above.
             getUserBalances[_from].balance--;
 
             getUserBalances[_to].balance++;
         }
 
+        // Set new owner.
         getTokenData[_id].owner = _to;
 
+        // Clear previous approval data for the token.
         delete getApproved[_id];
 
+        // Emit event.
         emit Transfer(_from, _to, _id);
     }
 
@@ -181,7 +208,10 @@ abstract contract FlagsERC721 {
     // ERC721Metadata
     // -------------------------------------------------------------------------
 
-    function tokenURI(uint256 _id) external view virtual returns (string memory);
+    /// @notice A distinct Uniform Resource Identifier (URI) for a given asset.
+    /// @param _tokenId The token ID.
+    /// @return URI for the token.
+    function tokenURI(uint256 _tokenId) external view virtual returns (string memory);
 
     // -------------------------------------------------------------------------
     // ERC165

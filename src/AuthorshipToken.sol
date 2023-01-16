@@ -150,7 +150,9 @@ contract AuthorshipToken is ERC721, Owned {
     // ERC721Metadata
     // -------------------------------------------------------------------------
 
-    /// @inheritdoc ERC721
+    /// @notice A distinct Uniform Resource Identifier (URI) for a given asset.
+    /// @param _tokenId The token ID.
+    /// @return URI for the token.
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         require(_ownerOf[_tokenId] != address(0), "NOT_MINTED");
 
