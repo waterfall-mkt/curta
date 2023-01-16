@@ -226,19 +226,19 @@ contract Curta is ICurta, FlagsERC721 {
                 getUserBalances[currentOwner].balance--;
 
                 delete getApproved[0];
+
+                // Emit burn event.
+                emit Transfer(currentOwner, address(0), 0);
             }
 
             // Increment new Fermat author's balance.
             getUserBalances[puzzleAuthor].balance++;
-
-            // Emit events.
-            emit Transfer(currentOwner, address(0), 0);
         }
 
         // Set new Fermat owner.
         getTokenData[0].owner = puzzleAuthor;
 
-        // Emit events.
+        // Emit mint event.
         emit Transfer(address(0), puzzleAuthor, 0);
     }
 
