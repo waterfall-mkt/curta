@@ -3,13 +3,14 @@ pragma solidity ^0.8.17;
 
 import { LibString } from "solmate/utils/LibString.sol";
 
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
 
 contract BaseRenderer is ITokenRenderer {
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
 
+    /// @notice A lookup table for hex characters.
     uint256 private constant UINT_LUT = 0x46454443424139383736353433323130;
 
     /// @notice The SVG header.

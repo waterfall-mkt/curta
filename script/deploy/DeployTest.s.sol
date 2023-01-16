@@ -1,30 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import "forge-std/Test.sol";
-import "../../src/BaseRenderer.sol";
-import "../../src/utils/mock/MockPuzzle.sol";
+import { console } from "forge-std/Test.sol";
+
 import { DeployBase } from "./DeployBase.s.sol";
-import { ITokenRenderer } from "../../src/interfaces/ITokenRenderer.sol";
+import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
+import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 
+/// @notice A script to deploy the protocol for testing purposes. In addition to
+/// deploying Curta, 2 mock puzzles are deployed.
 contract DeployTest is DeployBase {
-    constructor()
-    // Values below are all bogus and not used for testing purposes.
-        DeployBase(
-            // Token renderer:
-            ITokenRenderer(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Puzzle:
-            IPuzzle(0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E),
-            // Owner:
-            0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E
-        )
-    { 
-                // Deploy the Mock Puzzles
-        MockPuzzle mockPuzzleA = new MockPuzzle();
-        MockPuzzle mockPuzzleB = new MockPuzzle();
+    /// @notice The merkle root of the authorship token.
+    bytes32 constant AUTHORSHIP_TOKEN_MERKLE_ROOT = "";
 
-        console.log("Mock Puzzle A Address: ", address(mockPuzzleA));
-        console.log("Mock Puzzle B Address: ", address(mockPuzzleB));
+    /// @notice The address to transfer the ownership of the authorship token
+    /// to.
+    address constant OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
+
+    constructor() DeployBase(AUTHORSHIP_TOKEN_MERKLE_ROOT, OWNER) { }
+
+    /// @notice See description for {DeployTest}.
+    function run() public override {
+        // Read private key from the environment.
+        uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+
+        // ---------------------------------------------------------------------
+        // As `deployerKey`
+        // ---------------------------------------------------------------------
+
+        vm.startBroadcast(deployerKey);
+
+        // Deploy 2 instances of `MockPuzzle` to serve as mock puzzles for
+        // testing purposes.
+        MockPuzzle mockPuzzle1 = new MockPuzzle();
+        MockPuzzle mockPuzzle2 = new MockPuzzle();
+
+        vm.stopBroadcast();
+
+        console.log("Mock Puzzle 1 Address: ", address(mockPuzzle1));
+        console.log("Mock Puzzle 2 Address: ", address(mockPuzzle2));
+
+        super.run();
     }
-
 }

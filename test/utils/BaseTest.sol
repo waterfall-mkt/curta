@@ -3,18 +3,18 @@ pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
 
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
-import { BaseRenderer } from "@/BaseRenderer.sol";
-import { Curta } from "@/Curta.sol";
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { MockPuzzle } from "@/utils/mock/MockPuzzle.sol";
-import { LibRLP } from "@/utils/LibRLP.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
+import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
+import { Curta } from "@/contracts/Curta.sol";
+import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
+import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A base test contract for Curta. In `setUp`, it deploys an instance
 /// of `AuthorshipToken` and `Curta`. Additionally, it funds 2 addresses
-/// `0xBEEF` and `0xC0FFEE` with 1000 ether for testing. It also contains a few
-/// helper functions.
+/// `0xBEEF` and `0xC0FFEE` with 1000 ether each for testing. It also contains a
+/// few commonly used helper functions.
 contract BaseTest is Test {
     // -------------------------------------------------------------------------
     // Contracts
@@ -49,7 +49,7 @@ contract BaseTest is Test {
         authorshipToken = new AuthorshipToken(curtaAddress, "");
 
         // Transaction #3.
-        curta = new Curta(ITokenRenderer(address(tokenRenderer)), authorshipToken);
+        curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);

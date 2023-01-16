@@ -1,13 +1,5 @@
-// SPDX-License-Identifier: Unlicense
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
-
-import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
-import { AuthorshipToken } from "./AuthorshipToken.sol";
-import { FlagsERC721 } from "./FlagsERC721.sol";
-import { ICurta } from "@/interfaces/ICurta.sol";
-import { IPuzzle } from "@/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/interfaces/ITokenRenderer.sol";
-import { Base64 } from "@/utils/Base64.sol";
 
 // .===========================================================================.
 // | The Curta is a hand-held mechanical calculator designed by Curt           |
@@ -15,27 +7,36 @@ import { Base64 } from "@/utils/Base64.sol";
 // | that fits in the palm of the hand.                                        |
 // |---------------------------------------------------------------------------|
 // | The nines' complement math breakthrough eliminated the significant        |
-// | mechanical complexity created when "borrowing" during subtraction. This   |
+// | mechanical complexity created when ``borrowing'' during subtraction. This |
 // | drum was the key to miniaturizing the Curta.                              |
 // '==========================================================================='
+
+import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
+
+import { AuthorshipToken } from "./AuthorshipToken.sol";
+import { FlagsERC721 } from "./FlagsERC721.sol";
+import { ICurta } from "@/contracts/interfaces/ICurta.sol";
+import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
+import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title Curta
 /// @author fiveoutofnine
 /// @notice An extensible CTF, where each part is a generative puzzle, and each
-/// solution is minted as an NFT ("Flag").
+/// solution is minted as an NFT (``Flag'').
 contract Curta is ICurta, FlagsERC721 {
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
 
-    /// @notice The length of "Phase 1" in seconds.
+    /// @notice The length of Phase 1 in seconds.
     uint256 constant PHASE_ONE_LENGTH = 2 days;
 
-    /// @notice The length of "Phase 1" and "Phase 2" combined (i.e. the solving
+    /// @notice The length of Phase 1 and Phase 2 combined (i.e. the solving
     /// period) in seconds.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during "Phase 2".
+    /// @notice The fee required to submit a solution during Phase 2.
     uint256 constant PHASE_TWO_FEE = 0.01 ether;
 
     // -------------------------------------------------------------------------
@@ -43,10 +44,10 @@ contract Curta is ICurta, FlagsERC721 {
     // -------------------------------------------------------------------------
 
     /// @inheritdoc ICurta
-    ITokenRenderer public immutable override baseRenderer;
+    AuthorshipToken public immutable override authorshipToken;
 
     /// @inheritdoc ICurta
-    AuthorshipToken public immutable override authorshipToken;
+    ITokenRenderer public immutable override baseRenderer;
 
     // -------------------------------------------------------------------------
     // Storage
@@ -80,13 +81,14 @@ contract Curta is ICurta, FlagsERC721 {
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
+    /// @param _authorshipToken The address of the Authorship Token contract.
     /// @param _baseRenderer The address of the fallback token renderer
     /// contract.
-    constructor(ITokenRenderer _baseRenderer, AuthorshipToken _authorshipToken)
+    constructor(AuthorshipToken _authorshipToken, ITokenRenderer _baseRenderer)
         FlagsERC721("Curta", "CTF")
     {
-        baseRenderer = _baseRenderer;
         authorshipToken = _authorshipToken;
+        baseRenderer = _baseRenderer;
     }
 
     /// @inheritdoc ICurta
@@ -116,6 +118,7 @@ contract Curta is ICurta, FlagsERC721 {
         // Update the puzzle's first solve timestamp if it was previously unset.
         if (firstSolveTimestamp == 0) {
             getPuzzle[_puzzleId].firstSolveTimestamp = solveTimestamp;
+            ++getPuzzleSolves[_puzzleId].phase0Solves;
 
             // Give first solver an Authorship Token
             authorshipToken.curtaMint(msg.sender);
@@ -136,7 +139,7 @@ contract Curta is ICurta, FlagsERC721 {
             if (phase == 1) {
                 ++getPuzzleSolves[_puzzleId].phase1Solves;
             } else if (phase == 2) {
-                // Revert if the puzzle is in "Phase 2," and insufficient funds
+                // Revert if the puzzle is in Phase 2, and insufficient funds
                 // were sent.
                 if (msg.value < PHASE_TWO_FEE) revert InsufficientFunds();
                 ++getPuzzleSolves[_puzzleId].phase2Solves;
@@ -144,16 +147,16 @@ contract Curta is ICurta, FlagsERC721 {
         }
 
         // Transfer fee to the puzzle author. Refunds are not checked, in case
-        // someone wants to "tip" the author.
+        // someone wants to ``tip'' the author.
         SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], msg.value);
 
-        // Emit events.
+        // Emit event
         emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
     }
 
     /// @inheritdoc ICurta
     function addPuzzle(IPuzzle _puzzle, uint256 _tokenId) external {
-        // Revert if the puzzle belongs to `msg.sender`.
+        // Revert if authorship token doesn't belong to sender.
         if (msg.sender != authorshipToken.ownerOf(_tokenId)) revert Unauthorized();
 
         // Revert if the puzzle has already been used.
@@ -245,7 +248,7 @@ contract Curta is ICurta, FlagsERC721 {
 
     /// @inheritdoc FlagsERC721
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
-        require(ownerOf(_tokenId) != address(0), "NOT_MINTED");
+        require(getTokenData[_tokenId].owner != address(0), "NOT_MINTED");
 
         return "";
     }
@@ -257,16 +260,18 @@ contract Curta is ICurta, FlagsERC721 {
     /// @notice Computes the phase the puzzle was at at some timestamp.
     /// @param _firstSolveTimestamp The timestamp of the first solve.
     /// @param _solveTimestamp The timestamp of the solve.
-    /// @return phase The phase of the puzzle: "Phase 0" refers to the period
-    /// before the puzzle has been solved, "Phase 1" refers to the period 2 days
-    /// after the first solve, "Phase 2" refers to the period 3 days after the
-    /// end of "Phase 1", and "Phase 3" is when submissions are closed.
+    /// @return phase The phase of the puzzle: ``Phase 0'' refers to the period
+    /// before the puzzle has been solved, ``Phase 1'' refers to the period 2
+    /// days after the first solve, ``Phase 2'' refers to the period 3 days
+    /// after the end of ``Phase 1,'' and ``Phase 3'' is when submissions are
+    /// closed.
     function _computePhase(uint40 _firstSolveTimestamp, uint40 _solveTimestamp)
         internal
         pure
         returns (uint8 phase)
     {
         // Equivalent to:
+        // ```sol
         // if (_firstSolveTimestamp == 0) {
         //     phase = 0;
         // } else {
@@ -278,6 +283,7 @@ contract Curta is ICurta, FlagsERC721 {
         //         phase = 1;
         //     }
         // }
+        // ```
         assembly {
             phase :=
                 mul(

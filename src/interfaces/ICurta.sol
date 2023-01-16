@@ -3,8 +3,14 @@ pragma solidity ^0.8.17;
 
 import { IPuzzle } from "./IPuzzle.sol";
 import { ITokenRenderer } from "./ITokenRenderer.sol";
-import { AuthorshipToken } from "@/AuthorshipToken.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
+/// @title The interface for Curta
+/// @notice A CTF protocol, where players create and solve EVM puzzles to earn
+/// NFTs.
+/// @dev Each solve is represented by an NFT. However, the NFT with token ID 0
+/// is reserved to denote ``Fermat''—the author's whose puzzle went the longest
+/// unsolved.
 interface ICurta {
     // -------------------------------------------------------------------------
     // Errors
@@ -30,7 +36,7 @@ interface ICurta {
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleAlreadySolved(uint32 _puzzleId);
 
-    /// @notice Emitted when a puzzle does not eixst.
+    /// @notice Emitted when a puzzle does not exist.
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleDoesNotExist(uint32 _puzzleId);
 
@@ -55,7 +61,7 @@ interface ICurta {
     // -------------------------------------------------------------------------
 
     /// @notice A struct containing data about the puzzle corresponding to
-    /// Fermat (i.e. the puzzle who went longest unsolved).
+    /// Fermat (i.e. the puzzle that went the longest unsolved).
     /// @param puzzleId The ID of the puzzle.
     /// @param timeTaken The number of seconds it took to first solve the
     /// puzzle.
@@ -67,8 +73,8 @@ interface ICurta {
     /// @notice A struct containing data about a puzzle.
     /// @param puzzle The address of the puzzle.
     /// @param addedTimestamp The timestamp at which the puzzle was added.
-    /// @param firstSolveTimestamp The timestamp at which the first solution was
-    /// submitted.
+    /// @param firstSolveTimestamp The timestamp at which the first valid
+    /// solution was submitted.
     struct PuzzleData {
         IPuzzle puzzle;
         uint40 addedTimestamp;
@@ -76,10 +82,12 @@ interface ICurta {
     }
 
     /// @notice A struct containing the number of solves a puzzle has.
-    /// @param phase1Solves The total number of phase 1 solves for each puzzle.
-    /// @param phase2Solves The total number of phase 2 solves for each puzzle.
-    /// @param solves The total number of solves for each puzzle.
+    /// @param phase0Solves The total number of Phase 0 solves a puzzle has.
+    /// @param phase1Solves The total number of Phase 1 solves a puzzle has.
+    /// @param phase2Solves The total number of Phase 2 solves a puzzle has.
+    /// @param solves The total number of solves a puzzle has.
     struct PuzzleSolves {
+        uint32 phase0Solves;
         uint32 phase1Solves;
         uint32 phase2Solves;
         uint32 solves;
@@ -117,7 +125,7 @@ interface ICurta {
     /// @return The contract of the fallback token renderer contract.
     function baseRenderer() external view returns (ITokenRenderer);
 
-    /// @return The authorship token contract.
+    /// @return The Authorship Token contract.
     function authorshipToken() external view returns (AuthorshipToken);
 
     // -------------------------------------------------------------------------
@@ -131,15 +139,15 @@ interface ICurta {
     /// @return timeTaken The number of seconds it took to solve the puzzle.
     function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
-    /// @notice Returns the number of solves for a puzzle in each phase.
     /// @param _puzzleId The ID of a puzzle.
-    /// @return phase1Solves The total number of phase 1 solves for each puzzle.
-    /// @return phase2Solves The total number of phase 2 solves for each puzzle.
-    /// @return solves The total number of solves for each puzzle.
+    /// @return phase0Solves The total number of Phase 0 solves a puzzle has.
+    /// @return phase1Solves The total number of Phase 1 solves a puzzle has.
+    /// @return phase2Solves The total number of Phase 2 solves a puzzle has.
+    /// @return solves The total number of solves a puzzle has.
     function getPuzzleSolves(uint32 _puzzleId)
         external
         view
-        returns (uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
+        returns (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
 
     /// @param _puzzleId The ID of a puzzle.
     /// @return puzzle The address of the puzzle.
@@ -156,7 +164,7 @@ interface ICurta {
     function getPuzzleAuthor(uint32 _puzzleId) external view returns (address);
 
     /// @dev If the token renderer does not exist, it defaults to the fallback
-    /// token renderer (i.e. the one returned by {IWaterfall-tokenRenderer}).
+    /// token renderer (i.e. the one returned by {ICurta-baseRenderer}).
     /// @param _puzzleId The ID of a puzzle.
     /// @return The puzzle's token renderer.
     function getPuzzleTokenRenderer(uint32 _puzzleId) external view returns (ITokenRenderer);
@@ -166,20 +174,24 @@ interface ICurta {
     /// @return Whether `_solver` has solved the puzzle of ID `_puzzleId`.
     function hasSolvedPuzzle(address _solver, uint32 _puzzleId) external view returns (bool);
 
+    /// @param _tokenId The ID of an Authorship Token.
+    /// @return Whether the Authorship Token of ID `_tokenId` has been used to
+    /// add a puzzle.
     function hasUsedAuthorshipToken(uint256 _tokenId) external view returns (bool);
 
     // -------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------
 
-    /// @notice Mints an NFT if the provided solution solves the puzzle.
+    /// @notice Mints a Flag NFT if the provided solution solves the puzzle.
     /// @param _puzzleId The ID of the puzzle.
     /// @param _solution The solution.
     function solve(uint32 _puzzleId, uint256 _solution) external payable;
 
-    /// @notice Adds a puzzle to the contract.
+    /// @notice Adds a puzzle to the contract. Note that an unused Authorship
+    /// Token is required to add a puzzle (see {AuthorshipToken}).
     /// @param _puzzle The address of the puzzle.
-    /// @param _id The ID of the authorship token to burn.
+    /// @param _id The ID of the Authorship Token to burn.
     function addPuzzle(IPuzzle _puzzle, uint256 _id) external;
 
     /// @notice Sets the fallback token renderer for a puzzle.
@@ -190,7 +202,8 @@ interface ICurta {
     function setPuzzleTokenRenderer(uint32 _puzzleId, ITokenRenderer _tokenRenderer) external;
 
     /// @notice Burns and mints NFT #0 to the author of the puzzle of ID
-    /// `_puzzleId` if its the puzzle that went longest unsolved.
+    /// `_puzzleId` if it is the puzzle that went longest unsolved.
+    /// @dev The puzzle of ID `_puzzleId` must have been solved at least once.
     /// @param _puzzleId The ID of the puzzle.
     function setFermat(uint32 _puzzleId) external;
 }
