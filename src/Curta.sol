@@ -39,6 +39,9 @@ contract Curta is ICurta, FlagsERC721 {
     /// @notice The fee required to submit a solution during Phase 2.
     uint256 constant PHASE_TWO_FEE = 0.01 ether;
 
+    /// @notice The protocol fee required to submit a solution during Phase 2.
+    uint256 constant PROTOCOL_FEE = 0.01 ether;
+
     // -------------------------------------------------------------------------
     // Immutable Storage
     // -------------------------------------------------------------------------
