@@ -16,9 +16,9 @@ interface ICurta {
     // Errors
     // -------------------------------------------------------------------------
 
-    /// @notice Emitted when an authorship token has already been used to add a
+    /// @notice Emitted when an Authorship Token has already been used to add a
     /// puzzle to Curta.
-    /// @param _tokenId The ID of an authorship token.
+    /// @param _tokenId The ID of an Authorship Token.
     error AuthorshipTokenAlreadyUsed(uint256 _tokenId);
 
     /// @notice Emitted when a puzzle's solution is incorrect.

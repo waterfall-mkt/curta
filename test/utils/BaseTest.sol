@@ -17,6 +17,16 @@ import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 /// few commonly used helper functions.
 contract BaseTest is Test {
     // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /// @notice Owner of the Authorship Token contract.
+    address constant AUTHORSHIP_TOKEN_OWNER = address(0xC0FFEEBABE);
+
+    /// @notice Owner of the Curta contract.
+    address constant CURTA_OWNER = address(0xDECAFC0FFEE);
+
+    // -------------------------------------------------------------------------
     // Contracts
     // -------------------------------------------------------------------------
 
@@ -56,6 +66,10 @@ contract BaseTest is Test {
 
         // Transaction #4.
         mockPuzzle = new MockPuzzle();
+
+        // Transfer ownership of the contracts to their respective owners.
+        authorshipToken.transferOwnership(AUTHORSHIP_TOKEN_OWNER);
+        curta.transferOwnership(CURTA_OWNER);
     }
 
     // -------------------------------------------------------------------------
