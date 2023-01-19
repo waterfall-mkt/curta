@@ -3,7 +3,7 @@ pragma solidity ^0.8.17;
 
 import { DeployBase } from "./DeployBase.s.sol";
 
-/// @notice A script to deploy the protocol on Constellation.
+/// @notice A script to deploy the protocol on Goerli.
 contract DeployGoerli is DeployBase {
     /// @notice The merkle root of the Authorship Token.
     bytes32 constant AUTHORSHIP_TOKEN_MERKLE_ROOT = "";
