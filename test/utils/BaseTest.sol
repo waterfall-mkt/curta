@@ -57,17 +57,19 @@ contract BaseTest is Test {
 
         // Transaction #2.
         authorshipToken = new AuthorshipToken(curtaAddress, "");
-        authorshipToken.transferOwnership(AUTHORSHIP_TOKEN_OWNER);
 
         // Transaction #3.
         curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));
-        curta.transferOwnership(CURTA_OWNER);
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);
 
         // Transaction #4.
         mockPuzzle = new MockPuzzle();
+
+        // Transfer ownership of the contracts to their respective owners.
+        authorshipToken.transferOwnership(AUTHORSHIP_TOKEN_OWNER);
+        curta.transferOwnership(CURTA_OWNER);
     }
 
     // -------------------------------------------------------------------------
