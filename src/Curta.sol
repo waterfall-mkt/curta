@@ -37,11 +37,11 @@ contract Curta is ICurta, FlagsERC721, Owned {
     /// period) in seconds.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The minimum author fee required to submit a solution during
-    /// Phase 2.
-    /// @dev This fee is transferred to the author of the relevant puzzle.. Any
-    /// excess fees will also be transferred to the author.
-    uint256 constant PHASE_TWO_AUTHOR_FEE = 0.01 ether;
+    /// @notice The minimum fee required to submit a solution during Phase 2.
+    /// @dev This fee is transferred to the author of the relevant puzzle. Any
+    /// excess fees will also be transferred to the author. Note that the author
+    /// will receive at least 0.01 ether per Phase 2 solve.
+    uint256 constant PHASE_TWO_MINIMUM_FEE = 0.02 ether;
 
     /// @notice The protocol fee required to submit a solution during Phase 2.
     /// @dev This fee is transferred to the address returned by `owner`.
@@ -136,8 +136,9 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // Mark the puzzle as solved.
         hasSolvedPuzzle[msg.sender][_puzzleId] = true;
 
-        // Mint NFT.
+        uint256 ethRemaining = msg.value;
         unchecked {
+            // Mint NFT.
             _mint({
                 _to: msg.sender,
                 _id: (uint256(_puzzleId) << 128) | getPuzzleSolves[_puzzleId].solves++,
@@ -150,14 +151,20 @@ contract Curta is ICurta, FlagsERC721, Owned {
             } else if (phase == 2) {
                 // Revert if the puzzle is in Phase 2, and insufficient funds
                 // were sent.
-                if (msg.value < PHASE_TWO_AUTHOR_FEE) revert InsufficientFunds();
+                if (ethRemaining < PHASE_TWO_MINIMUM_FEE) revert InsufficientFunds();
                 ++getPuzzleSolves[_puzzleId].phase2Solves;
+
+                // Transfer protocol fee to `owner`.
+                SafeTransferLib.safeTransferETH(owner, PHASE_TWO_PROTOCOL_FEE);
+
+                // Subtract protocol fee from total value.
+                ethRemaining -= PHASE_TWO_PROTOCOL_FEE;
             }
         }
 
-        // Transfer fee to the puzzle author. Refunds are not checked, in case
-        // someone wants to ``tip'' the author.
-        SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], msg.value);
+        // Transfer untransferred funds to the puzzle author. Refunds are not
+        // checked, in case someone wants to ``tip'' the author.
+        SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], ethRemaining);
 
         // Emit event
         emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
