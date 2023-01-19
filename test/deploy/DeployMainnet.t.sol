@@ -44,15 +44,21 @@ contract DeployMainnetTest is Test {
         assertEq(deployMainnet.authorshipToken().curta(), address(deployMainnet.curta()));
     }
 
-    /// @notice Test that Authorship Token's merkle root was set correctly.
+    /// @notice Test that the Authorship Token's merkle root was set correctly.
     function test_authorshipTokenMerkleRootEquality() public {
         assertEq(
             deployMainnet.authorshipToken().merkleRoot(), deployMainnet.authorshipTokenMerkleRoot()
         );
     }
 
-    /// @notice Test that Authorship Token's ownership was transferred correctly.
+    /// @notice Test that the Authorship Token's ownership was transferred
+    /// correctly.
     function test_authorshipTokenOwnerEquality() public {
-        assertEq(deployMainnet.authorshipToken().owner(), deployMainnet.owner());
+        assertEq(deployMainnet.authorshipToken().owner(), deployMainnet.authorshipTokenOwner());
+    }
+
+    /// @notice Test that Curta's ownership was transferred correctly.
+    function test_curtaOwnerEquality() public {
+        assertEq(deployMainnet.curta().owner(), deployMainnet.curtaOwner());
     }
 }

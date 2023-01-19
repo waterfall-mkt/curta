@@ -41,15 +41,21 @@ contract DeployGoerliTest is Test {
         assertEq(deployGoerli.authorshipToken().curta(), address(deployGoerli.curta()));
     }
 
-    /// @notice Test that Authorship Token's merkle root was set correctly.
+    /// @notice Test that the Authorship Token's merkle root was set correctly.
     function test_authorshipTokenMerkleRootEquality() public {
         assertEq(
             deployGoerli.authorshipToken().merkleRoot(), deployGoerli.authorshipTokenMerkleRoot()
         );
     }
 
-    /// @notice Test that Authorship Token's ownership was transferred correctly.
+    /// @notice Test that the Authorship Token's ownership was transferred
+    /// correctly.
     function test_authorshipTokenOwnerEquality() public {
-        assertEq(deployGoerli.authorshipToken().owner(), deployGoerli.owner());
+        assertEq(deployGoerli.authorshipToken().owner(), deployGoerli.authorshipTokenOwner());
+    }
+
+    /// @notice Test that Curta's ownership was transferred correctly.
+    function test_curtaOwnerEquality() public {
+        assertEq(deployGoerli.curta().owner(), deployGoerli.curtaOwner());
     }
 }

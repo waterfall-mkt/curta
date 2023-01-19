@@ -23,9 +23,14 @@ contract CurtaTest is BaseTest {
     /// @dev Copied from {Curta}.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during Phase 2.
+    /// @notice The minimum author fee required to submit a solution during
+    /// Phase 2.
     /// @dev Copied from {Curta}.
-    uint256 constant PHASE_TWO_FEE = 0.01 ether;
+    uint256 constant PHASE_TWO_AUTHOR_FEE = 0.01 ether;
+
+    /// @notice The protocol fee required to submit a solution during Phase 2.
+    /// @dev Copied from {Curta}.
+    uint256 constant PHASE_TWO_PROTOCOL_FEE = 0.01 ether;
 
     // -------------------------------------------------------------------------
     // Events
@@ -264,7 +269,7 @@ contract CurtaTest is BaseTest {
 
         // `address(this)` gets their solve at `timestamp + _secondsPassed`.
         uint256 solution = mockPuzzle.getSolution(address(this));
-        curta.solve{value: PHASE_TWO_FEE}(1, solution);
+        curta.solve{value: PHASE_TWO_AUTHOR_FEE}(1, solution);
         (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
 
         // `firstSolveTimestamp` remains unchanged.
@@ -350,7 +355,7 @@ contract CurtaTest is BaseTest {
         // `0xC0FFEE` gets a Phase 2 solve.
         uint256 coffeeSolution = mockPuzzle.getSolution(address(0xC0FFEE));
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
+        curta.solve{value: PHASE_TWO_AUTHOR_FEE}(1, coffeeSolution);
         {
             (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
                 curta.getPuzzleSolves(1);
@@ -379,7 +384,7 @@ contract CurtaTest is BaseTest {
         // requirement.
         uint256 beefSolution = mockPuzzle.getSolution(address(0xBEEF));
         vm.prank(address(0xBEEF));
-        if (_payment < PHASE_TWO_FEE) vm.expectRevert(ICurta.InsufficientFunds.selector);
+        if (_payment < PHASE_TWO_AUTHOR_FEE) vm.expectRevert(ICurta.InsufficientFunds.selector);
         curta.solve{value: _payment}(1, beefSolution);
     }
 
@@ -414,11 +419,11 @@ contract CurtaTest is BaseTest {
     /// @notice Test whether the ETH amount sent to solve a puzzle during Phase
     /// 2 is paid out to the author.
     /// @dev The amount should be fully transferred to the author.
-    /// {Curta-PHASE_TWO_FEE} is just a minimum requirement.
+    /// {Curta-PHASE_TWO_AUTHOR_FEE} is just a minimum requirement.
     /// @param _payment The ETH amount sent via `solve()` during a Phase 2
     /// solve.
     function test_solve_DuringPhase2WithPayment_PaysAuthor(uint256 _payment) public {
-        vm.assume(_payment >= PHASE_TWO_FEE && _payment <= 100 ether);
+        vm.assume(_payment >= PHASE_TWO_AUTHOR_FEE && _payment <= 100 ether);
         _deployAndAddPuzzle(address(this));
 
         // `address(this)` gets first blood.
@@ -564,7 +569,7 @@ contract CurtaTest is BaseTest {
         vm.expectEmit(true, true, true, true);
         emit PuzzleSolved({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: PHASE_TWO_FEE}(1, coffeeSolution);
+        curta.solve{value: PHASE_TWO_AUTHOR_FEE}(1, coffeeSolution);
 
         {
             (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
@@ -593,7 +598,7 @@ contract CurtaTest is BaseTest {
 
         // Funds were transferred during `0xC0FFEE`'s Phase 2 solve to the
         // author.
-        assertEq(address(this).balance, authorBalance + PHASE_TWO_FEE);
+        assertEq(address(this).balance, authorBalance + PHASE_TWO_AUTHOR_FEE);
     }
 
     // -------------------------------------------------------------------------

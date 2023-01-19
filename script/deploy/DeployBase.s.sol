@@ -33,7 +33,11 @@ contract DeployBase is Script {
 
     /// @notice The address to transfer the Authorship Token's ownership to
     /// immediately after deploy.
-    address public immutable owner;
+    address public immutable authorshipTokenOwner;
+
+    /// @notice The address to transfer the Curta's ownership to immediately
+    /// after deploy.
+    address public immutable curtaOwner;
 
     // -------------------------------------------------------------------------
     // Deploy addresses
@@ -57,11 +61,18 @@ contract DeployBase is Script {
 
     /// @param _authorshipTokenMerkleRoot The merkle root of the addresses in
     /// the initial Authorship Token's mintlist.
-    /// @param _owner The address to transfer the Authorship Token's ownership
-    /// to immediately after deploy.
-    constructor(bytes32 _authorshipTokenMerkleRoot, address _owner) {
+    /// @param _authorshipTokenOwner The address to transfer the Authorship
+    /// Token's ownership to immediately after deploy.
+    /// @param _curtaOwner The address to transfer Curta's ownership to
+    /// immediately after deploy.
+    constructor(
+        bytes32 _authorshipTokenMerkleRoot,
+        address _authorshipTokenOwner,
+        address _curtaOwner
+    ) {
         authorshipTokenMerkleRoot = _authorshipTokenMerkleRoot;
-        owner = _owner;
+        authorshipTokenOwner = _authorshipTokenOwner;
+        curtaOwner = _curtaOwner;
     }
 
     // -------------------------------------------------------------------------
@@ -106,14 +117,14 @@ contract DeployBase is Script {
 
         vm.startBroadcast(authorshipTokenKey);
 
-        // Deploy Authorship Token contract.
+        // Deploy the Authorship Token contract.
         authorshipToken = new AuthorshipToken(
             curtaAddress,
             authorshipTokenMerkleRoot
         );
         console.log("Authorship Token Address: ", address(authorshipToken));
-        // Transfer ownership to `owner`.
-        authorshipToken.transferOwnership(owner);
+        // Transfer ownership to `authorshipTokenOwner`.
+        authorshipToken.transferOwnership(authorshipTokenOwner);
 
         vm.stopBroadcast();
 
@@ -129,6 +140,8 @@ contract DeployBase is Script {
             ITokenRenderer(baseRenderer)
         );
         console.log("Curta Address: ", address(curta));
+        // Transfer ownership to `curtaOwner`.
+        curta.transferOwnership(curtaOwner);
 
         vm.stopBroadcast();
     }

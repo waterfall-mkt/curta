@@ -11,6 +11,7 @@ pragma solidity ^0.8.17;
 // | drum was the key to miniaturizing the Curta.                              |
 // '==========================================================================='
 
+import { Owned } from "solmate/auth/Owned.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
 import { AuthorshipToken } from "./AuthorshipToken.sol";
@@ -24,7 +25,7 @@ import { Base64 } from "@/contracts/utils/Base64.sol";
 /// @author fiveoutofnine
 /// @notice An extensible CTF, where each part is a generative puzzle, and each
 /// solution is minted as an NFT (``Flag'').
-contract Curta is ICurta, FlagsERC721 {
+contract Curta is ICurta, FlagsERC721, Owned {
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
@@ -36,11 +37,15 @@ contract Curta is ICurta, FlagsERC721 {
     /// period) in seconds.
     uint256 constant SUBMISSION_LENGTH = 5 days;
 
-    /// @notice The fee required to submit a solution during Phase 2.
-    uint256 constant PHASE_TWO_FEE = 0.01 ether;
+    /// @notice The minimum author fee required to submit a solution during
+    /// Phase 2.
+    /// @dev This fee is transferred to the author of the relevant puzzle.. Any
+    /// excess fees will also be transferred to the author.
+    uint256 constant PHASE_TWO_AUTHOR_FEE = 0.01 ether;
 
     /// @notice The protocol fee required to submit a solution during Phase 2.
-    uint256 constant PROTOCOL_FEE = 0.01 ether;
+    /// @dev This fee is transferred to the address returned by `owner`.
+    uint256 constant PHASE_TWO_PROTOCOL_FEE = 0.01 ether;
 
     // -------------------------------------------------------------------------
     // Immutable Storage
@@ -89,6 +94,7 @@ contract Curta is ICurta, FlagsERC721 {
     /// contract.
     constructor(AuthorshipToken _authorshipToken, ITokenRenderer _baseRenderer)
         FlagsERC721("Curta", "CTF")
+        Owned(msg.sender)
     {
         authorshipToken = _authorshipToken;
         baseRenderer = _baseRenderer;
@@ -144,7 +150,7 @@ contract Curta is ICurta, FlagsERC721 {
             } else if (phase == 2) {
                 // Revert if the puzzle is in Phase 2, and insufficient funds
                 // were sent.
-                if (msg.value < PHASE_TWO_FEE) revert InsufficientFunds();
+                if (msg.value < PHASE_TWO_AUTHOR_FEE) revert InsufficientFunds();
                 ++getPuzzleSolves[_puzzleId].phase2Solves;
             }
         }
@@ -159,7 +165,7 @@ contract Curta is ICurta, FlagsERC721 {
 
     /// @inheritdoc ICurta
     function addPuzzle(IPuzzle _puzzle, uint256 _tokenId) external {
-        // Revert if authorship token doesn't belong to sender.
+        // Revert if the Authorship Token doesn't belong to sender.
         if (msg.sender != authorshipToken.ownerOf(_tokenId)) revert Unauthorized();
 
         // Revert if the puzzle has already been used.
