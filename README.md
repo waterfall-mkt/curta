@@ -103,7 +103,7 @@ forge script script/deploy/DeployMainnet.s.sol:DeployMainnet -f mainnet --broadc
 If you are deploying to the Constellation roll-up, remove `--verify` and add `--legacy`:
 ```sh
 source .env # Load environment variables
-forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f constellation --broadcast --legacy
+forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f constellation --broadcast --legacy --sender $SENDER_ADDRESS
 ```
 
 ## Acknowledgements

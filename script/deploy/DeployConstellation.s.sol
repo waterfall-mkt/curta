@@ -10,10 +10,10 @@ contract DeployConstellation is DeployBase {
 
     /// @notice The address to transfer the ownership of the Authorship Token
     /// to.
-    address constant AUTHORSHIP_TOKEN_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
+    address constant AUTHORSHIP_TOKEN_OWNER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     /// @notice The address to transfer the ownership of Curta to.
-    address constant CURTA_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
+    address constant CURTA_OWNER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     constructor() DeployBase(AUTHORSHIP_TOKEN_MERKLE_ROOT, AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER) { }
 }
