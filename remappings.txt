@@ -1,5 +1,6 @@
 forge-std/=lib/forge-std/src/
 solmate/=lib/solmate/src/
+shields-contracts/=lib/shields-contracts/contracts/
 @/script/=script/
 @/contracts/=src/
 @/test/=test/

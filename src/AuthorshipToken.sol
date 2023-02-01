@@ -164,7 +164,6 @@ contract AuthorshipToken is ERC721, Owned {
                     LibString.toString(_tokenId),
                     '","description":"Token that grants user permission to add a puzzle to Curta",',
                     '"image_data":"data:image/svg+xml;base64,',
-                    // TODO: Update this to use the actual SVG
                     Base64.encode(
                         abi.encodePacked(
                             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="100%" height="100%"/><text x="8" y="40" style="fill:#fff;font-family:serif;font-size:32px">Authorship Token</text></svg>'
