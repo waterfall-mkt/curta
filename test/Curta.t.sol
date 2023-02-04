@@ -35,24 +35,18 @@ contract CurtaTest is BaseTest {
     // Events
     // -------------------------------------------------------------------------
 
-    /// @dev Copied from EIP-721.
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
-
-    /// @dev Copied from EIP-721.
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
     /// @notice Emitted when a puzzle is added.
     /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
     /// @param author The address of the puzzle author.
     /// @param puzzle The address of the puzzle.
-    event PuzzleAdded(uint32 indexed id, address indexed author, IPuzzle puzzle);
+    event AddPuzzle(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
-    /// @notice Emitted when a puzzle's token renderer is updated.
-    /// @dev Copied from {ICurta}.
-    /// @param id The ID of the puzzle.
-    /// @param tokenRenderer The token renderer.
-    event PuzzleTokenRendererUpdated(uint32 indexed id, ITokenRenderer tokenRenderer);
+    /// @dev Copied from EIP-721.
+    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
+
+    /// @dev Copied from EIP-721.
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /// @notice Emitted when a puzzle is solved.
     /// @dev Copied from {ICurta}.
@@ -60,10 +54,16 @@ contract CurtaTest is BaseTest {
     /// @param solver The address of the solver.
     /// @param solution The solution.
     /// @param phase The phase in which the puzzle was solved.
-    event PuzzleSolved(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
+    event SolvePuzzle(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
 
     /// @dev Copied from EIP-721.
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @dev Copied from {ICurta}.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
 
     // -------------------------------------------------------------------------
     // Initialization
@@ -131,7 +131,7 @@ contract CurtaTest is BaseTest {
 
         // Should be able to add puzzle #1.
         vm.expectEmit(true, true, true, true);
-        emit PuzzleAdded(1, address(this), IPuzzle(puzzle));
+        emit AddPuzzle(1, address(this), IPuzzle(puzzle));
         curta.addPuzzle(IPuzzle(puzzle), 1);
 
         // There is 1 puzzle.
@@ -490,7 +490,7 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         uint256 solution = puzzle.getSolution(address(this));
         vm.expectEmit(true, true, true, true);
-        emit PuzzleSolved({id: 1, solver: address(this), solution: solution, phase: 0});
+        emit SolvePuzzle({id: 1, solver: address(this), solution: solution, phase: 0});
         curta.solve(1, solution);
 
         {
@@ -528,7 +528,7 @@ contract CurtaTest is BaseTest {
         // `0xBEEF` gets a Phase 1 solve.
         uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
         vm.expectEmit(true, true, true, true);
-        emit PuzzleSolved({id: 1, solver: address(0xBEEF), solution: beefSolution, phase: 1});
+        emit SolvePuzzle({id: 1, solver: address(0xBEEF), solution: beefSolution, phase: 1});
         vm.prank(address(0xBEEF));
         curta.solve(1, beefSolution);
 
@@ -573,7 +573,7 @@ contract CurtaTest is BaseTest {
         // `0xC0FFEE` gets a Phase 2 solve.
         uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
         vm.expectEmit(true, true, true, true);
-        emit PuzzleSolved({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
+        emit SolvePuzzle({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
         vm.prank(address(0xC0FFEE));
         curta.solve{value: PHASE_TWO_MINIMUM_FEE}(1, coffeeSolution);
 
@@ -634,7 +634,7 @@ contract CurtaTest is BaseTest {
         assertEq(address(curta.getPuzzleTokenRenderer(1)), address(0));
 
         vm.expectEmit(true, true, true, true);
-        emit PuzzleTokenRendererUpdated(1, tokenRenderer);
+        emit UpdatePuzzleTokenRenderer(1, tokenRenderer);
         curta.setPuzzleTokenRenderer(1, tokenRenderer);
 
         assertEq(address(curta.getPuzzleTokenRenderer(1)), address(tokenRenderer));
