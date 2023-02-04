@@ -103,17 +103,17 @@ interface ICurta {
     /// @param puzzle The address of the puzzle.
     event AddPuzzle(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
-    /// @notice Emitted when a puzzle's token renderer is updated.
-    /// @param id The ID of the puzzle.
-    /// @param tokenRenderer The token renderer.
-    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
-
     /// @notice Emitted when a puzzle is solved.
     /// @param id The ID of the puzzle.
     /// @param solver The address of the solver.
     /// @param solution The solution.
     /// @param phase The phase in which the puzzle was solved.
     event SolvePuzzle(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
+
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
 
     // -------------------------------------------------------------------------
     // Immutable Storage

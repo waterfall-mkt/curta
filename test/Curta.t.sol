@@ -35,12 +35,6 @@ contract CurtaTest is BaseTest {
     // Events
     // -------------------------------------------------------------------------
 
-    /// @dev Copied from EIP-721.
-    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
-
-    /// @dev Copied from EIP-721.
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
-
     /// @notice Emitted when a puzzle is added.
     /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
@@ -48,11 +42,11 @@ contract CurtaTest is BaseTest {
     /// @param puzzle The address of the puzzle.
     event AddPuzzle(uint32 indexed id, address indexed author, IPuzzle puzzle);
 
-    /// @notice Emitted when a puzzle's token renderer is updated.
-    /// @dev Copied from {ICurta}.
-    /// @param id The ID of the puzzle.
-    /// @param tokenRenderer The token renderer.
-    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
+    /// @dev Copied from EIP-721.
+    event Approval(address indexed owner, address indexed spender, uint256 indexed id);
+
+    /// @dev Copied from EIP-721.
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
     /// @notice Emitted when a puzzle is solved.
     /// @dev Copied from {ICurta}.
@@ -64,6 +58,12 @@ contract CurtaTest is BaseTest {
 
     /// @dev Copied from EIP-721.
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
+
+    /// @notice Emitted when a puzzle's token renderer is updated.
+    /// @dev Copied from {ICurta}.
+    /// @param id The ID of the puzzle.
+    /// @param tokenRenderer The token renderer.
+    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
 
     // -------------------------------------------------------------------------
     // Initialization
