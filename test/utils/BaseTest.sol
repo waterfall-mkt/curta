@@ -30,6 +30,9 @@ contract BaseTest is Test {
     /// available for minting by the author.
     uint256 constant ISSUE_LENGTH = 3 days;
 
+    /// @notice The list of authors in the initial batch.
+    address[] internal AUTHORS = new address[](0);
+
     // -------------------------------------------------------------------------
     // Contracts
     // -------------------------------------------------------------------------
@@ -60,7 +63,7 @@ contract BaseTest is Test {
         address curtaAddress = LibRLP.computeAddress(address(this), 3);
 
         // Transaction #2.
-        authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH);
+        authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH, AUTHORS);
 
         // Transaction #3.
         curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));

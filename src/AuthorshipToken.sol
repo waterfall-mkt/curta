@@ -78,13 +78,24 @@ contract AuthorshipToken is ERC721, Owned {
     /// @param _curta The Curta / Flags contract.
     /// @param _issueLength The number of seconds until an additional token is
     /// made available for minting by the author.
-    constructor(address _curta, uint256 _issueLength)
+    /// @param _authors The list of authors in the initial batch.
+    constructor(address _curta, uint256 _issueLength, address[] memory _authors)
         ERC721("Authorship Token", "AUTH")
         Owned(msg.sender)
     {
         curta = _curta;
         issueLength = _issueLength;
         deployTimestamp = block.timestamp;
+
+        // Mint tokens to the initial batch of authors.
+        uint256 length = _authors.length;
+        for (uint256 i = 1; i <= length;) {
+            _mint(_authors[i], i);
+            unchecked {
+                ++i;
+            }
+        }
+        totalSupply = length;
     }
 
     // -------------------------------------------------------------------------

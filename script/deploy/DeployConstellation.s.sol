@@ -16,5 +16,8 @@ contract DeployConstellation is DeployBase {
     /// available for minting by the author.
     uint256 constant ISSUE_LENGTH = 30 seconds;
 
-    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH) { }
+    /// @notice The list of authors in the initial batch.
+    address[] internal AUTHORS = new address[](0);
+
+    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH, AUTHORS) { }
 }
