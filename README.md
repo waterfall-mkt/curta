@@ -27,6 +27,11 @@ To run tests, run the following command:
 forge test
 ```
 
+If you'd like to test on a mainnet fork or view a sample [`AuthorshipToken.tokenURI`](https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol) output, run the following command:
+```sh
+forge test -f mainnet -vvv
+```
+
 ### Coverage
 To view coverage, run the following command:
 ```sh
@@ -40,6 +45,12 @@ forge coverage --report lcov
 
 > **Note**
 > It may be helpful to use an extension like [**Coverage Gutters**](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) to display the coverage over the code.
+
+### Snapshot
+To obtain the same `.gas-snapshot` output as the CI tests, copy [`.env.example`](https://github.com/waterfall-mkt/curta/blob/main/.env.example) into your `.env` file, and run the following command:
+```
+forge snapshot
+```
 
 ### Deploying
 #### 1. Set environment variables
@@ -110,3 +121,4 @@ forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f cons
 * [**Solmate**](https://github.com/transmissions11/solmate)
 * [**Art Gobblers**](https://github.com/artgobblers/art-gobblers)
 * [**Foundry Canary**](https://github.com/ZeframLou/foundry-canary)
+* [**Shields**](https://shields.build)

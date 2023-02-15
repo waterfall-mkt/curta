@@ -4,3 +4,6 @@
 [submodule "lib/solmate"]
 	path = lib/solmate
 	url = https://github.com/transmissions11/solmate
+[submodule "lib/shields-api-contract"]
+	path = lib/shields-api-contract
+	url = https://github.com/area-technology/shields-api-contract

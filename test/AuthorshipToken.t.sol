@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import {console} from "forge-std/Test.sol";
+
 import { BaseTest } from "./utils/BaseTest.sol";
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
@@ -149,10 +151,13 @@ contract AuthorshipTokenTest is BaseTest {
     }
 
     /// @notice Test that `tokenURI` does not revert for tokens that exist.
+    /// @dev If the test is not running off of a mainnet fork, this test will
+    /// be skipped.
     function test_tokenURI_MintedToken_Succeeds() public {
+        if (block.chainid != 1) return;
         vm.prank(address(authorshipToken.curta()));
         authorshipToken.curtaMint(address(this));
 
-        authorshipToken.tokenURI(1);
+        console.log(authorshipToken.tokenURI(1));
     }
 }
