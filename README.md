@@ -27,6 +27,11 @@ To run tests, run the following command:
 forge test
 ```
 
+If you'd like to test on a mainnet fork or view a sample [`AuthorshipToken.tokenURI`](https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol) output, run the following command:
+```sh
+forge test -f mainnet -vvv
+```
+
 ### Coverage
 To view coverage, run the following command:
 ```sh
@@ -110,3 +115,4 @@ forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f cons
 * [**Solmate**](https://github.com/transmissions11/solmate)
 * [**Art Gobblers**](https://github.com/artgobblers/art-gobblers)
 * [**Foundry Canary**](https://github.com/ZeframLou/foundry-canary)
+* [**Shields**](https://shields.build)
