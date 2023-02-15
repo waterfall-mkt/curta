@@ -46,6 +46,12 @@ forge coverage --report lcov
 > **Note**
 > It may be helpful to use an extension like [**Coverage Gutters**](https://marketplace.visualstudio.com/items?itemName=ryanluker.vscode-coverage-gutters) to display the coverage over the code.
 
+### Snapshot
+To obtain the same `.gas-snapshot` output as the CI tests, copy [`.env.example`](https://github.com/waterfall-mkt/curta/blob/main/.env.example) into your `.env` file, and run the following command:
+```
+forge snapshot
+```
+
 ### Deploying
 #### 1. Set environment variables
 Create a file named `.env` at the root of the project and copy the contents of `.env.example` into it. Then, fill out each of the variables:
