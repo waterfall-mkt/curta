@@ -27,10 +27,6 @@ contract DeployBase is Script {
     // Environment specific variables
     // -------------------------------------------------------------------------
 
-    /// @notice The merkle root of the addresses in the initial Authorship
-    /// Token's mintlist.
-    bytes32 public immutable authorshipTokenMerkleRoot;
-
     /// @notice The address to transfer the Authorship Token's ownership to
     /// immediately after deploy.
     address public immutable authorshipTokenOwner;
@@ -59,18 +55,14 @@ contract DeployBase is Script {
     // Constructor
     // -------------------------------------------------------------------------
 
-    /// @param _authorshipTokenMerkleRoot The merkle root of the addresses in
-    /// the initial Authorship Token's mintlist.
     /// @param _authorshipTokenOwner The address to transfer the Authorship
     /// Token's ownership to immediately after deploy.
     /// @param _curtaOwner The address to transfer Curta's ownership to
     /// immediately after deploy.
     constructor(
-        bytes32 _authorshipTokenMerkleRoot,
         address _authorshipTokenOwner,
         address _curtaOwner
     ) {
-        authorshipTokenMerkleRoot = _authorshipTokenMerkleRoot;
         authorshipTokenOwner = _authorshipTokenOwner;
         curtaOwner = _curtaOwner;
     }
@@ -118,10 +110,7 @@ contract DeployBase is Script {
         vm.startBroadcast(authorshipTokenKey);
 
         // Deploy the Authorship Token contract.
-        authorshipToken = new AuthorshipToken(
-            curtaAddress,
-            authorshipTokenMerkleRoot
-        );
+        authorshipToken = new AuthorshipToken(curtaAddress);
         console.log("Authorship Token Address: ", address(authorshipToken));
         // Transfer ownership to `authorshipTokenOwner`.
         authorshipToken.transferOwnership(authorshipTokenOwner);

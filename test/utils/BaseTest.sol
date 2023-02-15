@@ -56,7 +56,7 @@ contract BaseTest is Test {
         address curtaAddress = LibRLP.computeAddress(address(this), 3);
 
         // Transaction #2.
-        authorshipToken = new AuthorshipToken(curtaAddress, "");
+        authorshipToken = new AuthorshipToken(curtaAddress);
 
         // Transaction #3.
         curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));

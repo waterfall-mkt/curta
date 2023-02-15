@@ -47,14 +47,6 @@ contract DeployConstellationTest is Test {
         );
     }
 
-    /// @notice Test that the Authorship Token's merkle root was set correctly.
-    function test_authorshipTokenMerkleRootEquality() public {
-        assertEq(
-            deployConstellation.authorshipToken().merkleRoot(),
-            deployConstellation.authorshipTokenMerkleRoot()
-        );
-    }
-
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {
