@@ -167,7 +167,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], ethRemaining);
 
         // Emit event
-        emit PuzzleSolved({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
+        emit SolvePuzzle({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
     }
 
     /// @inheritdoc ICurta
@@ -195,7 +195,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
             getPuzzleAuthor[curPuzzleId] = msg.sender;
 
             // Emit events.
-            emit PuzzleAdded(curPuzzleId, msg.sender, _puzzle);
+            emit AddPuzzle(curPuzzleId, msg.sender, _puzzle);
         }
     }
 
@@ -208,7 +208,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         getPuzzleTokenRenderer[_puzzleId] = _tokenRenderer;
 
         // Emit events.
-        emit PuzzleTokenRendererUpdated(_puzzleId, _tokenRenderer);
+        emit UpdatePuzzleTokenRenderer(_puzzleId, _tokenRenderer);
     }
 
     /// @inheritdoc ICurta
