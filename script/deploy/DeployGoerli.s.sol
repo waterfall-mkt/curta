@@ -12,5 +12,9 @@ contract DeployGoerli is DeployBase {
     /// @notice The address to transfer the ownership of Curta to.
     address constant CURTA_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
 
-    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER) { }
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 constant ISSUE_LENGTH = 3 days;
+
+    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH) { }
 }

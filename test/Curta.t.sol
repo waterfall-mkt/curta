@@ -606,7 +606,9 @@ contract CurtaTest is BaseTest {
         // The owner of Curta should have received the protocol fee.
         assertEq(curta.owner().balance, protocolBalance + PHASE_TWO_PROTOCOL_FEE);
         // `address(this)` should have received the remaining amount.
-        assertEq(address(this).balance, authorBalance + PHASE_TWO_MINIMUM_FEE - PHASE_TWO_PROTOCOL_FEE);
+        assertEq(
+            address(this).balance, authorBalance + PHASE_TWO_MINIMUM_FEE - PHASE_TWO_PROTOCOL_FEE
+        );
     }
 
     // -------------------------------------------------------------------------

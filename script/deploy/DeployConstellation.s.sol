@@ -12,5 +12,9 @@ contract DeployConstellation is DeployBase {
     /// @notice The address to transfer the ownership of Curta to.
     address constant CURTA_OWNER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
-    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER) { }
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 constant ISSUE_LENGTH = 30 seconds;
+
+    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH) { }
 }

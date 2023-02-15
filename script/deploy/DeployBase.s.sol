@@ -35,6 +35,10 @@ contract DeployBase is Script {
     /// after deploy.
     address public immutable curtaOwner;
 
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 public immutable issueLength;
+
     // -------------------------------------------------------------------------
     // Deploy addresses
     // -------------------------------------------------------------------------
@@ -59,12 +63,12 @@ contract DeployBase is Script {
     /// Token's ownership to immediately after deploy.
     /// @param _curtaOwner The address to transfer Curta's ownership to
     /// immediately after deploy.
-    constructor(
-        address _authorshipTokenOwner,
-        address _curtaOwner
-    ) {
+    /// @param _issueLength The number of seconds until an additional token is
+    /// made available for minting by the author.
+    constructor(address _authorshipTokenOwner, address _curtaOwner, uint256 _issueLength) {
         authorshipTokenOwner = _authorshipTokenOwner;
         curtaOwner = _curtaOwner;
+        issueLength = _issueLength;
     }
 
     // -------------------------------------------------------------------------
@@ -110,7 +114,7 @@ contract DeployBase is Script {
         vm.startBroadcast(authorshipTokenKey);
 
         // Deploy the Authorship Token contract.
-        authorshipToken = new AuthorshipToken(curtaAddress);
+        authorshipToken = new AuthorshipToken(curtaAddress, issueLength);
         console.log("Authorship Token Address: ", address(authorshipToken));
         // Transfer ownership to `authorshipTokenOwner`.
         authorshipToken.transferOwnership(authorshipTokenOwner);
@@ -124,10 +128,7 @@ contract DeployBase is Script {
         vm.startBroadcast(curtaKey);
 
         // Deploy Curta contract,
-        curta = new Curta(
-            authorshipToken,
-            ITokenRenderer(baseRenderer)
-        );
+        curta = new Curta(authorshipToken, ITokenRenderer(baseRenderer));
         console.log("Curta Address: ", address(curta));
         // Transfer ownership to `curtaOwner`.
         curta.transferOwnership(curtaOwner);

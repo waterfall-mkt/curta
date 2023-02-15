@@ -26,10 +26,6 @@ contract AuthorshipToken is ERC721, Owned {
     // Constants
     // -------------------------------------------------------------------------
 
-    /// @notice The number of seconds an additional token is made available for
-    /// minting by the author.
-    uint256 constant ISSUE_LENGTH = 1 days;
-
     /// @notice The shields API contract.
     /// @dev This is the mainnet address.
     IShieldsAPI constant shieldsAPI = IShieldsAPI(0x740CBbF0116a82F64e83E1AE68c92544870B0C0F);
@@ -54,6 +50,10 @@ contract AuthorshipToken is ERC721, Owned {
     /// @notice The Curta / Flags contract.
     address public immutable curta;
 
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 public immutable issueLength;
+
     /// @notice The timestamp of when the contract was deployed.
     uint256 public immutable deployTimestamp;
 
@@ -76,8 +76,14 @@ contract AuthorshipToken is ERC721, Owned {
     // -------------------------------------------------------------------------
 
     /// @param _curta The Curta / Flags contract.
-    constructor(address _curta) ERC721("Authorship Token", "AUTH") Owned(msg.sender) {
+    /// @param _issueLength The number of seconds until an additional token is
+    /// made available for minting by the author.
+    constructor(address _curta, uint256 _issueLength)
+        ERC721("Authorship Token", "AUTH")
+        Owned(msg.sender)
+    {
         curta = _curta;
+        issueLength = _issueLength;
         deployTimestamp = block.timestamp;
     }
 
@@ -101,11 +107,11 @@ contract AuthorshipToken is ERC721, Owned {
 
     /// @notice Mints a token to `_to`.
     /// @dev Only the owner can call this function. The owner may claim a token
-    /// every `ISSUE_LENGTH` seconds.
+    /// every `issueLength` seconds.
     /// @param _to The address to mint the token to.
     function ownerMint(address _to) external onlyOwner {
         unchecked {
-            uint256 numIssued = (block.timestamp - deployTimestamp) / ISSUE_LENGTH;
+            uint256 numIssued = (block.timestamp - deployTimestamp) / issueLength;
             uint256 numMintable = numIssued - numClaimedByOwner++;
 
             // Revert if no tokens are available to mint.

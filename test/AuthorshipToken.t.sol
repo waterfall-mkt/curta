@@ -1,22 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {console} from "forge-std/Test.sol";
+import { console } from "forge-std/Test.sol";
 
 import { BaseTest } from "./utils/BaseTest.sol";
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 
 /// @notice Unit tests for `AuthorshipToken`, organized by functions.
 contract AuthorshipTokenTest is BaseTest {
-    // -------------------------------------------------------------------------
-    // Constants
-    // -------------------------------------------------------------------------
-
-    /// @notice The number of seconds an additional token is made available for
-    /// minting by the author.
-    /// @dev Copied from {AuthorshipToken}.
-    uint256 constant ISSUE_LENGTH = 1 days;
-
     // -------------------------------------------------------------------------
     // Events
     // -------------------------------------------------------------------------

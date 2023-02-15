@@ -26,6 +26,10 @@ contract BaseTest is Test {
     /// @notice Owner of the Curta contract.
     address constant CURTA_OWNER = address(0xDECAFC0FFEE);
 
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 constant ISSUE_LENGTH = 3 days;
+
     // -------------------------------------------------------------------------
     // Contracts
     // -------------------------------------------------------------------------
@@ -56,7 +60,7 @@ contract BaseTest is Test {
         address curtaAddress = LibRLP.computeAddress(address(this), 3);
 
         // Transaction #2.
-        authorshipToken = new AuthorshipToken(curtaAddress);
+        authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH);
 
         // Transaction #3.
         curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));
