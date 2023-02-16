@@ -41,6 +41,22 @@ contract DeployGoerliTest is Test {
         assertEq(deployGoerli.authorshipToken().curta(), address(deployGoerli.curta()));
     }
 
+    /// @notice Test that the Authorship Token's issue length was set correctly.
+    function test_authorshipTokenIssueLengthEquality() public {
+        assertEq(deployGoerli.authorshipToken().issueLength(), deployGoerli.issueLength());
+    }
+
+    /// @notice Test that the Authorship Token's authors were set.
+    function test_authorshipTokenAuthorsEquality() public {
+        uint256 totalSupply = deployGoerli.authorshipToken().totalSupply();
+
+        unchecked {
+            for (uint256 i; i < totalSupply; ++i) {
+                assertEq(deployGoerli.authorshipToken().ownerOf(i + 1), deployGoerli.authors(i));
+            }
+        }
+    }
+
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {

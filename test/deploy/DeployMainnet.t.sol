@@ -44,6 +44,22 @@ contract DeployMainnetTest is Test {
         assertEq(deployMainnet.authorshipToken().curta(), address(deployMainnet.curta()));
     }
 
+    /// @notice Test that the Authorship Token's issue length was set correctly.
+    function test_authorshipTokenIssueLengthEquality() public {
+        assertEq(deployMainnet.authorshipToken().issueLength(), deployMainnet.issueLength());
+    }
+
+    /// @notice Test that the Authorship Token's authors were set.
+    function test_authorshipTokenAuthorsEquality() public {
+        uint256 totalSupply = deployMainnet.authorshipToken().totalSupply();
+
+        unchecked {
+            for (uint256 i; i < totalSupply; ++i) {
+                assertEq(deployMainnet.authorshipToken().ownerOf(i + 1), deployMainnet.authors(i));
+            }
+        }
+    }
+
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {

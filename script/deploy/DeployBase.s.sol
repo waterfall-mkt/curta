@@ -79,7 +79,14 @@ contract DeployBase is Script {
         authorshipTokenOwner = _authorshipTokenOwner;
         curtaOwner = _curtaOwner;
         issueLength = _issueLength;
-        authors = _authors;
+
+        uint256 length = _authors.length;
+        for (uint256 i; i < length; ) {
+            authors[i] = _authors[i];
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     // -------------------------------------------------------------------------

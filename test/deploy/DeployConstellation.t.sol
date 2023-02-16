@@ -47,6 +47,27 @@ contract DeployConstellationTest is Test {
         );
     }
 
+    /// @notice Test that the Authorship Token's issue length was set correctly.
+    function test_authorshipTokenIssueLengthEquality() public {
+        assertEq(
+            deployConstellation.authorshipToken().issueLength(), deployConstellation.issueLength()
+        );
+    }
+
+    /// @notice Test that the Authorship Token's authors were set.
+    function test_authorshipTokenAuthorsEquality() public {
+        uint256 totalSupply = deployConstellation.authorshipToken().totalSupply();
+
+        unchecked {
+            for (uint256 i; i < totalSupply; ++i) {
+                assertEq(
+                    deployConstellation.authorshipToken().ownerOf(i + 1),
+                    deployConstellation.authors(i)
+                );
+            }
+        }
+    }
+
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {
