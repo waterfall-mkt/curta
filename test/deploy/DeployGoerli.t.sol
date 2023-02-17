@@ -49,12 +49,26 @@ contract DeployGoerliTest is Test {
     /// @notice Test that the Authorship Token's authors were set.
     function test_authorshipTokenAuthorsEquality() public {
         uint256 totalSupply = deployGoerli.authorshipToken().totalSupply();
+        assertEq(totalSupply, deployGoerli.authorsLength());
 
         unchecked {
             for (uint256 i; i < totalSupply; ++i) {
                 assertEq(deployGoerli.authorshipToken().ownerOf(i + 1), deployGoerli.authors(i));
             }
         }
+    }
+
+    /// @notice Test that an Authorship Token can be minted after deploy.
+    function test_authorshipTokenMinting() public {
+        AuthorshipToken authorshipToken = deployGoerli.authorshipToken();
+
+        // Warp 1 `issueLength` period forward in time to ensure the owner can
+        // mint 1.
+        vm.warp(block.timestamp + authorshipToken.issueLength() + 1);
+
+        // Mint as owner.
+        vm.prank(authorshipToken.owner());
+        authorshipToken.ownerMint(address(this));
     }
 
     /// @notice Test that the Authorship Token's ownership was transferred

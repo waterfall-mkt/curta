@@ -17,7 +17,10 @@ contract DeployConstellation is DeployBase {
     uint256 constant ISSUE_LENGTH = 30 seconds;
 
     /// @notice The list of authors in the initial batch.
-    address[] internal AUTHORS = new address[](0);
+    address[] internal AUTHORS = [
+        // Pre-funded account
+        0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+    ];
 
     constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH, AUTHORS) { }
 }

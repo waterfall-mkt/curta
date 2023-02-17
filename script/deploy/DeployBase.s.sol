@@ -39,9 +39,13 @@ contract DeployBase is Script {
     /// available for minting by the author.
     uint256 public immutable issueLength;
 
+    /// @notice The number of authors in the initial batch that will receive 1
+    /// Authorship Token each.
+    uint256 public immutable authorsLength;
+
     /// @notice The list of authors in the initial batch that will receive 1
     /// Authorship Token each.
-    address[] public authors;
+    mapping(uint256 => address) public authors;
 
     // -------------------------------------------------------------------------
     // Deploy addresses
@@ -81,7 +85,8 @@ contract DeployBase is Script {
         issueLength = _issueLength;
 
         uint256 length = _authors.length;
-        for (uint256 i; i < length; ) {
+        authorsLength = length;
+        for (uint256 i ; i < length; ) {
             authors[i] = _authors[i];
             unchecked {
                 ++i;
@@ -131,8 +136,18 @@ contract DeployBase is Script {
 
         vm.startBroadcast(authorshipTokenKey);
 
+        // Create an array of the initial authors.
+        uint256 length = authorsLength;
+        address[] memory initialAuthors = new address[](length);
+        for (uint256 i; i < length;) {
+            initialAuthors[i] = authors[i];
+            unchecked {
+                ++i;
+            }
+        }
+
         // Deploy the Authorship Token contract.
-        authorshipToken = new AuthorshipToken(curtaAddress, issueLength, authors);
+        authorshipToken = new AuthorshipToken(curtaAddress, issueLength, initialAuthors);
         console.log("Authorship Token Address: ", address(authorshipToken));
         // Transfer ownership to `authorshipTokenOwner`.
         authorshipToken.transferOwnership(authorshipTokenOwner);

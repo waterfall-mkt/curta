@@ -89,8 +89,8 @@ contract AuthorshipToken is ERC721, Owned {
 
         // Mint tokens to the initial batch of authors.
         uint256 length = _authors.length;
-        for (uint256 i = 1; i <= length;) {
-            _mint(_authors[i], i);
+        for (uint256 i; i < length;) {
+            _mint(_authors[i], i + 1);
             unchecked {
                 ++i;
             }

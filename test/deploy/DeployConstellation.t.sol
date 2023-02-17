@@ -57,6 +57,7 @@ contract DeployConstellationTest is Test {
     /// @notice Test that the Authorship Token's authors were set.
     function test_authorshipTokenAuthorsEquality() public {
         uint256 totalSupply = deployConstellation.authorshipToken().totalSupply();
+        assertEq(totalSupply, deployConstellation.authorsLength());
 
         unchecked {
             for (uint256 i; i < totalSupply; ++i) {
@@ -66,6 +67,19 @@ contract DeployConstellationTest is Test {
                 );
             }
         }
+    }
+
+    /// @notice Test that an Authorship Token can be minted after deploy.
+    function test_authorshipTokenMinting() public {
+        AuthorshipToken authorshipToken = deployConstellation.authorshipToken();
+
+        // Warp 1 `issueLength` period forward in time to ensure the owner can
+        // mint 1.
+        vm.warp(block.timestamp + authorshipToken.issueLength() + 1);
+
+        // Mint as owner.
+        vm.prank(authorshipToken.owner());
+        authorshipToken.ownerMint(address(this));
     }
 
     /// @notice Test that the Authorship Token's ownership was transferred
