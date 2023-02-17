@@ -44,11 +44,34 @@ contract DeployMainnetTest is Test {
         assertEq(deployMainnet.authorshipToken().curta(), address(deployMainnet.curta()));
     }
 
-    /// @notice Test that the Authorship Token's merkle root was set correctly.
-    function test_authorshipTokenMerkleRootEquality() public {
-        assertEq(
-            deployMainnet.authorshipToken().merkleRoot(), deployMainnet.authorshipTokenMerkleRoot()
-        );
+    /// @notice Test that the Authorship Token's issue length was set correctly.
+    function test_authorshipTokenIssueLengthEquality() public {
+        assertEq(deployMainnet.authorshipToken().issueLength(), deployMainnet.issueLength());
+    }
+
+    /// @notice Test that the Authorship Token's authors were set.
+    function test_authorshipTokenAuthorsEquality() public {
+        uint256 totalSupply = deployMainnet.authorshipToken().totalSupply();
+        assertEq(totalSupply, deployMainnet.authorsLength());
+
+        unchecked {
+            for (uint256 i; i < totalSupply; ++i) {
+                assertEq(deployMainnet.authorshipToken().ownerOf(i + 1), deployMainnet.authors(i));
+            }
+        }
+    }
+
+    /// @notice Test that an Authorship Token can be minted after deploy.
+    function test_authorshipTokenMinting() public {
+        AuthorshipToken authorshipToken = deployMainnet.authorshipToken();
+
+        // Warp 1 `issueLength` period forward in time to ensure the owner can
+        // mint 1.
+        vm.warp(block.timestamp + authorshipToken.issueLength() + 1);
+
+        // Mint as owner.
+        vm.prank(authorshipToken.owner());
+        authorshipToken.ownerMint(address(this));
     }
 
     /// @notice Test that the Authorship Token's ownership was transferred

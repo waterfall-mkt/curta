@@ -10,9 +10,6 @@ import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 /// @notice A script to deploy the protocol for testing purposes. In addition to
 /// deploying Curta, 2 mock puzzles are deployed.
 contract DeployTest is DeployBase {
-    /// @notice The merkle root of the Authorship Token.
-    bytes32 constant AUTHORSHIP_TOKEN_MERKLE_ROOT = "";
-
     /// @notice The address to transfer the ownership of the Authorship Token
     /// to.
     address constant AUTHORSHIP_TOKEN_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
@@ -20,7 +17,14 @@ contract DeployTest is DeployBase {
     /// @notice The address to transfer the ownership of Curta to.
     address constant CURTA_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
 
-    constructor() DeployBase(AUTHORSHIP_TOKEN_MERKLE_ROOT, AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER) { }
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 constant ISSUE_LENGTH = 10 seconds;
+
+    /// @notice The list of authors in the initial batch.
+    address[] internal AUTHORS = new address[](0);
+
+    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH, AUTHORS) { }
 
     /// @notice See description for {DeployTest}.
     function run() public override {

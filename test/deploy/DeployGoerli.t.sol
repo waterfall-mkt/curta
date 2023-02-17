@@ -41,11 +41,34 @@ contract DeployGoerliTest is Test {
         assertEq(deployGoerli.authorshipToken().curta(), address(deployGoerli.curta()));
     }
 
-    /// @notice Test that the Authorship Token's merkle root was set correctly.
-    function test_authorshipTokenMerkleRootEquality() public {
-        assertEq(
-            deployGoerli.authorshipToken().merkleRoot(), deployGoerli.authorshipTokenMerkleRoot()
-        );
+    /// @notice Test that the Authorship Token's issue length was set correctly.
+    function test_authorshipTokenIssueLengthEquality() public {
+        assertEq(deployGoerli.authorshipToken().issueLength(), deployGoerli.issueLength());
+    }
+
+    /// @notice Test that the Authorship Token's authors were set.
+    function test_authorshipTokenAuthorsEquality() public {
+        uint256 totalSupply = deployGoerli.authorshipToken().totalSupply();
+        assertEq(totalSupply, deployGoerli.authorsLength());
+
+        unchecked {
+            for (uint256 i; i < totalSupply; ++i) {
+                assertEq(deployGoerli.authorshipToken().ownerOf(i + 1), deployGoerli.authors(i));
+            }
+        }
+    }
+
+    /// @notice Test that an Authorship Token can be minted after deploy.
+    function test_authorshipTokenMinting() public {
+        AuthorshipToken authorshipToken = deployGoerli.authorshipToken();
+
+        // Warp 1 `issueLength` period forward in time to ensure the owner can
+        // mint 1.
+        vm.warp(block.timestamp + authorshipToken.issueLength() + 1);
+
+        // Mint as owner.
+        vm.prank(authorshipToken.owner());
+        authorshipToken.ownerMint(address(this));
     }
 
     /// @notice Test that the Authorship Token's ownership was transferred

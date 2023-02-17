@@ -27,10 +27,6 @@ contract DeployBase is Script {
     // Environment specific variables
     // -------------------------------------------------------------------------
 
-    /// @notice The merkle root of the addresses in the initial Authorship
-    /// Token's mintlist.
-    bytes32 public immutable authorshipTokenMerkleRoot;
-
     /// @notice The address to transfer the Authorship Token's ownership to
     /// immediately after deploy.
     address public immutable authorshipTokenOwner;
@@ -38,6 +34,18 @@ contract DeployBase is Script {
     /// @notice The address to transfer the Curta's ownership to immediately
     /// after deploy.
     address public immutable curtaOwner;
+
+    /// @notice The number of seconds until an additional token is made
+    /// available for minting by the author.
+    uint256 public immutable issueLength;
+
+    /// @notice The number of authors in the initial batch that will receive 1
+    /// Authorship Token each.
+    uint256 public immutable authorsLength;
+
+    /// @notice The list of authors in the initial batch that will receive 1
+    /// Authorship Token each.
+    mapping(uint256 => address) public authors;
 
     // -------------------------------------------------------------------------
     // Deploy addresses
@@ -59,20 +67,31 @@ contract DeployBase is Script {
     // Constructor
     // -------------------------------------------------------------------------
 
-    /// @param _authorshipTokenMerkleRoot The merkle root of the addresses in
-    /// the initial Authorship Token's mintlist.
     /// @param _authorshipTokenOwner The address to transfer the Authorship
     /// Token's ownership to immediately after deploy.
     /// @param _curtaOwner The address to transfer Curta's ownership to
     /// immediately after deploy.
+    /// @param _issueLength The number of seconds until an additional token is
+    /// made available for minting by the author.
+    /// @param _authors The list of authors in the initial batch.
     constructor(
-        bytes32 _authorshipTokenMerkleRoot,
         address _authorshipTokenOwner,
-        address _curtaOwner
+        address _curtaOwner,
+        uint256 _issueLength,
+        address[] memory _authors
     ) {
-        authorshipTokenMerkleRoot = _authorshipTokenMerkleRoot;
         authorshipTokenOwner = _authorshipTokenOwner;
         curtaOwner = _curtaOwner;
+        issueLength = _issueLength;
+
+        uint256 length = _authors.length;
+        authorsLength = length;
+        for (uint256 i ; i < length; ) {
+            authors[i] = _authors[i];
+            unchecked {
+                ++i;
+            }
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -117,11 +136,18 @@ contract DeployBase is Script {
 
         vm.startBroadcast(authorshipTokenKey);
 
+        // Create an array of the initial authors.
+        uint256 length = authorsLength;
+        address[] memory initialAuthors = new address[](length);
+        for (uint256 i; i < length;) {
+            initialAuthors[i] = authors[i];
+            unchecked {
+                ++i;
+            }
+        }
+
         // Deploy the Authorship Token contract.
-        authorshipToken = new AuthorshipToken(
-            curtaAddress,
-            authorshipTokenMerkleRoot
-        );
+        authorshipToken = new AuthorshipToken(curtaAddress, issueLength, initialAuthors);
         console.log("Authorship Token Address: ", address(authorshipToken));
         // Transfer ownership to `authorshipTokenOwner`.
         authorshipToken.transferOwnership(authorshipTokenOwner);
@@ -135,10 +161,7 @@ contract DeployBase is Script {
         vm.startBroadcast(curtaKey);
 
         // Deploy Curta contract,
-        curta = new Curta(
-            authorshipToken,
-            ITokenRenderer(baseRenderer)
-        );
+        curta = new Curta(authorshipToken, ITokenRenderer(baseRenderer));
         console.log("Curta Address: ", address(curta));
         // Transfer ownership to `curtaOwner`.
         curta.transferOwnership(curtaOwner);
