@@ -50,6 +50,9 @@ contract Curta is ICurta, FlagsERC721, Owned {
     /// @dev This fee is transferred to the address returned by `owner`.
     uint256 constant PHASE_TWO_PROTOCOL_FEE = 0.01 ether;
 
+    /// @notice The default Flag colors.
+    uint120 constant DEFAULT_FLAG_COLORS = 0x181E28181E2827303DF0F6FC94A3B3;
+
     // -------------------------------------------------------------------------
     // Immutable Storage
     // -------------------------------------------------------------------------
@@ -193,6 +196,9 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
             // Add puzzle author.
             getPuzzleAuthor[curPuzzleId] = msg.sender;
+
+            // Add puzzle Flag colors with default colors.
+            getPuzzleColorsAndSolves[curPuzzleId].colors = DEFAULT_FLAG_COLORS;
 
             // Emit events.
             emit AddPuzzle(curPuzzleId, msg.sender, _puzzle);
