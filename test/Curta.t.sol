@@ -59,12 +59,6 @@ contract CurtaTest is BaseTest {
     /// @dev Copied from EIP-721.
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
 
-    /// @notice Emitted when a puzzle's token renderer is updated.
-    /// @dev Copied from {ICurta}.
-    /// @param id The ID of the puzzle.
-    /// @param tokenRenderer The token renderer.
-    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
-
     // -------------------------------------------------------------------------
     // Initialization
     // -------------------------------------------------------------------------
@@ -609,37 +603,6 @@ contract CurtaTest is BaseTest {
         assertEq(
             address(this).balance, authorBalance + PHASE_TWO_MINIMUM_FEE - PHASE_TWO_PROTOCOL_FEE
         );
-    }
-
-    // -------------------------------------------------------------------------
-    // `setPuzzleTokenRenderer`
-    // -------------------------------------------------------------------------
-
-    /// @notice Test that sender is the author of the puzzle they are trying to
-    /// update.
-    function test_setPuzzleTokenRenderer_SetUnauthoredPuzzle_RevertsUnauthorized() public {
-        ITokenRenderer tokenRenderer = new BaseRenderer();
-        _deployAndAddPuzzle(address(0xBEEF));
-
-        // `address(this)` is not the author of puzzle #1.
-        vm.expectRevert(ICurta.Unauthorized.selector);
-        curta.setPuzzleTokenRenderer(1, tokenRenderer);
-    }
-
-    /// @notice Test events emitted and storage variable changes upon setting a
-    /// new puzzle token renderer.
-    function test_setPuzzleTokenRenderer() public {
-        ITokenRenderer tokenRenderer = new BaseRenderer();
-        _deployAndAddPuzzle(address(this));
-
-        // Token renderer should be `address(0)` by default.
-        assertEq(address(curta.getPuzzleTokenRenderer(1)), address(0));
-
-        vm.expectEmit(true, true, true, true);
-        emit UpdatePuzzleTokenRenderer(1, tokenRenderer);
-        curta.setPuzzleTokenRenderer(1, tokenRenderer);
-
-        assertEq(address(curta.getPuzzleTokenRenderer(1)), address(tokenRenderer));
     }
 
     // -------------------------------------------------------------------------

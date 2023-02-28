@@ -110,11 +110,6 @@ interface ICurta {
     /// @param phase The phase in which the puzzle was solved.
     event SolvePuzzle(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
 
-    /// @notice Emitted when a puzzle's token renderer is updated.
-    /// @param id The ID of the puzzle.
-    /// @param tokenRenderer The token renderer.
-    event UpdatePuzzleTokenRenderer(uint32 indexed id, ITokenRenderer tokenRenderer);
-
     // -------------------------------------------------------------------------
     // Immutable Storage
     // -------------------------------------------------------------------------
@@ -163,12 +158,6 @@ interface ICurta {
     /// @return The address of the puzzle author.
     function getPuzzleAuthor(uint32 _puzzleId) external view returns (address);
 
-    /// @dev If the token renderer does not exist, it defaults to the fallback
-    /// token renderer (i.e. the one returned by {ICurta-baseRenderer}).
-    /// @param _puzzleId The ID of a puzzle.
-    /// @return The puzzle's token renderer.
-    function getPuzzleTokenRenderer(uint32 _puzzleId) external view returns (ITokenRenderer);
-
     /// @param _solver The address of a solver.
     /// @param _puzzleId The ID of a puzzle.
     /// @return Whether `_solver` has solved the puzzle of ID `_puzzleId`.
@@ -193,13 +182,6 @@ interface ICurta {
     /// @param _puzzle The address of the puzzle.
     /// @param _id The ID of the Authorship Token to burn.
     function addPuzzle(IPuzzle _puzzle, uint256 _id) external;
-
-    /// @notice Sets the fallback token renderer for a puzzle.
-    /// @dev Only the author of the puzzle of ID `_puzzleId` may set its token
-    /// renderer.
-    /// @param _puzzleId The ID of the puzzle.
-    /// @param _tokenRenderer The token renderer.
-    function setPuzzleTokenRenderer(uint32 _puzzleId, ITokenRenderer _tokenRenderer) external;
 
     /// @notice Burns and mints NFT #0 to the author of the puzzle of ID
     /// `_puzzleId` if it is the puzzle that went longest unsolved.

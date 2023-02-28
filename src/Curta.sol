@@ -24,8 +24,8 @@ import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title Curta
 /// @author fiveoutofnine
-/// @notice An extensible CTF, where each part is a generative puzzle, and each
-/// solution is minted as an NFT (``Flag'').
+/// @notice A CTF protocol, where players create and solve EVM puzzles to earn
+/// NFTs (``Flag'').
 contract Curta is ICurta, FlagsERC721, Owned {
     using LibString for uint256;
 
@@ -78,9 +78,6 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
     /// @inheritdoc ICurta
     mapping(uint32 => address) public override getPuzzleAuthor;
-
-    /// @inheritdoc ICurta
-    mapping(uint32 => ITokenRenderer) public override getPuzzleTokenRenderer;
 
     /// @inheritdoc ICurta
     mapping(address => mapping(uint32 => bool)) public override hasSolvedPuzzle;
@@ -203,18 +200,6 @@ contract Curta is ICurta, FlagsERC721, Owned {
     }
 
     /// @inheritdoc ICurta
-    function setPuzzleTokenRenderer(uint32 _puzzleId, ITokenRenderer _tokenRenderer) external {
-        // Revert if `msg.sender` is not the author of the puzzle.
-        if (getPuzzleAuthor[_puzzleId] != msg.sender) revert Unauthorized();
-
-        // Set token renderer.
-        getPuzzleTokenRenderer[_puzzleId] = _tokenRenderer;
-
-        // Emit events.
-        emit UpdatePuzzleTokenRenderer(_puzzleId, _tokenRenderer);
-    }
-
-    /// @inheritdoc ICurta
     function setFermat(uint32 _puzzleId) external {
         // Revert if the puzzle has never been solved.
         PuzzleData memory puzzleData = getPuzzle[_puzzleId];
@@ -270,10 +255,10 @@ contract Curta is ICurta, FlagsERC721, Owned {
         require(getTokenData[_tokenId].owner != address(0), "NOT_MINTED");
 
         // Retrieve information about the puzzle.
-        uint32 puzzleId = uint32(_tokenId >> 128);
-        address author = getPuzzleAuthor[puzzleId];
-        PuzzleData memory puzzleData = getPuzzle[puzzleId];
-        uint32 solves = getPuzzleSolves[puzzleId].solves;
+        uint32 _puzzleId = uint32(_tokenId >> 128);
+        address author = getPuzzleAuthor[_puzzleId];
+        PuzzleData memory puzzleData = getPuzzle[_puzzleId];
+        uint32 solves = getPuzzleSolves[_puzzleId].solves;
 
         return string.concat(
             "data:application/json;base64,",
