@@ -18,6 +18,6 @@ contract PrintAuthorshipTokenScriptScript is Script {
             authorshipToken.ownerMint(address(this));
         }
 
-        console.log(authorshipToken.tokenURI(9));
+        console.log(authorshipToken.tokenURI(2));
     }
 }
