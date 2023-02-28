@@ -57,6 +57,12 @@ contract CurtaTest is BaseTest {
     /// @dev Copied from EIP-721.
     event Transfer(address indexed _from, address indexed _to, uint256 indexed _tokenId);
 
+    /// @notice Emitted when a puzzle's colors are updated.
+    /// @dev Copied from {ICurta}.
+    /// @param id The ID of the puzzle.
+    /// @param colors The colors of the puzzle's Flags.
+    event UpdatePuzzleColors(uint32 indexed id, uint256 colors);
+
     // -------------------------------------------------------------------------
     // Initialization
     // -------------------------------------------------------------------------
@@ -320,8 +326,9 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         curta.solve(1, mockPuzzle.getSolution(address(this)));
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
@@ -333,8 +340,9 @@ contract CurtaTest is BaseTest {
         vm.prank(address(0xBEEF));
         curta.solve(1, beefSolution);
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 0);
@@ -348,8 +356,9 @@ contract CurtaTest is BaseTest {
         vm.prank(address(0xC0FFEE));
         curta.solve{ value: PHASE_TWO_MINIMUM_FEE }(1, coffeeSolution);
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 1);
@@ -458,8 +467,9 @@ contract CurtaTest is BaseTest {
 
         // `address(this)` has not solved the puzzle yet.
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 0);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
@@ -486,8 +496,9 @@ contract CurtaTest is BaseTest {
         curta.solve(1, solution);
 
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 0);
             assertEq(phase2Solves, 0);
@@ -525,8 +536,9 @@ contract CurtaTest is BaseTest {
         curta.solve(1, beefSolution);
 
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 0);
@@ -570,15 +582,17 @@ contract CurtaTest is BaseTest {
         curta.solve{ value: PHASE_TWO_MINIMUM_FEE }(1, coffeeSolution);
 
         {
-            (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
-                curta.getPuzzleSolves(1);
+            (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
+                curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
             assertEq(phase0Solves, 1);
             assertEq(phase1Solves, 1);
             assertEq(phase2Solves, 1);
             assertEq(solves, 3);
 
             assertTrue(curta.hasSolvedPuzzle(address(0xC0FFEE), 1));
-
+        }
+        {
             // Both `addedTimestamp` and `firstSolveTimestamp` should not have
             // been affected.
             (, uint40 addedTimestamp, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
@@ -601,6 +615,43 @@ contract CurtaTest is BaseTest {
         assertEq(
             address(this).balance, authorBalance + PHASE_TWO_MINIMUM_FEE - PHASE_TWO_PROTOCOL_FEE
         );
+    }
+
+    // -------------------------------------------------------------------------
+    // `setPuzzleColors`
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that sender is the author of the puzzle they are trying to
+    /// update.
+    function test_setPuzzleColors_SetUnauthoredPuzzle_RevertsUnauthorized() public {
+        _deployAndAddPuzzle(address(0xBEEF));
+
+        // `address(this)` is not the author of puzzle #1.
+        vm.expectRevert(ICurta.Unauthorized.selector);
+        curta.setPuzzleColors(1, 1);
+    }
+
+    /// @notice Test events emitted and storage variable changes upon setting
+    /// new colors for a puzzle.
+    function test_setPuzzleColors() public {
+        _deployAndAddPuzzle(address(this));
+
+        uint120 newColors = 1;
+
+        // Colors should be 0 by default.
+        {
+            (uint120 colors,,,,) = curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, 0);
+        }
+
+        vm.expectEmit(true, true, true, true);
+        emit UpdatePuzzleColors(1, newColors);
+        curta.setPuzzleColors(1, newColors);
+
+        {
+            (uint120 colors,,,,) = curta.getPuzzleColorsAndSolves(1);
+            assertEq(colors, newColors);
+        }
     }
 
     // -------------------------------------------------------------------------

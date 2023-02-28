@@ -82,11 +82,13 @@ interface ICurta {
     }
 
     /// @notice A struct containing the number of solves a puzzle has.
+    /// @param colors The colors of the puzzle's Flags.
     /// @param phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @param phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @param phase2Solves The total number of Phase 2 solves a puzzle has.
     /// @param solves The total number of solves a puzzle has.
-    struct PuzzleSolves {
+    struct PuzzleColorsAndSolves {
+        uint120 colors;
         uint32 phase0Solves;
         uint32 phase1Solves;
         uint32 phase2Solves;
@@ -110,6 +112,11 @@ interface ICurta {
     /// @param phase The phase in which the puzzle was solved.
     event SolvePuzzle(uint32 indexed id, address indexed solver, uint256 solution, uint8 phase);
 
+    /// @notice Emitted when a puzzle's colors are updated.
+    /// @param id The ID of the puzzle.
+    /// @param colors The colors of the puzzle's Flags.
+    event UpdatePuzzleColors(uint32 indexed id, uint256 colors);
+
     // -------------------------------------------------------------------------
     // Immutable Storage
     // -------------------------------------------------------------------------
@@ -132,14 +139,15 @@ interface ICurta {
     function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
     /// @param _puzzleId The ID of a puzzle.
+    /// @return colors The colors of a puzzle's Flags.
     /// @return phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @return phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @return phase2Solves The total number of Phase 2 solves a puzzle has.
     /// @return solves The total number of solves a puzzle has.
-    function getPuzzleSolves(uint32 _puzzleId)
+    function getPuzzleColorsAndSolves(uint32 _puzzleId)
         external
         view
-        returns (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
+        returns (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
 
     /// @param _puzzleId The ID of a puzzle.
     /// @return puzzle The address of the puzzle.
@@ -179,6 +187,13 @@ interface ICurta {
     /// @param _puzzle The address of the puzzle.
     /// @param _id The ID of the Authorship Token to burn.
     function addPuzzle(IPuzzle _puzzle, uint256 _id) external;
+
+    /// @notice Set the colors for a puzzle's Flags.
+    /// @dev Only the author of the puzzle of ID `_puzzleId` may set its token
+    /// renderer.
+    /// @param _puzzleId The ID of the puzzle.
+    /// @param _colors The colors for a puzzle's Flags.
+    function setPuzzleColors(uint32 _puzzleId, uint120 _colors) external;
 
     /// @notice Burns and mints NFT #0 to the author of the puzzle of ID
     /// `_puzzleId` if it is the puzzle that went longest unsolved.

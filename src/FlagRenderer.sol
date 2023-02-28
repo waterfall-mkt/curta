@@ -9,10 +9,14 @@ import { Base64 } from "@/contracts/utils/Base64.sol";
 contract FlagRenderer {
     using LibString for uint256;
 
-    function tokenURI(
-        ICurta.PuzzleData memory _puzzleData /* ,
+    function render(
+        ICurta.PuzzleData memory _puzzleData,
         address _author,
-        uint256 _colors */
+        uint8 _phase,
+        uint40 _solveTime,
+        uint32 _solves,
+        uint56 _solveMetadata,
+        uint256 _colors
     ) external pure returns (string memory) {
         return string.concat(
             "data:application/json;base64," /*,

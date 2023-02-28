@@ -71,7 +71,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
     Fermat public override fermat;
 
     /// @inheritdoc ICurta
-    mapping(uint32 => PuzzleSolves) public override getPuzzleSolves;
+    mapping(uint32 => PuzzleColorsAndSolves) public override getPuzzleColorsAndSolves;
 
     /// @inheritdoc ICurta
     mapping(uint32 => PuzzleData) public override getPuzzle;
@@ -127,7 +127,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // Update the puzzle's first solve timestamp if it was previously unset.
         if (firstSolveTimestamp == 0) {
             getPuzzle[_puzzleId].firstSolveTimestamp = solveTimestamp;
-            ++getPuzzleSolves[_puzzleId].phase0Solves;
+            ++getPuzzleColorsAndSolves[_puzzleId].phase0Solves;
 
             // Give first solver an Authorship Token
             authorshipToken.curtaMint(msg.sender);
@@ -141,18 +141,18 @@ contract Curta is ICurta, FlagsERC721, Owned {
             // Mint NFT.
             _mint({
                 _to: msg.sender,
-                _id: (uint256(_puzzleId) << 128) | getPuzzleSolves[_puzzleId].solves++,
+                _id: (uint256(_puzzleId) << 128) | getPuzzleColorsAndSolves[_puzzleId].solves++,
                 _solveMetadata: uint56(((uint160(msg.sender) >> 132) << 28) | (_solution & 0xFFFFFFF)),
                 _phase: phase
             });
 
             if (phase == 1) {
-                ++getPuzzleSolves[_puzzleId].phase1Solves;
+                ++getPuzzleColorsAndSolves[_puzzleId].phase1Solves;
             } else if (phase == 2) {
                 // Revert if the puzzle is in Phase 2, and insufficient funds
                 // were sent.
                 if (ethRemaining < PHASE_TWO_MINIMUM_FEE) revert InsufficientFunds();
-                ++getPuzzleSolves[_puzzleId].phase2Solves;
+                ++getPuzzleColorsAndSolves[_puzzleId].phase2Solves;
 
                 // Transfer protocol fee to `owner`.
                 SafeTransferLib.safeTransferETH(owner, PHASE_TWO_PROTOCOL_FEE);
@@ -197,6 +197,18 @@ contract Curta is ICurta, FlagsERC721, Owned {
             // Emit events.
             emit AddPuzzle(curPuzzleId, msg.sender, _puzzle);
         }
+    }
+
+    /// @inheritdoc ICurta
+    function setPuzzleColors(uint32 _puzzleId, uint120 _colors) external {
+        // Revert if `msg.sender` is not the author of the puzzle.
+        if (getPuzzleAuthor[_puzzleId] != msg.sender) revert Unauthorized();
+
+        // Set puzzle colors.
+        getPuzzleColorsAndSolves[_puzzleId].colors = _colors;
+
+        // Emit events.
+        emit UpdatePuzzleColors(_puzzleId, _colors);
     }
 
     /// @inheritdoc ICurta
@@ -252,16 +264,24 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
     /// @inheritdoc FlagsERC721
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
-        require(getTokenData[_tokenId].owner != address(0), "NOT_MINTED");
+        TokenData memory tokenData = getTokenData[_tokenId];
+        require(tokenData.owner != address(0), "NOT_MINTED");
 
         // Retrieve information about the puzzle.
         uint32 _puzzleId = uint32(_tokenId >> 128);
-        address author = getPuzzleAuthor[_puzzleId];
         PuzzleData memory puzzleData = getPuzzle[_puzzleId];
-        uint32 solves = getPuzzleSolves[_puzzleId].solves;
+        address author = getPuzzleAuthor[_puzzleId];
+        uint32 solves = getPuzzleColorsAndSolves[_puzzleId].solves;
 
-        return "";
-        //return flagRenderer.tokenURI();
+        return flagRenderer.render({
+            _puzzleData: puzzleData,
+            _author: author,
+            _phase: _computePhase(puzzleData.firstSolveTimestamp, tokenData.solveTimestamp),
+            _solveTime: tokenData.solveTimestamp - puzzleData.addedTimestamp,
+            _solves: solves,
+            _solveMetadata: tokenData.solveMetadata,
+            _colors: 0x181E28181E2827303DF0F6FC94A3B3
+        });
     }
 
     // -------------------------------------------------------------------------
