@@ -13,7 +13,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 /// with the corresponding RPC URL to fork with.
 contract PrintAuthorshipTokenScript is Script {
     /// @notice The instance of `AuthorshipToken` that will be deployed after
-    /// the script runs. 
+    /// the script runs.
     AuthorshipToken internal authorshipToken;
 
     /// @notice The address of the live deployed `Curta` contract.

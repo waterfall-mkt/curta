@@ -85,7 +85,7 @@ contract DeployBase is Script {
 
         uint256 length = _authors.length;
         authorsLength = length;
-        for (uint256 i ; i < length; ) {
+        for (uint256 i; i < length;) {
             authors[i] = _authors[i];
             unchecked {
                 ++i;
