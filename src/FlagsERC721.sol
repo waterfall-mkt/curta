@@ -26,11 +26,15 @@ abstract contract FlagsERC721 {
     // -------------------------------------------------------------------------
 
     /// @param owner The owner of the token.
-    /// @param puzzleId The ID of the puzzle that the token represents.
     /// @param solveTimestamp The timestamp of when the token was solved/minted.
+    /// @param solveMetadata A bitpacked `uint56` containing the following
+    /// information:
+    ///     * The first 28 bits are the first 28 bits of the solver.
+    ///     * The lsat 28 bits are the last 28 bits of the solution.
     struct TokenData {
         address owner;
         uint40 solveTimestamp;
+        uint56 solveMetadata;
     }
 
     /// @param phase0Solves The number of puzzles someone solved during Phase 0.
@@ -85,9 +89,10 @@ abstract contract FlagsERC721 {
     /// `(puzzleId << 128) + zeroIndexedSolveRanking`.
     /// @param _to The address to mint the token to.
     /// @param _id The ID of the token.
-    /// @param _puzzleId The ID of the puzzle that the token represents.
+    /// @param _solveMetadata The metadata for the solve (see
+    /// {FlagsERC721.TokenData}).
     /// @param _phase The phase the token was solved in.
-    function _mint(address _to, uint256 _id, uint32 _puzzleId, uint8 _phase) internal {
+    function _mint(address _to, uint256 _id, uint56 _solveMetadata, uint8 _phase) internal {
         // We do not check whether the `_to` is `address(0)` or that the token
         // was previously minted because {Curta} ensures these conditions are
         // never true.
@@ -105,8 +110,11 @@ abstract contract FlagsERC721 {
             else ++getUserBalances[_to].phase2Solves;
         }
 
-        getTokenData[_id] =
-            TokenData({owner: _to, puzzleId: _puzzleId, solveTimestamp: uint40(block.timestamp)});
+        getTokenData[_id] = TokenData({
+            owner: _to,
+            solveMetadata: _solveMetadata,
+            solveTimestamp: uint40(block.timestamp)
+        });
 
         // Emit event.
         emit Transfer(address(0), _to, _id);

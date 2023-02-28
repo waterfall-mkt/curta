@@ -160,7 +160,7 @@ contract CurtaTest is BaseTest {
     function test_solve_NonExistantPuzzle_Fails() public {
         // Puzzle #1 does not exist.
         vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleDoesNotExist.selector, 1));
-        curta.solve({_puzzleId: 1, _solution: 0});
+        curta.solve({ _puzzleId: 1, _solution: 0 });
     }
 
     /// @notice Test that players may not submit solutions `SUBMISSION_LENGTH`<
@@ -260,7 +260,7 @@ contract CurtaTest is BaseTest {
 
         // `address(this)` gets their solve at `timestamp + _secondsPassed`.
         uint256 solution = mockPuzzle.getSolution(address(this));
-        curta.solve{value: PHASE_TWO_MINIMUM_FEE}(1, solution);
+        curta.solve{ value: PHASE_TWO_MINIMUM_FEE }(1, solution);
         (,, uint40 firstSolveTimestamp) = curta.getPuzzle(1);
 
         // `firstSolveTimestamp` remains unchanged.
@@ -346,7 +346,7 @@ contract CurtaTest is BaseTest {
         // `0xC0FFEE` gets a Phase 2 solve.
         uint256 coffeeSolution = mockPuzzle.getSolution(address(0xC0FFEE));
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: PHASE_TWO_MINIMUM_FEE}(1, coffeeSolution);
+        curta.solve{ value: PHASE_TWO_MINIMUM_FEE }(1, coffeeSolution);
         {
             (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
                 curta.getPuzzleSolves(1);
@@ -376,7 +376,7 @@ contract CurtaTest is BaseTest {
         uint256 beefSolution = mockPuzzle.getSolution(address(0xBEEF));
         vm.prank(address(0xBEEF));
         if (_payment < PHASE_TWO_MINIMUM_FEE) vm.expectRevert(ICurta.InsufficientFunds.selector);
-        curta.solve{value: _payment}(1, beefSolution);
+        curta.solve{ value: _payment }(1, beefSolution);
     }
 
     /// @notice Test whether the ETH amount sent to solve a puzzle during Phase
@@ -401,7 +401,7 @@ contract CurtaTest is BaseTest {
         // `0xBEEF` submits during Phase 1.
         uint256 beefSolution = mockPuzzle.getSolution(address(0xBEEF));
         vm.prank(address(0xBEEF));
-        curta.solve{value: _payment}(1, beefSolution);
+        curta.solve{ value: _payment }(1, beefSolution);
 
         // `address(this)` should have received the full payment.
         assertEq(address(this).balance, authorBalance + _payment);
@@ -430,7 +430,7 @@ contract CurtaTest is BaseTest {
         // `0xBEEF` submits during Phase 2.
         uint256 beefSolution = mockPuzzle.getSolution(address(0xBEEF));
         vm.prank(address(0xBEEF));
-        curta.solve{value: _payment}(1, beefSolution);
+        curta.solve{ value: _payment }(1, beefSolution);
 
         // The owner of Curta should have received the protocol fee.
         assertEq(address(curta.owner()).balance, protocolBalance + PHASE_TWO_PROTOCOL_FEE);
@@ -482,7 +482,7 @@ contract CurtaTest is BaseTest {
         // `address(this)` gets first blood.
         uint256 solution = puzzle.getSolution(address(this));
         vm.expectEmit(true, true, true, true);
-        emit SolvePuzzle({id: 1, solver: address(this), solution: solution, phase: 0});
+        emit SolvePuzzle({ id: 1, solver: address(this), solution: solution, phase: 0 });
         curta.solve(1, solution);
 
         {
@@ -520,7 +520,7 @@ contract CurtaTest is BaseTest {
         // `0xBEEF` gets a Phase 1 solve.
         uint256 beefSolution = puzzle.getSolution(address(0xBEEF));
         vm.expectEmit(true, true, true, true);
-        emit SolvePuzzle({id: 1, solver: address(0xBEEF), solution: beefSolution, phase: 1});
+        emit SolvePuzzle({ id: 1, solver: address(0xBEEF), solution: beefSolution, phase: 1 });
         vm.prank(address(0xBEEF));
         curta.solve(1, beefSolution);
 
@@ -565,9 +565,9 @@ contract CurtaTest is BaseTest {
         // `0xC0FFEE` gets a Phase 2 solve.
         uint256 coffeeSolution = puzzle.getSolution(address(0xC0FFEE));
         vm.expectEmit(true, true, true, true);
-        emit SolvePuzzle({id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2});
+        emit SolvePuzzle({ id: 1, solver: address(0xC0FFEE), solution: coffeeSolution, phase: 2 });
         vm.prank(address(0xC0FFEE));
-        curta.solve{value: PHASE_TWO_MINIMUM_FEE}(1, coffeeSolution);
+        curta.solve{ value: PHASE_TWO_MINIMUM_FEE }(1, coffeeSolution);
 
         {
             (uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves) =
@@ -627,7 +627,7 @@ contract CurtaTest is BaseTest {
 
         // Warp forward 1 day and get the first blood as `0xC0FFEE`.
         vm.warp(block.timestamp + 1 days);
-        _solveMockPuzzle({_puzzleId: 1, _as: address(0xC0FFEE)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(0xC0FFEE) });
 
         // Now, `setFermat` succeeds because the puzzle has been solved.
         vm.expectEmit(true, true, true, true);
@@ -645,7 +645,7 @@ contract CurtaTest is BaseTest {
     /// @param _sender The address to call `setFermat` from.
     function test_setFermat_AsRandomAccount_Succeeds(address _sender) public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         vm.prank(_sender);
         curta.setFermat(1);
@@ -655,7 +655,7 @@ contract CurtaTest is BaseTest {
     /// Fermat again.
     function test_setFermat_SetSamePuzzleTwice_Fails() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         curta.setFermat(1);
 
         // Puzzle #1 has already been Fermat.
@@ -671,7 +671,7 @@ contract CurtaTest is BaseTest {
         // Add puzzle as ID #1, and solve it 2 days later.
         _deployAndAddPuzzle(address(this));
         vm.warp(start + 2 days);
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         curta.setFermat(1);
 
         // Add puzzle as ID #2, and solve it 1 day later. Since puzzle #1 took
@@ -679,7 +679,7 @@ contract CurtaTest is BaseTest {
         vm.warp(start);
         _deployAndAddPuzzle(address(this));
         vm.warp(start + 1 days);
-        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 2, _as: address(this) });
         vm.expectRevert(abi.encodeWithSelector(ICurta.PuzzleNotFermat.selector, 2));
         curta.setFermat(2);
     }
@@ -693,13 +693,13 @@ contract CurtaTest is BaseTest {
         // Add puzzle as ID #1 from `0xBEEF`, and solve it 2 days later.
         _deployAndAddPuzzle(address(0xBEEF));
         vm.warp(start + 2 days);
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         // Add puzzle as ID #2 from `0xC0FFEE`, and solve it 1 day later.
         vm.warp(start);
         _deployAndAddPuzzle(address(0xC0FFEE));
         vm.warp(start + 1 days);
-        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 2, _as: address(this) });
 
         // Although puzzle #2 took less time to solve, puzzle #1 was not set
         // Fermat, so puzzle #2 should be eligible for Fermat.
@@ -745,13 +745,13 @@ contract CurtaTest is BaseTest {
         // Add puzzle as ID #1 from `0xBEEF`, and solve it 2 days later.
         _deployAndAddPuzzle(address(0xBEEF));
         vm.warp(start + 2 days);
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         // Add puzzle as ID #2 from `0xC0FFEE`, and solve it 1 day later.
         vm.warp(start);
         _deployAndAddPuzzle(address(0xC0FFEE));
         vm.warp(start + 1 days);
-        _solveMockPuzzle({_puzzleId: 2, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 2, _as: address(this) });
 
         // Although puzzle #2 took less time to solve, puzzle #1 was not set
         // Fermat, so puzzle #2 should be eligible for Fermat.
@@ -799,7 +799,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test that `tokenURI` does not revert for tokens that exist.
     function test_tokenURI_MintedToken_Succeeds() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         curta.tokenURI((1 << 128) | 0);
     }
@@ -817,7 +817,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test that sender must own the token to approve a token.
     function test_approve_SenderIsNotOwner_RevertsUnauthorized() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         vm.prank(address(0xBEEF));
         vm.expectRevert("NOT_AUTHORIZED");
@@ -828,7 +828,7 @@ contract CurtaTest is BaseTest {
     /// permissions to set approval for all tokens.
     function test_approve_WithApprovalForAllTrue_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         uint256 tokenId = (1 << 128) | 0;
 
         curta.setApprovalForAll(address(0xBEEF), true);
@@ -839,7 +839,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test events emitted and state changes when approval is set.
     function test_approve() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         uint256 tokenId = (1 << 128) | 0;
 
         vm.expectEmit(true, true, true, true);
@@ -870,7 +870,7 @@ contract CurtaTest is BaseTest {
     /// token.
     function test_transferFrom_WrongFrom_Fails() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         vm.expectRevert("WRONG_FROM");
         curta.transferFrom(address(0xBEEF), address(this), (1 << 128) | 0);
@@ -879,7 +879,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test that tokens can not be transferred to the zero address.
     function test_transferFrom_ToZeroAddress_Fails() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         vm.expectRevert("INVALID_RECIPIENT");
         curta.transferFrom(address(this), address(0), (1 << 128) | 0);
@@ -889,7 +889,7 @@ contract CurtaTest is BaseTest {
     /// authorized in any way.
     function test_transferFrom_Unauthorized_RevertsUnauthorized() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         vm.expectRevert("NOT_AUTHORIZED");
         vm.prank(address(0xBEEF));
@@ -899,7 +899,7 @@ contract CurtaTest is BaseTest {
     /// @notice Test that sender can transfer a token if they own it.
     function test_transferFrom_SenderIsOwner_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 
         curta.transferFrom(address(this), address(0xBEEF), (1 << 128) | 0);
     }
@@ -908,7 +908,7 @@ contract CurtaTest is BaseTest {
     /// permissions to transfer all tokens.
     function test_transferFrom_WithApprovalForAllTrue_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         uint256 tokenId = (1 << 128) | 0;
 
         curta.setApprovalForAll(address(0xBEEF), true);
@@ -920,7 +920,7 @@ contract CurtaTest is BaseTest {
     /// permissions to transfer that token.
     function test_transferFrom_WithTokenApproval_AllowsTransfer() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
         uint256 tokenId = (1 << 128) | 0;
 
         curta.approve(address(0xBEEF), tokenId);
@@ -932,7 +932,10 @@ contract CurtaTest is BaseTest {
     /// transferred.
     function test_transferFrom() public {
         _deployAndAddPuzzle(address(this));
-        _solveMockPuzzle({_puzzleId: 1, _as: address(this)});
+        _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
+        uint256 solution = mockPuzzle.getSolution(address(this));
+        uint56 expectedSolveMetadata =
+            uint56(((uint160(address(this)) >> 132) << 28) | (solution & 0xFFFFFFF));
         uint256 tokenId = (1 << 128) | 0;
 
         // Check state prior to transferring the token.
@@ -950,10 +953,11 @@ contract CurtaTest is BaseTest {
             assertEq(solves, 1);
             assertEq(balance, 1);
 
-            (address owner, uint32 puzzleId, uint40 solveTimestamp) = curta.getTokenData(tokenId);
+            (address owner, uint40 solveTimestamp, uint56 solveMetadata) =
+                curta.getTokenData(tokenId);
             assertEq(owner, address(this));
-            assertEq(puzzleId, 1);
             assertEq(solveTimestamp, uint40(block.timestamp));
+            assertEq(solveMetadata, expectedSolveMetadata);
         }
         {
             (
@@ -1004,10 +1008,11 @@ contract CurtaTest is BaseTest {
             assertEq(solves, 0);
             assertEq(balance, 1);
 
-            (address owner, uint32 puzzleId, uint40 solveTimestamp) = curta.getTokenData(tokenId);
+            (address owner, uint40 solveTimestamp, uint56 solveMetadata) =
+                curta.getTokenData(tokenId);
             assertEq(owner, address(0xBEEF));
-            assertEq(puzzleId, 1);
             assertEq(solveTimestamp, uint40(block.timestamp));
+            assertEq(solveMetadata, expectedSolveMetadata);
         }
     }
 

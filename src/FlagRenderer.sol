@@ -10,7 +10,7 @@ contract FlagRenderer {
     using LibString for uint256;
 
     function tokenURI(
-        ICurta.PuzzleData memory _puzzleData/* ,
+        ICurta.PuzzleData memory _puzzleData /* ,
         address _author,
         uint256 _colors */
     ) external pure returns (string memory) {

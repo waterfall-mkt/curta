@@ -142,7 +142,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
             _mint({
                 _to: msg.sender,
                 _id: (uint256(_puzzleId) << 128) | getPuzzleSolves[_puzzleId].solves++,
-                _puzzleId: _puzzleId,
+                _solveMetadata: uint56(((uint160(msg.sender) >> 132) << 28) | (_solution & 0xFFFFFFF)),
                 _phase: phase
             });
 
@@ -167,7 +167,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], ethRemaining);
 
         // Emit event
-        emit SolvePuzzle({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
+        emit SolvePuzzle({ id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase });
     }
 
     /// @inheritdoc ICurta
