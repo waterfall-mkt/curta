@@ -64,7 +64,8 @@ contract CurtaTest is BaseTest {
     /// @notice Emitted when a puzzle's colors are updated.
     /// @dev Copied from {ICurta}.
     /// @param id The ID of the puzzle.
-    /// @param colors The colors of the puzzle's Flags.
+    /// @param colors A bitpacked `uint120` of 5 24-bit colors for the puzzle's
+    /// Flags.
     event UpdatePuzzleColors(uint32 indexed id, uint256 colors);
 
     // -------------------------------------------------------------------------

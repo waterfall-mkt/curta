@@ -82,7 +82,13 @@ interface ICurta {
     }
 
     /// @notice A struct containing the number of solves a puzzle has.
-    /// @param colors The colors of the puzzle's Flags.
+    /// @param colors A bitpacked `uint120` of 5 24-bit colors for the puzzle's
+    /// Flags in the following order (left-to-right):
+    ///     * Background color
+    ///     * Fill color
+    ///     * Border color
+    ///     * Primary text color
+    ///     * Secondary text color
     /// @param phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @param phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @param phase2Solves The total number of Phase 2 solves a puzzle has.
@@ -114,7 +120,8 @@ interface ICurta {
 
     /// @notice Emitted when a puzzle's colors are updated.
     /// @param id The ID of the puzzle.
-    /// @param colors The colors of the puzzle's Flags.
+    /// @param colors A bitpacked `uint120` of 5 24-bit colors for the puzzle's
+    /// Flags.
     event UpdatePuzzleColors(uint32 indexed id, uint256 colors);
 
     // -------------------------------------------------------------------------
@@ -139,7 +146,8 @@ interface ICurta {
     function fermat() external view returns (uint32 puzzleId, uint40 timeTaken);
 
     /// @param _puzzleId The ID of a puzzle.
-    /// @return colors The colors of a puzzle's Flags.
+    /// @return colors A bitpacked `uint120` of 5 24-bit colors for the puzzle's
+    /// Flags.
     /// @return phase0Solves The total number of Phase 0 solves a puzzle has.
     /// @return phase1Solves The total number of Phase 1 solves a puzzle has.
     /// @return phase2Solves The total number of Phase 2 solves a puzzle has.
@@ -192,7 +200,8 @@ interface ICurta {
     /// @dev Only the author of the puzzle of ID `_puzzleId` may set its token
     /// renderer.
     /// @param _puzzleId The ID of the puzzle.
-    /// @param _colors The colors for a puzzle's Flags.
+    /// @param _colors A bitpacked `uint120` of 5 24-bit colors for the puzzle's
+    /// Flags.
     function setPuzzleColors(uint32 _puzzleId, uint120 _colors) external;
 
     /// @notice Burns and mints NFT #0 to the author of the puzzle of ID
