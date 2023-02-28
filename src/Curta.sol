@@ -278,6 +278,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         PuzzleData memory puzzleData = getPuzzle[_puzzleId];
         address author = getPuzzleAuthor[_puzzleId];
         uint32 solves = getPuzzleColorsAndSolves[_puzzleId].solves;
+        uint120 colors = getPuzzleColorsAndSolves[_puzzleId].colors;
 
         return flagRenderer.render({
             _puzzleData: puzzleData,
@@ -286,7 +287,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
             _solveTime: tokenData.solveTimestamp - puzzleData.addedTimestamp,
             _solves: solves,
             _solveMetadata: tokenData.solveMetadata,
-            _colors: 0x181E28181E2827303DF0F6FC94A3B3
+            _colors: colors
         });
     }
 

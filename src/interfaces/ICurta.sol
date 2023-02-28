@@ -155,7 +155,13 @@ interface ICurta {
     function getPuzzleColorsAndSolves(uint32 _puzzleId)
         external
         view
-        returns (uint120 colors, uint32 phase0Solves, uint32 phase1Solves, uint32 phase2Solves, uint32 solves);
+        returns (
+            uint120 colors,
+            uint32 phase0Solves,
+            uint32 phase1Solves,
+            uint32 phase2Solves,
+            uint32 solves
+        );
 
     /// @param _puzzleId The ID of a puzzle.
     /// @return puzzle The address of the puzzle.
