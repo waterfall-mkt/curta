@@ -20,6 +20,9 @@ jobs:
       - name: Install deps
         run: forge install
 
+      - name: Check build sizes
+        run: forge build --sizes
+
       - name: Check gas snapshots
         run: forge snapshot --check
 

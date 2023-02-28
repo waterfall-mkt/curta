@@ -32,6 +32,11 @@ If you'd like to test on a mainnet fork or view a sample [`AuthorshipToken.token
 forge test -f mainnet -vvv
 ```
 
+Alternatively, to test the metadata output, follow the instructions in [`PrintAuthorshipTokenScript`](https://github.com/waterfall-mkt/curta/blob/main/script/PrintAuthorshipToken.s.sol), and run the following command:
+```sh
+forge script script/PrintAuthorshipToken.s.sol:PrintAuthorshipTokenScript -f mainnet -vvv
+```
+
 ### Coverage
 To view coverage, run the following command:
 ```sh
