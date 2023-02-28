@@ -400,7 +400,7 @@ contract AuthorshipToken is ERC721, Owned {
                         )
                     ),
                     '","attributes":[{"trait_type":"Used","value":',
-                    "true",//ICurta(curta).hasUsedAuthorshipToken(_tokenId) ? "true" : "false",
+                    ICurta(curta).hasUsedAuthorshipToken(_tokenId) ? "true" : "false",
                     "}]}"
                 )
             )
