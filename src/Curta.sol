@@ -12,6 +12,7 @@ pragma solidity ^0.8.17;
 // '==========================================================================='
 
 import { Owned } from "solmate/auth/Owned.sol";
+import { LibString } from "solmate/utils/LibString.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
 import { AuthorshipToken } from "./AuthorshipToken.sol";
@@ -26,6 +27,8 @@ import { Base64 } from "@/contracts/utils/Base64.sol";
 /// @notice An extensible CTF, where each part is a generative puzzle, and each
 /// solution is minted as an NFT (``Flag'').
 contract Curta is ICurta, FlagsERC721, Owned {
+    using LibString for uint256;
+
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
@@ -266,7 +269,35 @@ contract Curta is ICurta, FlagsERC721, Owned {
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
         require(getTokenData[_tokenId].owner != address(0), "NOT_MINTED");
 
-        return "";
+        // Retrieve information about the puzzle.
+        uint32 puzzleId = uint32(_tokenId >> 128);
+        address author = getPuzzleAuthor[puzzleId];
+        PuzzleData memory puzzleData = getPuzzle[puzzleId];
+        uint32 solves = getPuzzleSolves[puzzleId].solves;
+
+        return string.concat(
+            "data:application/json;base64,",
+            Base64.encode(
+                abi.encodePacked(
+                    '{"name":"',
+                    puzzleData.puzzle.name(),
+                    '","description":"',
+                    '","image_data": "',
+                    Base64.encode(
+                        abi.encodePacked("<svg></svg>")
+                    ),
+                    '","attributes":[{"trait_type":"Puzzle","value":"',
+                    puzzleData.puzzle.name(),
+                    '"},{"trait_type":"Author","value":"',
+                    '"},{"trait_type":"Phase","value":"',
+                    '"},{"trait_type":"Solver","value":"',
+                    '"},{"trait_type":"Solve time","value":"',
+                    '"},{"trait_type":"Rank","value":"',
+                    uint256(uint128(_tokenId)).toString(),
+                    '"}]}'
+                )
+            )
+        );
     }
 
     // -------------------------------------------------------------------------
