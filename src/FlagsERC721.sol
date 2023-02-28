@@ -30,7 +30,6 @@ abstract contract FlagsERC721 {
     /// @param solveTimestamp The timestamp of when the token was solved/minted.
     struct TokenData {
         address owner;
-        uint32 puzzleId;
         uint40 solveTimestamp;
     }
 
