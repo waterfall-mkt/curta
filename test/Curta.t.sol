@@ -2,10 +2,8 @@
 pragma solidity ^0.8.17;
 
 import { BaseTest } from "./utils/BaseTest.sol";
-import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 
 /// @notice Unit tests for `Curta`, organized by functions.

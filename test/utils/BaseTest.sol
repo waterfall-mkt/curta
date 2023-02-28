@@ -4,10 +4,9 @@ pragma solidity ^0.8.17;
 import { Test } from "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
-import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
 import { Curta } from "@/contracts/Curta.sol";
+import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
 import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
@@ -40,8 +39,8 @@ contract BaseTest is Test {
     /// @notice The Authorship Token contract.
     AuthorshipToken internal authorshipToken;
 
-    /// @notice The base renderer contract for Curta.
-    BaseRenderer internal tokenRenderer;
+    /// @notice The Flag metadata and art renderer contract.
+    FlagRenderer internal flagRenderer;
 
     /// @notice The Curta contract.
     Curta internal curta;
@@ -57,7 +56,7 @@ contract BaseTest is Test {
 
     function setUp() public {
         // Transaction #1.
-        tokenRenderer = new BaseRenderer();
+        flagRenderer = new FlagRenderer();
 
         // Curta will be deployed on transaction #3.
         address curtaAddress = LibRLP.computeAddress(address(this), 3);
@@ -66,7 +65,7 @@ contract BaseTest is Test {
         authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH, AUTHORS);
 
         // Transaction #3.
-        curta = new Curta(authorshipToken, ITokenRenderer(address(tokenRenderer)));
+        curta = new Curta(authorshipToken, flagRenderer);
 
         vm.deal(address(0xBEEF), 1000 ether);
         vm.deal(address(0xC0FFEE), 1000 ether);

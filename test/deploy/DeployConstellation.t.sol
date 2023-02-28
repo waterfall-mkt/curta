@@ -35,8 +35,8 @@ contract DeployConstellationTest is Test {
     /// deploy.
     function test_AddressInitializationCorrectness() public {
         assertEq(
-            address(deployConstellation.curta().baseRenderer()),
-            address(deployConstellation.baseRenderer())
+            address(deployConstellation.curta().flagRenderer()),
+            address(deployConstellation.flagRenderer())
         );
         assertEq(
             address(deployConstellation.curta().authorshipToken()),

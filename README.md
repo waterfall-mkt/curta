@@ -72,7 +72,7 @@ Create a file named `.env` at the root of the project and copy the contents of `
         <tr>
             <td rowspan="3">Deploy script configuration</td>
             <td><code>DEPLOYER_PRIVATE_KEY</code></td>
-            <td>The account to deploy an instance of <code>BaseTokenRenderer</code> and fund each account below with 0.25 ETH each to deploy the protocol</td>
+            <td>The account to deploy an instance of <code>FlagRenderer</code> and fund each account below with 0.25 ETH each to deploy the protocol</td>
         </tr>
         <tr>
             <td><code>AUTHORSHIP_TOKEN_PRIVATE_KEY</code></td>

@@ -5,15 +5,14 @@ import { Script } from "forge-std/Script.sol";
 import { console } from "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
-import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
 import { Curta } from "@/contracts/Curta.sol";
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
+import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
 import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A script to deploy 1 instance each of `AuthorshipToken`,
-/// `BaseRenderer`, and `Curta`. Each of these deploys will be used as each
+/// `FlagRenderer`, and `Curta`. Each of these deploys will be used as each
 /// other's initialization values (e.g. the `Curta` deploy will be initialized
-/// with with the `AuthorshipToken` and `BaseRenderer` deploys, etc.).
+/// with with the `AuthorshipToken` and `FlagRenderer` deploys, etc.).
 /// @dev The script requires 3 private keys: `DEPLOYER_PRIVATE_KEY`,
 /// `AUTHORSHIP_TOKEN_PRIVATE_KEY` and `CURTA_PRIVATE_KEY`, which are all read
 /// as environment variables via `vm.envUint`. The account specified by
@@ -55,9 +54,9 @@ contract DeployBase is Script {
     /// the script runs.
     AuthorshipToken public authorshipToken;
 
-    /// @notice The instance of `BaseRenderer` that will be deployed and set in
-    /// `curta` as its base `baseRenderer` after the script runs.
-    BaseRenderer public baseRenderer;
+    /// @notice The instance of `FlagRenderer` that will be deployed and set in
+    /// `curta` as its base `flagRenderer` after the script runs.
+    FlagRenderer public flagRenderer;
 
     /// @notice The instance of `Curta` that will be deployed after the script
     /// runs.
@@ -121,8 +120,8 @@ contract DeployBase is Script {
 
         vm.startBroadcast(deployerKey);
 
-        // Deploy Token Renderer contract.
-        baseRenderer = new BaseRenderer();
+        // Deploy Flag metadata and art renderer contract.
+        flagRenderer = new FlagRenderer();
 
         // Fund each of the other deployer addresses.
         payable(authorshipTokenDeployerAddress).transfer(0.25 ether);
@@ -161,7 +160,7 @@ contract DeployBase is Script {
         vm.startBroadcast(curtaKey);
 
         // Deploy Curta contract,
-        curta = new Curta(authorshipToken, ITokenRenderer(baseRenderer));
+        curta = new Curta(authorshipToken, flagRenderer);
         console.log("Curta Address: ", address(curta));
         // Transfer ownership to `curtaOwner`.
         curta.transferOwnership(curtaOwner);

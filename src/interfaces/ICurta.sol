@@ -2,8 +2,8 @@
 pragma solidity ^0.8.17;
 
 import { IPuzzle } from "./IPuzzle.sol";
-import { ITokenRenderer } from "./ITokenRenderer.sol";
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
+import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
 
 /// @title The interface for Curta
 /// @notice A CTF protocol, where players create and solve EVM puzzles to earn
@@ -114,11 +114,8 @@ interface ICurta {
     // Immutable Storage
     // -------------------------------------------------------------------------
 
-    /// @dev Puzzle authors can set custom token renderer contracts for their
-    /// puzzles. If they do not set one, it defaults to the fallback renderer
-    /// this function returns.
-    /// @return The contract of the fallback token renderer contract.
-    function baseRenderer() external view returns (ITokenRenderer);
+    /// @notice The Flag metadata and art renderer contract.
+    function flagRenderer() external view returns (FlagRenderer);
 
     /// @return The Authorship Token contract.
     function authorshipToken() external view returns (AuthorshipToken);

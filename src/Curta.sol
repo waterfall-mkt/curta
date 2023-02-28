@@ -15,11 +15,11 @@ import { Owned } from "solmate/auth/Owned.sol";
 import { LibString } from "solmate/utils/LibString.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
-import { AuthorshipToken } from "./AuthorshipToken.sol";
+import { FlagRenderer } from "./FlagRenderer.sol";
 import { FlagsERC721 } from "./FlagsERC721.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
 import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title Curta
@@ -58,7 +58,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
     AuthorshipToken public immutable override authorshipToken;
 
     /// @inheritdoc ICurta
-    ITokenRenderer public immutable override baseRenderer;
+    FlagRenderer public immutable override flagRenderer;
 
     // -------------------------------------------------------------------------
     // Storage
@@ -90,14 +90,14 @@ contract Curta is ICurta, FlagsERC721, Owned {
     // -------------------------------------------------------------------------
 
     /// @param _authorshipToken The address of the Authorship Token contract.
-    /// @param _baseRenderer The address of the fallback token renderer
+    /// @param _flagRenderer The address of the Flag metadata and art renderer
     /// contract.
-    constructor(AuthorshipToken _authorshipToken, ITokenRenderer _baseRenderer)
+    constructor(AuthorshipToken _authorshipToken, FlagRenderer _flagRenderer)
         FlagsERC721("Curta", "CTF")
         Owned(msg.sender)
     {
         authorshipToken = _authorshipToken;
-        baseRenderer = _baseRenderer;
+        flagRenderer = _flagRenderer;
     }
 
     /// @inheritdoc ICurta

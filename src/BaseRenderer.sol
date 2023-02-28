@@ -3,9 +3,7 @@ pragma solidity ^0.8.17;
 
 import { LibString } from "solmate/utils/LibString.sol";
 
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
-
-contract BaseRenderer is ITokenRenderer {
+contract BaseRenderer {
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
@@ -23,8 +21,7 @@ contract BaseRenderer is ITokenRenderer {
     // Functions
     // -------------------------------------------------------------------------
 
-    /// @inheritdoc ITokenRenderer
-    function render(uint256 _id, uint8 _phase) external pure override returns (string memory) {
+    function render(uint256 _id, uint8 _phase) external pure returns (string memory) {
         uint256 seed = uint256(keccak256(abi.encodePacked(_id)));
         // TODO: if (_phase == 1) return shields;
 
