@@ -12,20 +12,23 @@ pragma solidity ^0.8.17;
 // '==========================================================================='
 
 import { Owned } from "solmate/auth/Owned.sol";
+import { LibString } from "solmate/utils/LibString.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
-import { AuthorshipToken } from "./AuthorshipToken.sol";
+import { FlagRenderer } from "./FlagRenderer.sol";
 import { FlagsERC721 } from "./FlagsERC721.sol";
+import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
-import { ITokenRenderer } from "@/contracts/interfaces/ITokenRenderer.sol";
 import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title Curta
 /// @author fiveoutofnine
-/// @notice An extensible CTF, where each part is a generative puzzle, and each
-/// solution is minted as an NFT (``Flag'').
+/// @notice A CTF protocol, where players create and solve EVM puzzles to earn
+/// NFTs (``Flag'').
 contract Curta is ICurta, FlagsERC721, Owned {
+    using LibString for uint256;
+
     // -------------------------------------------------------------------------
     // Constants
     // -------------------------------------------------------------------------
@@ -47,6 +50,9 @@ contract Curta is ICurta, FlagsERC721, Owned {
     /// @dev This fee is transferred to the address returned by `owner`.
     uint256 constant PHASE_TWO_PROTOCOL_FEE = 0.01 ether;
 
+    /// @notice The default Flag colors.
+    uint120 constant DEFAULT_FLAG_COLORS = 0x181E28181E2827303DF0F6FC94A3B3;
+
     // -------------------------------------------------------------------------
     // Immutable Storage
     // -------------------------------------------------------------------------
@@ -55,7 +61,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
     AuthorshipToken public immutable override authorshipToken;
 
     /// @inheritdoc ICurta
-    ITokenRenderer public immutable override baseRenderer;
+    FlagRenderer public immutable override flagRenderer;
 
     // -------------------------------------------------------------------------
     // Storage
@@ -68,16 +74,13 @@ contract Curta is ICurta, FlagsERC721, Owned {
     Fermat public override fermat;
 
     /// @inheritdoc ICurta
-    mapping(uint32 => PuzzleSolves) public override getPuzzleSolves;
+    mapping(uint32 => PuzzleColorsAndSolves) public override getPuzzleColorsAndSolves;
 
     /// @inheritdoc ICurta
     mapping(uint32 => PuzzleData) public override getPuzzle;
 
     /// @inheritdoc ICurta
     mapping(uint32 => address) public override getPuzzleAuthor;
-
-    /// @inheritdoc ICurta
-    mapping(uint32 => ITokenRenderer) public override getPuzzleTokenRenderer;
 
     /// @inheritdoc ICurta
     mapping(address => mapping(uint32 => bool)) public override hasSolvedPuzzle;
@@ -90,14 +93,14 @@ contract Curta is ICurta, FlagsERC721, Owned {
     // -------------------------------------------------------------------------
 
     /// @param _authorshipToken The address of the Authorship Token contract.
-    /// @param _baseRenderer The address of the fallback token renderer
+    /// @param _flagRenderer The address of the Flag metadata and art renderer
     /// contract.
-    constructor(AuthorshipToken _authorshipToken, ITokenRenderer _baseRenderer)
+    constructor(AuthorshipToken _authorshipToken, FlagRenderer _flagRenderer)
         FlagsERC721("Curta", "CTF")
         Owned(msg.sender)
     {
         authorshipToken = _authorshipToken;
-        baseRenderer = _baseRenderer;
+        flagRenderer = _flagRenderer;
     }
 
     /// @inheritdoc ICurta
@@ -127,7 +130,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // Update the puzzle's first solve timestamp if it was previously unset.
         if (firstSolveTimestamp == 0) {
             getPuzzle[_puzzleId].firstSolveTimestamp = solveTimestamp;
-            ++getPuzzleSolves[_puzzleId].phase0Solves;
+            ++getPuzzleColorsAndSolves[_puzzleId].phase0Solves;
 
             // Give first solver an Authorship Token
             authorshipToken.curtaMint(msg.sender);
@@ -141,18 +144,18 @@ contract Curta is ICurta, FlagsERC721, Owned {
             // Mint NFT.
             _mint({
                 _to: msg.sender,
-                _id: (uint256(_puzzleId) << 128) | getPuzzleSolves[_puzzleId].solves++,
-                _puzzleId: _puzzleId,
+                _id: (uint256(_puzzleId) << 128) | getPuzzleColorsAndSolves[_puzzleId].solves++,
+                _solveMetadata: uint56(((uint160(msg.sender) >> 132) << 28) | (_solution & 0xFFFFFFF)),
                 _phase: phase
             });
 
             if (phase == 1) {
-                ++getPuzzleSolves[_puzzleId].phase1Solves;
+                ++getPuzzleColorsAndSolves[_puzzleId].phase1Solves;
             } else if (phase == 2) {
                 // Revert if the puzzle is in Phase 2, and insufficient funds
                 // were sent.
                 if (ethRemaining < PHASE_TWO_MINIMUM_FEE) revert InsufficientFunds();
-                ++getPuzzleSolves[_puzzleId].phase2Solves;
+                ++getPuzzleColorsAndSolves[_puzzleId].phase2Solves;
 
                 // Transfer protocol fee to `owner`.
                 SafeTransferLib.safeTransferETH(owner, PHASE_TWO_PROTOCOL_FEE);
@@ -167,7 +170,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         SafeTransferLib.safeTransferETH(getPuzzleAuthor[_puzzleId], ethRemaining);
 
         // Emit event
-        emit SolvePuzzle({id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase});
+        emit SolvePuzzle({ id: _puzzleId, solver: msg.sender, solution: _solution, phase: phase });
     }
 
     /// @inheritdoc ICurta
@@ -194,21 +197,24 @@ contract Curta is ICurta, FlagsERC721, Owned {
             // Add puzzle author.
             getPuzzleAuthor[curPuzzleId] = msg.sender;
 
+            // Add puzzle Flag colors with default colors.
+            getPuzzleColorsAndSolves[curPuzzleId].colors = DEFAULT_FLAG_COLORS;
+
             // Emit events.
             emit AddPuzzle(curPuzzleId, msg.sender, _puzzle);
         }
     }
 
     /// @inheritdoc ICurta
-    function setPuzzleTokenRenderer(uint32 _puzzleId, ITokenRenderer _tokenRenderer) external {
+    function setPuzzleColors(uint32 _puzzleId, uint120 _colors) external {
         // Revert if `msg.sender` is not the author of the puzzle.
         if (getPuzzleAuthor[_puzzleId] != msg.sender) revert Unauthorized();
 
-        // Set token renderer.
-        getPuzzleTokenRenderer[_puzzleId] = _tokenRenderer;
+        // Set puzzle colors.
+        getPuzzleColorsAndSolves[_puzzleId].colors = _colors;
 
         // Emit events.
-        emit UpdatePuzzleTokenRenderer(_puzzleId, _tokenRenderer);
+        emit UpdatePuzzleColors(_puzzleId, _colors);
     }
 
     /// @inheritdoc ICurta
@@ -264,9 +270,26 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
     /// @inheritdoc FlagsERC721
     function tokenURI(uint256 _tokenId) external view override returns (string memory) {
-        require(getTokenData[_tokenId].owner != address(0), "NOT_MINTED");
+        TokenData memory tokenData = getTokenData[_tokenId];
+        require(tokenData.owner != address(0), "NOT_MINTED");
 
-        return "";
+        // Retrieve information about the puzzle.
+        uint32 _puzzleId = uint32(_tokenId >> 128);
+        PuzzleData memory puzzleData = getPuzzle[_puzzleId];
+        address author = getPuzzleAuthor[_puzzleId];
+        uint32 solves = getPuzzleColorsAndSolves[_puzzleId].solves;
+        uint120 colors = getPuzzleColorsAndSolves[_puzzleId].colors;
+
+        return flagRenderer.render({
+            _puzzleData: puzzleData,
+            _tokenId: _tokenId,
+            _author: author,
+            _solveTime: tokenData.solveTimestamp - puzzleData.addedTimestamp,
+            _solveMetadata: tokenData.solveMetadata,
+            _phase: _computePhase(puzzleData.firstSolveTimestamp, tokenData.solveTimestamp),
+            _solves: solves,
+            _colors: colors
+        });
     }
 
     // -------------------------------------------------------------------------

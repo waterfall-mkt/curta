@@ -35,7 +35,7 @@ contract DeployMainnetTest is Test {
     /// deploy.
     function test_AddressInitializationCorrectness() public {
         assertEq(
-            address(deployMainnet.curta().baseRenderer()), address(deployMainnet.baseRenderer())
+            address(deployMainnet.curta().flagRenderer()), address(deployMainnet.flagRenderer())
         );
         assertEq(
             address(deployMainnet.curta().authorshipToken()),

@@ -7,3 +7,7 @@
 [submodule "lib/shields-api-contract"]
 	path = lib/shields-api-contract
 	url = https://github.com/area-technology/shields-api-contract
+[submodule "lib/solady"]
+	path = lib/solady
+	url = https://github.com/vectorized/solady
+	branch = v0.0.78
