@@ -4,7 +4,6 @@ pragma solidity ^0.8.17;
 import { console } from "forge-std/Test.sol";
 
 import { DeployBase } from "./DeployBase.s.sol";
-import { BaseRenderer } from "@/contracts/BaseRenderer.sol";
 import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
 
 /// @notice A script to deploy the protocol for testing purposes. In addition to
