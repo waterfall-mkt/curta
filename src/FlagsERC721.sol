@@ -30,7 +30,7 @@ abstract contract FlagsERC721 {
     /// @param solveMetadata A bitpacked `uint56` containing the following
     /// information:
     ///     * The first 28 bits are the first 28 bits of the solver.
-    ///     * The lsat 28 bits are the last 28 bits of the solution.
+    ///     * The last 28 bits are the last 28 bits of the solution.
     struct TokenData {
         address owner;
         uint40 solveTimestamp;
