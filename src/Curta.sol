@@ -282,11 +282,12 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
         return flagRenderer.render({
             _puzzleData: puzzleData,
+            _tokenId: _tokenId,
             _author: author,
-            _phase: _computePhase(puzzleData.firstSolveTimestamp, tokenData.solveTimestamp),
             _solveTime: tokenData.solveTimestamp - puzzleData.addedTimestamp,
-            _solves: solves,
             _solveMetadata: tokenData.solveMetadata,
+            _phase: _computePhase(puzzleData.firstSolveTimestamp, tokenData.solveTimestamp),
+            _solves: solves,
             _colors: colors
         });
     }
