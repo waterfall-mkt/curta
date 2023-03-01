@@ -256,10 +256,8 @@ contract FlagRenderer {
     }
 
     function _formatValueAsAddress(uint256 _value) internal pure returns (string memory) {
-        uint256 firstChar = (_value >> 24) & 0xF;
-
         return string.concat(
-            firstChar == 0 ? "0" : firstChar.toHexStringNoPrefix().toCase(true),
+            string(abi.encodePacked(bytes32("0123456789ABCDEF")[(_value >> 24) & 0xF])),
             (_value & 0xFFFFFF).toHexStringNoPrefix(3).toCase(true)
         );
     }

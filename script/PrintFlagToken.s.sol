@@ -35,7 +35,7 @@ contract PrintFlagTokenScript is Script {
             flagRenderer.render({
                 _puzzleData: puzzleData,
                 _tokenId: (3 << 128) | 29,
-                _author: address(0xA85572Cd96f1643458f17340b6f0D6549Af482F5),
+                _author: address(0),
                 _solveTime: uint40(49 hours + 23 minutes + 17 seconds),
                 _solveMetadata: uint56((0xABCDEF0 << 28) | 0x12345),
                 _phase: 1,
