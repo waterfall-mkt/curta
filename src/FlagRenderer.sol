@@ -8,6 +8,7 @@ import { Base64 } from "@/contracts/utils/Base64.sol";
 
 contract FlagRenderer {
     using LibString for uint256;
+    using LibString for string;
 
     function render(
         ICurta.PuzzleData memory _puzzleData,
@@ -28,11 +29,11 @@ contract FlagRenderer {
                 '"},{"trait_type":"Puzzle ID","value":',
                 uint256(_tokenId >> 128).toString(),
                 '},{"trait_type":"Author","value":"',
-                uint256(_solveMetadata >> 28).toHexStringNoPrefix(7),
+                _formatValueAsAddress(uint256(_solveMetadata >> 28)),
                 '"},{"trait_type":"Phase","value":"',
                 uint256(_phase).toString(),
                 '"},{"trait_type":"Solver","value":"',
-                uint256(_solveMetadata & 0xFFFFFFF).toHexStringNoPrefix(7),
+                _formatValueAsAddress(uint256(_solveMetadata & 0xFFFFFFF)),
                 '"},{"trait_type":"Solve time","value":',
                 uint256(_solveTime).toString(),
                 '},{"trait_type":"Rank","value":',
@@ -160,31 +161,38 @@ contract FlagRenderer {
                 "Q6PIOJhsqjVONk6WsEh7Pr4zO4JXtRkVKeSIU0uSok0mEmMOtIMT+OlRClJ9471uzlPTJCrkYX7/PQbo/I"
                 "z+3axYAg==)}text,tspan{dominant-baseline:central}.a{font-family:A;letter-spacing:-"
                 ".05em}.b{font-family:B}.c{font-size:16px}.d{font-size:12px}.f{fill:#",
-                uint256((_colors >> 72) & 0xFFFFFF).toHexStringNoPrefix(6), // Fill
-                ")}.h{fill:#",
-                uint256((_colors >> 24) & 0xFFFFFF).toHexStringNoPrefix(6), // Primary text
-                ")}.i{fill:#",
-                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(6), // Secondary text
-                ")}.j{fill:none;stroke-linejoin:round;stroke-linecap:round;stroke:#",
-                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(6), // Secondary text
+                uint256((_colors >> 72) & 0xFFFFFF).toHexStringNoPrefix(3), // Fill
+                "}.h{fill:#",
+                uint256((_colors >> 24) & 0xFFFFFF).toHexStringNoPrefix(3), // Primary text
+                "}.i{fill:#",
+                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(3), // Secondary text
+                "}.j{fill:none;stroke-linejoin:round;stroke-linecap:round;stroke:#",
+                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(3), // Secondary text
                 '}</style><path d="M0 0h550v550H0z" style="fill:#',
-                uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(6), // Background
-                ')"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
-                uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(6), // Border
+                uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3), // Background
+                '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
+                uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
                 '"/><rect class="f" x="147" y="73" width="256" height="404" rx="4"/><rect class="h"'
                 ' x="319" y="97" width="64" height="24" rx="12"/><path class="f" d="M334.192 103.14'
-                "c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062 1.09 1.03.5 1.536l-2."
-                "746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L335 113.236l-3.085 1.884c-.664.40"
-                "5-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-"
-                ".289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062"
-                " 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L351113.236l"
-                "-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.277"
-                "-1.474.5-1.536l3.602-.289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.3"
-                "38 3.603.289c.776.062 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.355"
-                "-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.745"
-                '-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/><text class="a h" x'
-                '="163" y="101" font-size="20">Puzzle #1</text><text x="163" y="121"><tspan class="'
-                'b d i">Created by </tspan><tspan class="a d h">'
+                'c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062 1.09 1.03.5 1.536l-2.'
+                '746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L335 113.236l-3.085 1.884c-.664.40'
+                '5-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-'
+                '.289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062'
+                ' 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L351 113.236'
+                'l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.27'
+                '7-1.474.5-1.536l3.602-.289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.'
+                '338 3.603.289c.776.062 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.35'
+                '5-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.74'
+                '5-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/><text class="a h" '
+                'x="163" y="101" font-size="20">Puzzle #'
+            );
+        }
+        {
+            image = string.concat(
+                image,
+                (_tokenId >> 128).toString(),
+                '</text><text x="163" y="121"><tspan class="b d i">Created by </tspan><tspan class='
+                '"a d h">'
             );
         }
         {
@@ -192,19 +200,19 @@ contract FlagRenderer {
                 ((_colors >> 88) & 0xFF) + ((_colors >> 80) & 0xFF) + ((_colors >> 72) & 0xFF);
             image = string.concat(
                 image,
-                uint256(uint160(_author) >> 132).toHexStringNoPrefix(7), // Authors
+                _formatValueAsAddress(uint160(_author) >> 132), // Authors
                 '</tspan></text><rect x="163" y="137" width="224" height="224" fill="rgba(',
                 luma < ((255 * 3) >> 1) ? "255,255,255" : "0,0,0", // Background behind the heatmap
                 ',0.2)" rx="8"/><path class="j" d="M176.988 387.483A4.992 4.992 0 0 0 173 385.5a4.9'
                 "92 4.992 0 0 0-3.988 1.983m7.975 0a6 6 0 1 0-7.975 0m7.975 0A5.977 5.977 0 0 1 173"
                 ' 389a5.977 5.977 0 0 1-3.988-1.517M175 381.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><text '
                 'class="a c h" x="187" y="383">',
-                uint256(_solveMetadata >> 28).toHexStringNoPrefix(7), // Captured by
+                _formatValueAsAddress(_solveMetadata >> 28), // Captured by
                 '</text><text class="b d i" x="187" y="403">Captured by</text><path class="j" d="m2'
                 "85.5 380 2 1.5-2 1.5m3 0h2m-6 5.5h9a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5"
                 'h-9a1.5 1.5 0 0 0-1.5 1.5v8a1.5 1.5 0 0 0 1.5 1.5z"/><text class="a c h" x="303" y'
                 '="383">',
-                uint256(_solveMetadata & 0xFFFFFFF).toHexStringNoPrefix(7), // Solution
+                _formatValueAsAddress(_solveMetadata & 0xFFFFFFF), // Solution
                 '</text><text class="b d i" x="303" y="403">Solution</text><path class="j" d="M176 '
                 "437.5h-6m6 0a2 2 0 0 1 2 2h-10a2 2 0 0 1 2-2m6 0v-2.25a.75.75 0 0 0-.75-.75h-.58m-"
                 "4.67 3v-2.25a.75.75 0 0 1 .75-.75h.581m3.338 0h-3.338m3.338 0a4.97 4.97 0 0 1-.654"
@@ -220,7 +228,7 @@ contract FlagRenderer {
         {
             image = string.concat(
                 image,
-                uint256(uint128(_solves)).toString(), // Rank
+                uint256(uint128(_tokenId)).toString(), // Rank
                 ' </tspan><tspan class="a d i" y="435">/ ',
                 uint256(_solves).toString(), // Solvers
                 '</tspan></text><text class="b d i" x="187" y="453">Rank</text><path class="j" d="M'
@@ -244,6 +252,15 @@ contract FlagRenderer {
                     "}"
                 )
             )
+        );
+    }
+
+    function _formatValueAsAddress(uint256 _value) internal pure returns (string memory) {
+        uint256 firstChar = (_value >> 24) & 0xF;
+
+        return string.concat(
+            firstChar == 0 ? "0" : firstChar.toHexStringNoPrefix().toCase(true),
+            (_value & 0xFFFFFF).toHexStringNoPrefix(3).toCase(true)
         );
     }
 
