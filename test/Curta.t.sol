@@ -875,6 +875,7 @@ contract CurtaTest is BaseTest {
 
     /// @notice Test that `tokenURI` does not revert for tokens that exist.
     function test_tokenURI_MintedToken_Succeeds() public {
+        if (block.chainid != 1) return;
         _deployAndAddPuzzle(address(this));
         _solveMockPuzzle({ _puzzleId: 1, _as: address(this) });
 

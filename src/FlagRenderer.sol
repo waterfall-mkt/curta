@@ -4,11 +4,25 @@ pragma solidity ^0.8.17;
 import { LibString } from "solady/utils/LibString.sol";
 
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
+import { IColormapRegistry } from "@/contracts/interfaces/IColormapRegistry.sol";
 import { Base64 } from "@/contracts/utils/Base64.sol";
 
 contract FlagRenderer {
     using LibString for uint256;
+    using LibString for address;
     using LibString for string;
+
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
+    /// @notice Salt used to compute the seed in {FlagRenderer.render}.
+    bytes32 constant SALT = bytes32("Curta.FlagTokens");
+
+    /// @notice The colormap registry.
+    IColormapRegistry constant colormapRegistry = IColormapRegistry(
+        0x0000000012883D1da628e31c0FE52e35DcF95D50
+    );
 
     function render(
         ICurta.PuzzleData memory _puzzleData,
@@ -19,7 +33,7 @@ contract FlagRenderer {
         uint8 _phase,
         uint32 _solves,
         uint120 _colors
-    ) external pure returns (string memory) {
+    ) external view returns (string memory) {
         // Generate the puzzle's attributes.
         string memory attributes;
         {
@@ -29,7 +43,7 @@ contract FlagRenderer {
                 '"},{"trait_type":"Puzzle ID","value":',
                 uint256(_tokenId >> 128).toString(),
                 '},{"trait_type":"Author","value":"',
-                _formatValueAsAddress(uint256(_solveMetadata >> 28)),
+                _author.toHexStringChecksumed(),
                 '"},{"trait_type":"Phase","value":"',
                 uint256(_phase).toString(),
                 '"},{"trait_type":"Solver","value":"',
@@ -167,29 +181,25 @@ contract FlagRenderer {
                 "}.i{fill:#",
                 uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(3), // Secondary text
                 "}.j{fill:none;stroke-linejoin:round;stroke-linecap:round;stroke:#",
-                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(3), // Secondary text
-                '}</style><path d="M0 0h550v550H0z" style="fill:#',
-                uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3), // Background
-                '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
-                uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
-                '"/><rect class="f" x="147" y="73" width="256" height="404" rx="4"/><rect class="h"'
-                ' x="319" y="97" width="64" height="24" rx="12"/><path class="f" d="M334.192 103.14'
-                'c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062 1.09 1.03.5 1.536l-2.'
-                '746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L335 113.236l-3.085 1.884c-.664.40'
-                '5-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-'
-                '.289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.338 3.603.289c.776.062'
-                ' 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.355-1.306.95L351 113.236'
-                'l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.745-2.352c-.591-.506-.27'
-                '7-1.474.5-1.536l3.602-.289 1.388-3.337zm16 0c.299-.718 1.317-.718 1.616 0l1.388 3.'
-                '338 3.603.289c.776.062 1.09 1.03.5 1.536l-2.746 2.352.838 3.515c.181.757-.642 1.35'
-                '5-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.838-3.515-2.74'
-                '5-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/><text class="a h" '
-                'x="163" y="101" font-size="20">Puzzle #'
+                uint256(_colors & 0xFFFFFF).toHexStringNoPrefix(3) // Secondary text
             );
         }
         {
             image = string.concat(
                 image,
+                '}.x{width:1px;height:1px}</style><mask id="m"><rect width="20" height="20" rx="0.37'
+                '0370" fill="#FFF"/></mask><path d="M0 0h550v550H0z" style="fill:#',
+                uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3), // Background
+                '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
+                uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
+                '"/><rect class="f" x="147" y="73" width="256" height="404" rx="4"/>',
+                _drawStars(_phase)
+            );
+        }
+        {
+            image = string.concat(
+                image,
+                '<text class="a h" x="163" y="101" font-size="20">Puzzle #',
                 (_tokenId >> 128).toString(),
                 '</text><text x="163" y="121"><tspan class="b d i">Created by </tspan><tspan class='
                 '"a d h">'
@@ -203,10 +213,12 @@ contract FlagRenderer {
                 _formatValueAsAddress(uint160(_author) >> 132), // Authors
                 '</tspan></text><rect x="163" y="137" width="224" height="224" fill="rgba(',
                 luma < ((255 * 3) >> 1) ? "255,255,255" : "0,0,0", // Background behind the heatmap
-                ',0.2)" rx="8"/><path class="j" d="M176.988 387.483A4.992 4.992 0 0 0 173 385.5a4.9'
-                "92 4.992 0 0 0-3.988 1.983m7.975 0a6 6 0 1 0-7.975 0m7.975 0A5.977 5.977 0 0 1 173"
-                ' 389a5.977 5.977 0 0 1-3.988-1.517M175 381.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><text '
-                'class="a c h" x="187" y="383">',
+                ',0.2)" rx="8"/>',
+                _drawDrunkenBishop(_solveMetadata, _tokenId),
+                '<path class="j" d="M176.988 387.483A4.992 4.992 0 0 0 173 385.5a4.992 4.992 0 0 0-'
+                '3.988 1.983m7.975 0a6 6 0 1 0-7.975 0m7.975 0A5.977 5.977 0 0 1 173 389a5.977 5.97'
+                '7 0 0 1-3.988-1.517M175 381.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><text class="a c h" x'
+                '="187" y="383">',
                 _formatValueAsAddress(_solveMetadata >> 28), // Captured by
                 '</text><text class="b d i" x="187" y="403">Captured by</text><path class="j" d="m2'
                 "85.5 380 2 1.5-2 1.5m3 0h2m-6 5.5h9a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5"
@@ -244,8 +256,14 @@ contract FlagRenderer {
             Base64.encode(
                 abi.encodePacked(
                     '{"name":"',
-                    '","description":"',
-                    '","image_data": "data:image/svg+xml;base64,',
+                    _puzzleData.puzzle.name(),
+                    ": Flag #",
+                    uint256(uint128(_tokenId)).toString(),
+                    '","description":"This token represents solve #',
+                    uint256(uint128(_tokenId)).toString(),
+                    ' in puzzle #',
+                    uint256(_tokenId >> 128).toString(),
+                    '.","image_data": "data:image/svg+xml;base64,',
                     Base64.encode(abi.encodePacked(image)),
                     '","attributes":',
                     attributes,
@@ -253,6 +271,111 @@ contract FlagRenderer {
                 )
             )
         );
+    }
+
+    function _drawDrunkenBishop(uint56 _solveMetadata, uint256 _tokenId) internal view returns (string memory) {
+        uint256 seed = uint256(keccak256(abi.encodePacked(_tokenId, _solveMetadata, SALT)));
+        // Select the colormap.
+        bytes32 colormapHash = [
+            bytes32(0xfd29b65966772202ffdb08f653439b30c849f91409915665d99dbfa5e5dab938),
+            bytes32(0x850ce48e7291439b1e41d21fc3f75dddd97580a4ff94aa9ebdd2bcbd423ea1e8),
+            bytes32(0x4f5e8ea8862eff315c110b682ee070b459ba8983a7575c9a9c4c25007039109d),
+            bytes32(0xf2e92189cb6903b98d854cd74ece6c3fafdb2d3472828a950633fdaa52e05032),
+            bytes32(0xa33e6c7c5627ecabfd54c4d85f9bf04815fe89a91379fcf56ccd8177e086db21),
+            bytes32(0xaa84b30df806b46f859a413cb036bc91466307aec5903fc4635c00a421f25d5c),
+            bytes32(0x864a6ee98b9b21ac0291523750d637250405c24a6575e1f75cfbd7209a810ce6),
+            bytes32(0xfd60cd3811f002814944a7d36167b7c9436187a389f2ee476dc883e37dc76bd2),
+            bytes32(0xa8309447f8bd3b5e5e88a0abc05080b7682e4456c388b8636d45f5abb2ad2587),
+            bytes32(0x3be719b0c342797212c4cb33fde865ed9cbe486eb67176265bc0869b54dee925),
+            bytes32(0xca0da6b6309ed2117508207d68a59a18ccaf54ba9aa329f4f60a77481fcf2027),
+            bytes32(0x5ccb29670bb9de0e3911d8e47bde627b0e3640e49c3d6a88d51ff699160dfbe1),
+            bytes32(0x3de8f27f386dab3dbab473f3cc16870a717fe5692b4f6a45003d175c559dfcba),
+            bytes32(0x026736ef8439ebcf8e7b8006bf8cb7482ced84d71b900407a9ed63e1b7bfe234),
+            bytes32(0xc1806ea961848ac00c1f20aa0611529da522a7bd125a3036fe4641b07ee5c61c),
+            bytes32(0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436),
+            bytes32(0xaa6277ab923279cf59d78b9b5b7fb5089c90802c353489571fca3c138056fb1b),
+            bytes32(0xdc1cecffc00e2f3196daaf53c27e53e6052a86dc875adb91607824d62469b2bf)
+        ][seed % 18];
+
+        // We start at the middle of the board.
+        uint256 index = 210;
+        uint256 max = 1;
+        uint8[] memory counts = new uint8[](400);
+        counts[index] = 1;
+
+        unchecked {
+            while (seed != 0) {
+                (uint256 x, uint256 y) = (index % 20, index / 20);
+
+                assembly {
+                    // Read down/up
+                    switch and(shr(1, seed), 1)
+                        // Up case
+                        case 0 {
+                            index := add(index, mul(20, iszero(eq(y, 19))))
+                        }
+                        // Down case
+                        default {
+                            index := sub(index, mul(20, iszero(eq(y, 0))))
+                        }
+
+                    // Read left/right
+                    switch and(seed, 1)
+                        // Left case
+                        case 0 {
+                            index := add(index, iszero(eq(x, 19)))
+                        }
+                        // Right case
+                        default {
+                            index := sub(index, iszero(eq(y, 0)))
+                        }
+                }
+                if (++counts[index] > max) max = counts[index];
+                seed >>= 2;
+            }
+        }
+
+        string memory image = '<g transform="translate(167 141) scale(10.8)" mask="url(#m)">';
+        unchecked {
+            for (uint256 i; i < 400; ++i) {
+                image = string.concat(
+                    image,
+                    '<rect class="x" x="',
+                    (i % 20).toString(),
+                    '" y="',
+                    (i / 20).toString(),
+                    '" fill="#',
+                    colormapRegistry.getValueAsHexString(
+                        colormapHash,
+                        uint8((uint256(counts[i]) * 255) / max)
+                    ),
+                    '"/>'
+                );
+            }
+        }
+
+        return string.concat(image, "</g>");
+    }
+
+    function _drawStars(uint8 _phase) internal pure returns (string memory) {
+        // This will never underflow because `_phase` is always in the range
+        // [0, 4].
+        unchecked {
+            uint256 width = ((4 - _phase) << 4);
+
+            return string.concat(
+                '<rect class="h" x="',
+                (383 - width).toString(),
+                '" y="97" width="',
+                width.toString(),
+                '" height="24" rx="12"/><path id="s" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
+                '0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7'
+                '57-.642 1.355-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.83'
+                '8-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/>',
+                _phase < 2 ? '<use href="#s" x="-16" />' : "",
+                _phase < 1 ? '<use href="#s" x="-32" />' : ""
+            );
+        }
     }
 
     function _formatValueAsAddress(uint256 _value) internal pure returns (string memory) {

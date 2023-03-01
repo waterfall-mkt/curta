@@ -30,7 +30,7 @@ contract AuthorshipToken is ERC721, Owned {
     /// @dev This is the mainnet address.
     IShieldsAPI constant shieldsAPI = IShieldsAPI(0x740CBbF0116a82F64e83E1AE68c92544870B0C0F);
 
-    /// @notice Salt used to compute the seed in {AuthorshipToken-tokenURI}.
+    /// @notice Salt used to compute the seed in {AuthorshipToken.tokenURI}.
     bytes32 constant SALT = bytes32("Curta.AuthorshipToken");
 
     // -------------------------------------------------------------------------

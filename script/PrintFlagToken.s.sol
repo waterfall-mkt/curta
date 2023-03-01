@@ -34,11 +34,11 @@ contract PrintFlagTokenScript is Script {
         console.log(
             flagRenderer.render({
                 _puzzleData: puzzleData,
-                _tokenId: (3 << 128) | 29,
+                _tokenId: (133721 << 128) | 21563,
                 _author: address(0),
                 _solveTime: uint40(49 hours + 23 minutes + 17 seconds),
                 _solveMetadata: uint56((0xABCDEF0 << 28) | 0x12345),
-                _phase: 1,
+                _phase: 0,
                 _solves: 256,
                 _colors: 0x181E28181E2827303DF0F6FC94A3B3
             })
