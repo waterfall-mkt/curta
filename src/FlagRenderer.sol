@@ -7,6 +7,9 @@ import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { IColormapRegistry } from "@/contracts/interfaces/IColormapRegistry.sol";
 import { Base64 } from "@/contracts/utils/Base64.sol";
 
+/// @title Curta Flag Renderer
+/// @author fiveoutofnine
+/// @notice A contract that renders the JSON and SVG for a Flag token.
 contract FlagRenderer {
     using LibString for uint256;
     using LibString for address;
