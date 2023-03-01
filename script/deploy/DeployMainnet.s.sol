@@ -7,10 +7,10 @@ import { DeployBase } from "./DeployBase.s.sol";
 contract DeployMainnet is DeployBase {
     /// @notice The address to transfer the ownership of the Authorship Token
     /// to.
-    address constant AUTHORSHIP_TOKEN_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
+    address constant AUTHORSHIP_TOKEN_OWNER = 0xA85572Cd96f1643458f17340b6f0D6549Af482F5;
 
     /// @notice The address to transfer the ownership of Curta to.
-    address constant CURTA_OWNER = 0x7A0E5c5e5E5E5E5E5E5e5E5e5E5E5E5E5E5E5e5E;
+    address constant CURTA_OWNER = 0xA85572Cd96f1643458f17340b6f0D6549Af482F5;
 
     /// @notice The number of seconds until an additional token is made
     /// available for minting by the author.

@@ -122,6 +122,7 @@ contract DeployBase is Script {
 
         // Deploy Flag metadata and art renderer contract.
         flagRenderer = new FlagRenderer();
+        console.log("Flag Renderer Address: ", address(flagRenderer));
 
         // Fund each of the other deployer addresses.
         payable(authorshipTokenDeployerAddress).transfer(0.25 ether);
