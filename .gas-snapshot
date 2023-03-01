@@ -1,6 +1,6 @@
 AuthorshipTokenTest:test_curtaMint() (gas: 85670)
 AuthorshipTokenTest:test_curtaMint_SenderIsNotCurta_RevertsUnauthorized(address) (runs: 256, μ: 10226, ~: 10226)
-AuthorshipTokenTest:test_ownerMint_FuzzMintTimestamps_IssuesTokensCorrectly(uint256) (runs: 256, μ: 6473826, ~: 5976826)
+AuthorshipTokenTest:test_ownerMint_FuzzMintTimestamps_IssuesTokensCorrectly(uint256) (runs: 256, μ: 6512449, ~: 6042550)
 AuthorshipTokenTest:test_ownerMint_SenderIsNotOwner_RevertUnauthorized(address) (runs: 256, μ: 12935, ~: 12935)
 AuthorshipTokenTest:test_ownerMint_SenderIsOwner_AllowsMint() (gas: 108202)
 AuthorshipTokenTest:test_tokenURI_MintedToken_Succeeds() (gas: 232)
