@@ -20,9 +20,8 @@ contract FlagRenderer {
     bytes32 constant SALT = bytes32("Curta.FlagTokens");
 
     /// @notice The colormap registry.
-    IColormapRegistry constant colormapRegistry = IColormapRegistry(
-        0x0000000012883D1da628e31c0FE52e35DcF95D50
-    );
+    IColormapRegistry constant colormapRegistry =
+        IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
 
     function render(
         ICurta.PuzzleData memory _puzzleData,
@@ -216,7 +215,7 @@ contract FlagRenderer {
                 ',0.2)" rx="8"/>',
                 _drawDrunkenBishop(_solveMetadata, _tokenId),
                 '<path class="j" d="M176.988 387.483A4.992 4.992 0 0 0 173 385.5a4.992 4.992 0 0 0-'
-                '3.988 1.983m7.975 0a6 6 0 1 0-7.975 0m7.975 0A5.977 5.977 0 0 1 173 389a5.977 5.97'
+                "3.988 1.983m7.975 0a6 6 0 1 0-7.975 0m7.975 0A5.977 5.977 0 0 1 173 389a5.977 5.97"
                 '7 0 0 1-3.988-1.517M175 381.5a2 2 0 1 1-4 0 2 2 0 0 1 4 0z"/><text class="a c h" x'
                 '="187" y="383">',
                 _formatValueAsAddress(_solveMetadata >> 28), // Captured by
@@ -261,7 +260,7 @@ contract FlagRenderer {
                     uint256(uint128(_tokenId)).toString(),
                     '","description":"This token represents solve #',
                     uint256(uint128(_tokenId)).toString(),
-                    ' in puzzle #',
+                    " in puzzle #",
                     uint256(_tokenId >> 128).toString(),
                     '.","image_data": "data:image/svg+xml;base64,',
                     Base64.encode(abi.encodePacked(image)),
@@ -273,7 +272,11 @@ contract FlagRenderer {
         );
     }
 
-    function _drawDrunkenBishop(uint56 _solveMetadata, uint256 _tokenId) internal view returns (string memory) {
+    function _drawDrunkenBishop(uint56 _solveMetadata, uint256 _tokenId)
+        internal
+        view
+        returns (string memory)
+    {
         uint256 seed = uint256(keccak256(abi.encodePacked(_tokenId, _solveMetadata, SALT)));
         // Select the colormap.
         bytes32 colormapHash = [
@@ -310,25 +313,17 @@ contract FlagRenderer {
                 assembly {
                     // Read down/up
                     switch and(shr(1, seed), 1)
-                        // Up case
-                        case 0 {
-                            index := add(index, mul(20, iszero(eq(y, 19))))
-                        }
-                        // Down case
-                        default {
-                            index := sub(index, mul(20, iszero(eq(y, 0))))
-                        }
+                    // Up case
+                    case 0 { index := add(index, mul(20, iszero(eq(y, 19)))) }
+                    // Down case
+                    default { index := sub(index, mul(20, iszero(eq(y, 0)))) }
 
                     // Read left/right
                     switch and(seed, 1)
-                        // Left case
-                        case 0 {
-                            index := add(index, iszero(eq(x, 19)))
-                        }
-                        // Right case
-                        default {
-                            index := sub(index, iszero(eq(y, 0)))
-                        }
+                    // Left case
+                    case 0 { index := add(index, iszero(eq(x, 19))) }
+                    // Right case
+                    default { index := sub(index, iszero(eq(y, 0))) }
                 }
                 if (++counts[index] > max) max = counts[index];
                 seed >>= 2;
@@ -346,8 +341,7 @@ contract FlagRenderer {
                     (i / 20).toString(),
                     '" fill="#',
                     colormapRegistry.getValueAsHexString(
-                        colormapHash,
-                        uint8((uint256(counts[i]) * 255) / max)
+                        colormapHash, uint8((uint256(counts[i]) * 255) / max)
                     ),
                     '"/>'
                 );
@@ -369,8 +363,8 @@ contract FlagRenderer {
                 '" y="97" width="',
                 width.toString(),
                 '" height="24" rx="12"/><path id="s" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
-                '0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7'
-                '57-.642 1.355-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.83'
+                "0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7"
+                "57-.642 1.355-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.83"
                 '8-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/>',
                 _phase < 2 ? '<use href="#s" x="-16" />' : "",
                 _phase < 1 ? '<use href="#s" x="-32" />' : ""

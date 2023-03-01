@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import {IPaletteGenerator} from "@/contracts/interfaces/IPaletteGenerator.sol";
+import { IPaletteGenerator } from "@/contracts/interfaces/IPaletteGenerator.sol";
 
 /// @title The interface for the colormap registry.
 /// @author fiveoutofnine
@@ -84,23 +84,13 @@ interface IColormapRegistry {
     /// @return uint256 Segment data for red's color value along the colormap.
     /// @return uint256 Segment data for green's color value along the colormap.
     /// @return uint256 Segment data for blue's color value along the colormap.
-    function segments(bytes32 _colormapHash)
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        );
+    function segments(bytes32 _colormapHash) external view returns (uint256, uint256, uint256);
 
     /// @param _colormapHash Hash of the colormap's definition (palette
     /// generator).
     /// @return IPaletteGenerator Instance of {IPaletteGenerator} for the
     /// colormap.
-    function paletteGenerators(bytes32 _colormapHash)
-        external
-        view
-        returns (IPaletteGenerator);
+    function paletteGenerators(bytes32 _colormapHash) external view returns (IPaletteGenerator);
 
     // -------------------------------------------------------------------------
     // Actions
@@ -140,11 +130,7 @@ interface IColormapRegistry {
     function getValue(bytes32 _colormapHash, uint256 _position)
         external
         view
-        returns (
-            uint256,
-            uint256,
-            uint256
-        );
+        returns (uint256, uint256, uint256);
 
     /// @notice Get the red, green, and blue color values of a color in a
     /// colormap at some position.
@@ -161,11 +147,7 @@ interface IColormapRegistry {
     function getValueAsUint8(bytes32 _colormapHash, uint8 _position)
         external
         view
-        returns (
-            uint8,
-            uint8,
-            uint8
-        );
+        returns (uint8, uint8, uint8);
 
     /// @notice Get the hexstring for a color in a colormap at some position.
     /// @param _colormapHash Hash of the colormap's definition.

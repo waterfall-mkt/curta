@@ -28,13 +28,13 @@ contract PrintFlagTokenScript is Script {
             puzzle: puzzle,
             addedTimestamp: uint40(block.timestamp), // This does not affect the output.
             firstSolveTimestamp: 0 // This does not affect the output.
-        });
+         });
 
         flagRenderer = new FlagRenderer();
         console.log(
             flagRenderer.render({
                 _puzzleData: puzzleData,
-                _tokenId: (133721 << 128) | 21563,
+                _tokenId: (133_721 << 128) | 21_563,
                 _author: address(0),
                 _solveTime: uint40(49 hours + 23 minutes + 17 seconds),
                 _solveMetadata: uint56((0xABCDEF0 << 28) | 0x12345),
