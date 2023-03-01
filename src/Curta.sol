@@ -273,6 +273,19 @@ contract Curta is ICurta, FlagsERC721, Owned {
         TokenData memory tokenData = getTokenData[_tokenId];
         require(tokenData.owner != address(0), "NOT_MINTED");
 
+        // Puzzle is Fermat.
+        if (_tokenId == 0) {
+            return "data:application/json;base64,eyJuYW1lIjoiRmVybWF0IiwiZGVzY3JpcHRpb24iOiJMb25nZX"
+            "N0IHVuc29sdmVkIHB1enpsZS4iLCJpbWFnZV9kYXRhIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4y"
+            "WnlCM2FXUjBhRDBpTlRVd0lpQm9aV2xuYUhROUlqVTFNQ0lnZG1sbGQwSnZlRDBpTUNBd0lEVTFNQ0ExTlRBaU"
+            "lHWnBiR3c5SW01dmJtVWlJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQ"
+            "SEJoZEdnZ1ptbHNiRDBpSXpFNE1VVXlPQ0lnWkQwaVRUQWdNR2czTlRCMk56VXdTREI2SWk4K1BISmxZM1FnZU"
+            "QwaU1UUXpJaUI1UFNJMk9TSWdkMmxrZEdnOUlqSTJOQ0lnYUdWcFoyaDBQU0kwTVRJaUlISjRQU0k0SWlCbWFX"
+            "eHNQU0lqTWpjek1ETkVJaTgrUEhKbFkzUWdlRDBpTVRRM0lpQjVQU0kzTXlJZ2MzUnliMnRsUFNJak1UQXhNek"
+            "ZESWlCM2FXUjBhRDBpTWpVMklpQm9aV2xuYUhROUlqUXdOQ0lnY25nOUlqUWlJR1pwYkd3OUlpTXdaREV3TVRj"
+            "aUx6NDhMM04yWno0PSJ9";
+        }
+
         // Retrieve information about the puzzle.
         uint32 _puzzleId = uint32(_tokenId >> 128);
         PuzzleData memory puzzleData = getPuzzle[_puzzleId];
