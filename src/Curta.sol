@@ -293,13 +293,25 @@ contract Curta is ICurta, FlagsERC721, Owned {
         uint32 solves = getPuzzleColorsAndSolves[_puzzleId].solves;
         uint120 colors = getPuzzleColorsAndSolves[_puzzleId].colors;
 
+        // Phase 0 if
+        // `tokenData.solveTimestamp == puzzleData.firstSolveTimestamp`
+        // Phase 1 if
+        // `tokenData.solveTimestamp == puzzleData.firstSolveTimestamp + PHASE_ONE_LENGTH`
+        // Phase 2 if
+        // `tokenData.solveTimestamp == puzzleData.firstSolveTimestamp + SUBMISSION_LENGTH`
+        uint8 phase = tokenData.solveTimestamp == puzzleData.firstSolveTimestamp
+            ? 0
+            : tokenData.solveTimestamp < puzzleData.firstSolveTimestamp + PHASE_ONE_LENGTH
+            ? 1
+            : 2;
+
         return flagRenderer.render({
             _puzzleData: puzzleData,
-            _tokenId: _tokenId,
+            _tokenId: _tokenId + 1, // [MIGRATION] Increment to get rank.
             _author: author,
             _solveTime: tokenData.solveTimestamp - puzzleData.addedTimestamp,
             _solveMetadata: tokenData.solveMetadata,
-            _phase: _computePhase(puzzleData.firstSolveTimestamp, tokenData.solveTimestamp),
+            _phase: phase,
             _solves: solves,
             _colors: colors
         });

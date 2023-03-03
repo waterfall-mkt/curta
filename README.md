@@ -9,6 +9,49 @@ The goal of players is to view the source code of the puzzle, interpret the code
 
 Since puzzles are on-chain, everyone can view everyone else's submissions. The generative aspect prevents front-running and allows for multiple winners: even if players view someone else's solution, they still have to figure out what the rules/constraints of the puzzle are and apply the solution to their respective starting position.
 
+## Deployments
+
+<table>
+    <thead>
+        <tr>
+            <th>Chain</th>
+            <th>Chain ID</th>
+            <th>Contract</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td rowspan="3">Mainnet</td>
+            <td rowspan="3">1</td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0x0000000006bC8D9e5e9d436217B88De704a9F307">0x0000000006bC8D9e5e9d436217B88De704a9F307</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0xC0ffeEb30F5aAA18Cd0a799F6dA1bdcb46f63C44">0xC0ffeEb30F5aAA18Cd0a799F6dA1bdcb46f63C44</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0xf1a9000013303D5641f887C8E1b08D8D60101846">0xf1a9000013303D5641f887C8E1b08D8D60101846</code></td>
+        </tr>
+        <tr>
+            <td rowspan="3">Goerli</td>
+            <td rowspan="3">5</td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0x00000000eCf2b58C296B47caC8C51467c0e307cE">0x00000000eCf2b58C296B47caC8C51467c0e307cE</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0xC0fFeEe59157d2dd0Ee70d4FABaBCa349b319203">0xC0fFeEe59157d2dd0Ee70d4FABaBCa349b319203</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0xf1a9000013303D5641f887C8E1b08D8D60101846">0xf1a9000013303D5641f887C8E1b08D8D60101846</code></td>
+        </tr>
+    </tbody>
+<table>
+
 ## Usage
 This project uses [**Foundry**](https://github.com/foundry-rs/foundry) as its development/testing framework and a [**Constellation**](https://constellation.so/) roll-up for testing.
 
@@ -112,13 +155,11 @@ Create a file named `.env` at the root of the project and copy the contents of `
 #### 2. Run commands to run deploy scripts
 If you are deploying to a public chain, replace `DeployMainnet` and `mainnet` with your desired chain and run the following commands:
 ```sh
-source .env # Load environment variables
 forge script script/deploy/DeployMainnet.s.sol:DeployMainnet -f mainnet --broadcast --verify
 ```
 
 If you are deploying to the Constellation roll-up, remove `--verify` and add `--legacy`:
 ```sh
-source .env # Load environment variables
 forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f constellation --broadcast --legacy --sender $SENDER_ADDRESS
 ```
 

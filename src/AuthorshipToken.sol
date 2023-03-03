@@ -67,10 +67,6 @@ contract AuthorshipToken is ERC721, Owned {
     /// @notice The total supply of tokens.
     uint256 public totalSupply;
 
-    /// @notice Mapping to keep track of which addresses have claimed from
-    // the mint list.
-    mapping(address => bool) public hasClaimed;
-
     // -------------------------------------------------------------------------
     // Constructor
     // -------------------------------------------------------------------------
