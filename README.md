@@ -155,13 +155,11 @@ Create a file named `.env` at the root of the project and copy the contents of `
 #### 2. Run commands to run deploy scripts
 If you are deploying to a public chain, replace `DeployMainnet` and `mainnet` with your desired chain and run the following commands:
 ```sh
-source .env # Load environment variables
 forge script script/deploy/DeployMainnet.s.sol:DeployMainnet -f mainnet --broadcast --verify
 ```
 
 If you are deploying to the Constellation roll-up, remove `--verify` and add `--legacy`:
 ```sh
-source .env # Load environment variables
 forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f constellation --broadcast --legacy --sender $SENDER_ADDRESS
 ```
 
