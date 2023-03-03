@@ -9,6 +9,56 @@ The goal of players is to view the source code of the puzzle, interpret the code
 
 Since puzzles are on-chain, everyone can view everyone else's submissions. The generative aspect prevents front-running and allows for multiple winners: even if players view someone else's solution, they still have to figure out what the rules/constraints of the puzzle are and apply the solution to their respective starting position.
 
+## Deployments
+
+The following are deployments of [`ColormapRegistry`](https://github.com/fiveoutofnine/colormap-registry/blob/main/src/ColormapRegistry.sol). To see a list of registered colormaps, see [**REGISTERED_COLORMAPS.md**](https://github.com/fiveoutofnine/colormap-registry/blob/main/REGISTERED_COLORMAPS.md).
+
+<table>
+    <thead>
+        <tr>
+            <th>Chain</th>
+            <th>Chain ID</th>
+            <th>Contract</th>
+            <th>Address</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td rowspan="3"><code>Mainnet</code></td>
+            <td rowspan="3">1</td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0x0000000006bC8D9e5e9d436217B88De704a9F307">0x0000000006bC8D9e5e9d436217B88De704a9F307</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0xC0ffeEb30F5aAA18Cd0a799F6dA1bdcb46f63C44">0xC0ffeEb30F5aAA18Cd0a799F6dA1bdcb46f63C44</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
+            <td><code><a href="https://etherscan.io/address/0xf1a9000013303D5641f887C8E1b08D8D60101846">0xf1a9000013303D5641f887C8E1b08D8D60101846</code></td>
+        </tr>
+        <tr>
+            <td rowspan="3"><code>Goerli</code></td>
+            <td rowspan="3">5</td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/"></code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/"></code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0xf1a9000013303D5641f887C8E1b08D8D60101846">0xf1a9000013303D5641f887C8E1b08D8D60101846</code></td>
+        </tr>
+    </tbody>
+<table>
+
+| Chain   | Chain ID | Address                                                                                                                          |
+| ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Mainnet | 1        | [`0x0000000012883D1da628e31c0FE52e35DcF95D50`](https://etherscan.io/address/0x0000000012883D1da628e31c0FE52e35DcF95D50)          |
+| Goerli  | 5        | [`0x0000000012883D1da628e31c0FE52e35DcF95D50`](https://goerli.etherscan.io/address/0x0000000012883D1da628e31c0FE52e35DcF95D50)   |
+
 ## Usage
 This project uses [**Foundry**](https://github.com/foundry-rs/foundry) as its development/testing framework and a [**Constellation**](https://constellation.so/) roll-up for testing.
 
