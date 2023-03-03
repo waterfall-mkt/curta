@@ -11,8 +11,6 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
 
 ## Deployments
 
-The following are deployments of [`ColormapRegistry`](https://github.com/fiveoutofnine/colormap-registry/blob/main/src/ColormapRegistry.sol). To see a list of registered colormaps, see [**REGISTERED_COLORMAPS.md**](https://github.com/fiveoutofnine/colormap-registry/blob/main/REGISTERED_COLORMAPS.md).
-
 <table>
     <thead>
         <tr>
@@ -41,11 +39,11 @@ The following are deployments of [`ColormapRegistry`](https://github.com/fiveout
             <td rowspan="3"><code>Goerli</code></td>
             <td rowspan="3">5</td>
             <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
-            <td><code><a href="https://goerli.etherscan.io/address/"></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0x00000000eCf2b58C296B47caC8C51467c0e307cE">0x00000000eCf2b58C296B47caC8C51467c0e307cE</code></td>
         </tr>
         <tr>
             <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
-            <td><code><a href="https://goerli.etherscan.io/address/"></code></td>
+            <td><code><a href="https://goerli.etherscan.io/address/0xC0fFeEe59157d2dd0Ee70d4FABaBCa349b319203">0xC0fFeEe59157d2dd0Ee70d4FABaBCa349b319203</code></td>
         </tr>
         <tr>
             <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
@@ -53,11 +51,6 @@ The following are deployments of [`ColormapRegistry`](https://github.com/fiveout
         </tr>
     </tbody>
 <table>
-
-| Chain   | Chain ID | Address                                                                                                                          |
-| ------- | -------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Mainnet | 1        | [`0x0000000012883D1da628e31c0FE52e35DcF95D50`](https://etherscan.io/address/0x0000000012883D1da628e31c0FE52e35DcF95D50)          |
-| Goerli  | 5        | [`0x0000000012883D1da628e31c0FE52e35DcF95D50`](https://goerli.etherscan.io/address/0x0000000012883D1da628e31c0FE52e35DcF95D50)   |
 
 ## Usage
 This project uses [**Foundry**](https://github.com/foundry-rs/foundry) as its development/testing framework and a [**Constellation**](https://constellation.so/) roll-up for testing.
