@@ -20,6 +20,18 @@ contract DeployMainnet is DeployBase {
     address[] internal AUTHORS = [
         // fiveoutofnine.eth
         0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        // fiveoutofnine.eth
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        // fiveoutofnine.eth
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        // fiveoutofnine.eth
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        // fiveoutofnine.eth
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        // shanefan.eth
+        0xaFDc1A3EF3992f53C10fC798d242E15E2F0DF51A,
+        // Gitswitch
+        0x8FC68A56f9682312953a1730Ae62AFD1a99FdC4F,
         // t11s.eth
         0x7eD52863829AB99354F3a0503A622e82AcD5F7d3,
         // nick.eth

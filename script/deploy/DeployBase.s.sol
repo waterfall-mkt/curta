@@ -125,8 +125,8 @@ contract DeployBase is Script {
         console.log("Flag Renderer Address: ", address(flagRenderer));
 
         // Fund each of the other deployer addresses.
-        payable(authorshipTokenDeployerAddress).transfer(0.25 ether);
-        payable(curtaDeployerAddress).transfer(0.25 ether);
+        payable(authorshipTokenDeployerAddress).transfer(0.4 ether);
+        payable(curtaDeployerAddress).transfer(0.4 ether);
 
         vm.stopBroadcast();
 
@@ -167,5 +167,7 @@ contract DeployBase is Script {
         curta.transferOwnership(curtaOwner);
 
         vm.stopBroadcast();
+        console.log("AuthorshipToken Owner: ", authorshipToken.owner());
+        console.log("Curta Owner: ", curta.owner());
     }
 }
