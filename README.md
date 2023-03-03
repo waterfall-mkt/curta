@@ -22,7 +22,7 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
     </thead>
     <tbody>
         <tr>
-            <td rowspan="3"><code>Mainnet</code></td>
+            <td rowspan="3">Mainnet</td>
             <td rowspan="3">1</td>
             <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
             <td><code><a href="https://etherscan.io/address/0x0000000006bC8D9e5e9d436217B88De704a9F307">0x0000000006bC8D9e5e9d436217B88De704a9F307</code></td>
@@ -36,7 +36,7 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
             <td><code><a href="https://etherscan.io/address/0xf1a9000013303D5641f887C8E1b08D8D60101846">0xf1a9000013303D5641f887C8E1b08D8D60101846</code></td>
         </tr>
         <tr>
-            <td rowspan="3"><code>Goerli</code></td>
+            <td rowspan="3">Goerli</td>
             <td rowspan="3">5</td>
             <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
             <td><code><a href="https://goerli.etherscan.io/address/0x00000000eCf2b58C296B47caC8C51467c0e307cE">0x00000000eCf2b58C296B47caC8C51467c0e307cE</code></td>
