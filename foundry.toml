@@ -15,6 +15,7 @@ remappings = [
     "@/contracts/=src/",
     "@/test/=test/"
 ]
+no-match-path = "test/deploy/deprecated/*"
 
 [fmt]
 line_length = 100
