@@ -20,8 +20,9 @@ contract FlagRenderer {
     // -------------------------------------------------------------------------
 
     /// @notice The colormap registry.
+    /// @dev v0.0.2
     IColormapRegistry constant colormapRegistry =
-        IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
+        IColormapRegistry(0x00000000A84FcdF3E9C165e6955945E87dA2cB0D);
 
     /// @notice Render the JSON and SVG for a Flag token.
     /// @param _puzzleData The puzzle data.
