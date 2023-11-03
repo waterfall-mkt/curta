@@ -116,9 +116,6 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // Revert if the puzzle does not exist.
         if (address(puzzle) == address(0)) revert PuzzleDoesNotExist(_puzzleId);
 
-        // Revert if puzzle name is an empty string or not implemented.
-        if (bytes(puzzle.name()).length == 0) revert PuzzleNotNamed(_puzzleId);
-
         // Revert if submissions are closed.
         uint40 firstSolveTimestamp = puzzleData.firstSolveTimestamp;
         uint40 solveTimestamp = uint40(block.timestamp);
@@ -183,6 +180,14 @@ contract Curta is ICurta, FlagsERC721, Owned {
 
         // Revert if the puzzle has already been used.
         if (hasUsedAuthorshipToken[_tokenId]) revert AuthorshipTokenAlreadyUsed(_tokenId);
+
+        // Revert if puzzle address is the zero address or the Curta address
+        if (address(_puzzle) == address(0) || address(_puzzle) == address(this)) {
+            revert PuzzleInvalidAddress();
+        }
+
+        // Revert if puzzle name is an empty string or not implemented.
+        if (bytes(_puzzle.name()).length == 0) revert PuzzleNotNamed();
 
         // Mark token as used.
         hasUsedAuthorshipToken[_tokenId] = true;
@@ -304,9 +309,7 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // `tokenData.solveTimestamp == puzzleData.firstSolveTimestamp + SUBMISSION_LENGTH`
         uint8 phase = tokenData.solveTimestamp == puzzleData.firstSolveTimestamp
             ? 0
-            : tokenData.solveTimestamp < puzzleData.firstSolveTimestamp + PHASE_ONE_LENGTH
-            ? 1
-            : 2;
+            : tokenData.solveTimestamp < puzzleData.firstSolveTimestamp + PHASE_ONE_LENGTH ? 1 : 2;
 
         return flagRenderer.render({
             _puzzleData: puzzleData,
