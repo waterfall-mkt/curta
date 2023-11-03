@@ -40,7 +40,7 @@ contract PrintFlagTokenScript is Script {
                 _solveMetadata: uint56((0xABCDEF0 << 28) | 0x12345),
                 _phase: 0,
                 _solves: 256,
-                _colors: 0x181E28181E2827303DF0F6FC94A3B3
+                _colors: 0xFFC0CB181E2827303DF0F6FC94A3B3
             })
         );
     }

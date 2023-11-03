@@ -389,7 +389,7 @@ contract FlagRenderer {
                 (383 - width).toString(),
                 '" y="97" width="',
                 width.toString(),
-                '" height="24" rx="12"/><path id="s" fill="',
+                '" height="24" rx="12"/><path id="s" fill="#',
                 uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3),        
                 '" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
                 "0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7"
