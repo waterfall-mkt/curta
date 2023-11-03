@@ -116,6 +116,9 @@ contract Curta is ICurta, FlagsERC721, Owned {
         // Revert if the puzzle does not exist.
         if (address(puzzle) == address(0)) revert PuzzleDoesNotExist(_puzzleId);
 
+        // Revert if puzzle name is an empty string or not implemented.
+        if (bytes(puzzle.name()).length == 0) revert PuzzleNotNamed(_puzzleId);
+
         // Revert if submissions are closed.
         uint40 firstSolveTimestamp = puzzleData.firstSolveTimestamp;
         uint40 solveTimestamp = uint40(block.timestamp);
