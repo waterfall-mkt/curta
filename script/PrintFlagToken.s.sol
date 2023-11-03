@@ -37,7 +37,7 @@ contract PrintFlagTokenScript is Script {
                 _tokenId: (31 << 128) | 21_563,
                 _author: address(0),
                 _solveTime: uint40(49 days + 23 minutes + 17 seconds),
-                _solveMetadata: uint56((0xABCDEF0 << 28) | 0x12345),
+                _solveMetadata: uint56((0xABCDEF0 << 28) | 0x1234567),
                 _phase: 0,
                 _solves: 256,
                 _colors: 0xFFC0CB181E2827303DF0F6FC94A3B3

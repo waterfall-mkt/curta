@@ -57,7 +57,7 @@ contract FlagRenderer {
                 '"},{"trait_type":"Phase","value":"',
                 uint256(_phase).toString(),
                 '"},{"trait_type":"Solver","value":"',
-                _formatValueAsAddress(uint256(_solveMetadata & 0xFFFFFFF)),
+                _formatValueAsAddress(uint256(_solveMetadata >> 28)),
                 '"},{"trait_type":"Solve time","value":',
                 uint256(_solveTime).toString(),
                 '},{"trait_type":"Rank","value":',
