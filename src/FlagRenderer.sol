@@ -203,7 +203,7 @@ contract FlagRenderer {
                 '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
                 uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
                 '"/><rect class="f" x="147" y="73" width="256" height="404" rx="4"/>',
-                _drawStars(_phase)
+                _drawStars(_phase, _colors)
             );
         }
         {
@@ -376,8 +376,9 @@ contract FlagRenderer {
     /// that the SVGs are returned positioned relative to the whole SVG for the
     /// Flag.
     /// @param _phase The phase of the solve.
+    /// @param _colors The colors of the Flag.
     /// @return string memory The SVG for the stars.
-    function _drawStars(uint8 _phase) internal pure returns (string memory) {
+    function _drawStars(uint8 _phase, uint128 _colors) internal pure returns (string memory) {
         // This will never underflow because `_phase` is always in the range
         // [0, 4].
         unchecked {
@@ -388,7 +389,9 @@ contract FlagRenderer {
                 (383 - width).toString(),
                 '" y="97" width="',
                 width.toString(),
-                '" height="24" rx="12"/><path id="s" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
+                '" height="24" rx="12"/><path id="s" fill="',
+                uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3),        
+                '" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
                 "0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7"
                 "57-.642 1.355-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.83"
                 '8-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/>',
