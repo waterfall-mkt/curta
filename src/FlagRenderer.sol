@@ -198,7 +198,7 @@ contract FlagRenderer {
             image = string.concat(
                 image,
                 '}.x{width:1px;height:1px}</style><mask id="m"><rect width="20" height="20" rx="0.3'
-                '70370" fill="#FFF"/></mask><path d="M0 0h550v550H0z" style="fill:#',
+                '70370" fill="#FFF"/></mask><path d="M0 0h550v550H0z" fill="#',
                 uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3), // Background
                 '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
                 uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
@@ -251,8 +251,6 @@ contract FlagRenderer {
             image = string.concat(
                 image,
                 uint256(uint128(_tokenId)).toString(), // Rank
-                ' </tspan><tspan class="a d i" y="435">/ ',
-                uint256(_solves).toString(), // Solvers
                 '</tspan></text><text class="b d i" x="187" y="453">Rank</text><path class="j" d="M'
                 '289 429v4h3m3 0a6 6 0 1 1-12 0 6 6 0 0 1 12 0z"/><text class="a c h" x="303" y="43'
                 '3">',
