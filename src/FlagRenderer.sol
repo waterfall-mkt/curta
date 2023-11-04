@@ -251,7 +251,9 @@ contract FlagRenderer {
             image = string.concat(
                 image,
                 uint256(uint128(_tokenId)).toString(), // Rank
-                '</tspan></text><text class="b d i" x="187" y="453">Rank</text><path class="j" d="M'
+                ' </tspan><tspan class="a d i" y="435">/ ',
+                uint256(_solves).toString(), // Solvers
+                '</tspan></text><text class="b d i" x="187" y="453">Rank</text><path class="j" d="M'                
                 '289 429v4h3m3 0a6 6 0 1 1-12 0 6 6 0 0 1 12 0z"/><text class="a c h" x="303" y="43'
                 '3">',
                 _formatTime(_solveTime), // Solve time
@@ -294,7 +296,7 @@ contract FlagRenderer {
     {
         uint256 seed = uint256(keccak256(abi.encodePacked(_tokenId, _solveMetadata)));
         // Select the colormap.
-        bytes32 colormapHash = [
+        bytes8 colormapHash = bytes8([
             bytes32(0xfd29b65966772202ffdb08f653439b30c849f91409915665d99dbfa5e5dab938),
             bytes32(0x850ce48e7291439b1e41d21fc3f75dddd97580a4ff94aa9ebdd2bcbd423ea1e8),
             bytes32(0x4f5e8ea8862eff315c110b682ee070b459ba8983a7575c9a9c4c25007039109d),
@@ -313,7 +315,7 @@ contract FlagRenderer {
             bytes32(0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436),
             bytes32(0xaa6277ab923279cf59d78b9b5b7fb5089c90802c353489571fca3c138056fb1b),
             bytes32(0xdc1cecffc00e2f3196daaf53c27e53e6052a86dc875adb91607824d62469b2bf)
-        ][seed % 18];
+        ][seed % 18]);
 
         // We start at the middle of the board.
         uint256 index = 210;
