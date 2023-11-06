@@ -5,6 +5,17 @@ libs = ['lib']
 solc = "0.8.17"
 optimizer_runs = 875
 bytecode_hash = "none"
+remappings = [
+    "colormap-registry/=lib/colormap-registry/src/",
+    "forge-std/=lib/forge-std/src/",
+    "solady/=lib/solady/src/",
+    "shields-api/=lib/shields-api-contract/contracts/",
+    "solmate/=lib/solmate/src/",
+    "@/script/=script/",
+    "@/contracts/=src/",
+    "@/test/=test/"
+]
+no-match-path = "test/deploy/deprecated/*"
 
 [fmt]
 line_length = 100
