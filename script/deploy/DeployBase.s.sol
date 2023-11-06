@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { Script } from "forge-std/Script.sol";
-import { console } from "forge-std/Test.sol";
+import { Script, console } from "forge-std/Script.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
@@ -16,7 +15,7 @@ import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 /// @dev The script requires 3 private keys: `DEPLOYER_PRIVATE_KEY`,
 /// `AUTHORSHIP_TOKEN_PRIVATE_KEY` and `CURTA_PRIVATE_KEY`, which are all read
 /// as environment variables via `vm.envUint`. The account specified by
-/// `DEPLOYER_PRIVATE_KEY` will fund the other 2 accounts 0.25 ETH each for gas.
+/// `DEPLOYER_PRIVATE_KEY` will fund the other 2 accounts 0.4 ETH each for gas.
 /// Note that if accounts specified by `AUTHORSHIP_TOKEN_PRIVATE_KEY` or
 /// `CURTA_PRIVATE_KEY` have a nonzero account nonce or are equal, the script
 /// will most likely fail due to incorrect contract address precomputation
