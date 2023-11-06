@@ -20,8 +20,9 @@ contract FlagRenderer {
     // -------------------------------------------------------------------------
 
     /// @notice The colormap registry.
+    /// @dev v0.0.2
     IColormapRegistry constant colormapRegistry =
-        IColormapRegistry(0x0000000012883D1da628e31c0FE52e35DcF95D50);
+        IColormapRegistry(0x00000000A84FcdF3E9C165e6955945E87dA2cB0D);
 
     /// @notice Render the JSON and SVG for a Flag token.
     /// @param _puzzleData The puzzle data.
@@ -56,7 +57,7 @@ contract FlagRenderer {
                 '"},{"trait_type":"Phase","value":"',
                 uint256(_phase).toString(),
                 '"},{"trait_type":"Solver","value":"',
-                _formatValueAsAddress(uint256(_solveMetadata & 0xFFFFFFF)),
+                _formatValueAsAddress(uint256(_solveMetadata >> 28)),
                 '"},{"trait_type":"Solve time","value":',
                 uint256(_solveTime).toString(),
                 '},{"trait_type":"Rank","value":',
@@ -197,12 +198,12 @@ contract FlagRenderer {
             image = string.concat(
                 image,
                 '}.x{width:1px;height:1px}</style><mask id="m"><rect width="20" height="20" rx="0.3'
-                '70370" fill="#FFF"/></mask><path d="M0 0h550v550H0z" style="fill:#',
+                '70370" fill="#FFF"/></mask><path d="M0 0h550v550H0z" fill="#',
                 uint256((_colors >> 96) & 0xFFFFFF).toHexStringNoPrefix(3), // Background
                 '"/><rect x="143" y="69" width="264" height="412" rx="8" fill="#',
                 uint256((_colors >> 48) & 0xFFFFFF).toHexStringNoPrefix(3), // Border
                 '"/><rect class="f" x="147" y="73" width="256" height="404" rx="4"/>',
-                _drawStars(_phase)
+                _drawStars(_phase, _colors)
             );
         }
         {
@@ -295,25 +296,25 @@ contract FlagRenderer {
     {
         uint256 seed = uint256(keccak256(abi.encodePacked(_tokenId, _solveMetadata)));
         // Select the colormap.
-        bytes32 colormapHash = [
-            bytes32(0xfd29b65966772202ffdb08f653439b30c849f91409915665d99dbfa5e5dab938),
-            bytes32(0x850ce48e7291439b1e41d21fc3f75dddd97580a4ff94aa9ebdd2bcbd423ea1e8),
-            bytes32(0x4f5e8ea8862eff315c110b682ee070b459ba8983a7575c9a9c4c25007039109d),
-            bytes32(0xf2e92189cb6903b98d854cd74ece6c3fafdb2d3472828a950633fdaa52e05032),
-            bytes32(0xa33e6c7c5627ecabfd54c4d85f9bf04815fe89a91379fcf56ccd8177e086db21),
-            bytes32(0xaa84b30df806b46f859a413cb036bc91466307aec5903fc4635c00a421f25d5c),
-            bytes32(0x864a6ee98b9b21ac0291523750d637250405c24a6575e1f75cfbd7209a810ce6),
-            bytes32(0xfd60cd3811f002814944a7d36167b7c9436187a389f2ee476dc883e37dc76bd2),
-            bytes32(0xa8309447f8bd3b5e5e88a0abc05080b7682e4456c388b8636d45f5abb2ad2587),
-            bytes32(0x3be719b0c342797212c4cb33fde865ed9cbe486eb67176265bc0869b54dee925),
-            bytes32(0xca0da6b6309ed2117508207d68a59a18ccaf54ba9aa329f4f60a77481fcf2027),
-            bytes32(0x5ccb29670bb9de0e3911d8e47bde627b0e3640e49c3d6a88d51ff699160dfbe1),
-            bytes32(0x3de8f27f386dab3dbab473f3cc16870a717fe5692b4f6a45003d175c559dfcba),
-            bytes32(0x026736ef8439ebcf8e7b8006bf8cb7482ced84d71b900407a9ed63e1b7bfe234),
-            bytes32(0xc1806ea961848ac00c1f20aa0611529da522a7bd125a3036fe4641b07ee5c61c),
-            bytes32(0x87970b686eb726750ec792d49da173387a567764d691294d764e53439359c436),
-            bytes32(0xaa6277ab923279cf59d78b9b5b7fb5089c90802c353489571fca3c138056fb1b),
-            bytes32(0xdc1cecffc00e2f3196daaf53c27e53e6052a86dc875adb91607824d62469b2bf)
+        bytes8 colormapHash = [
+            bytes8(0xfd29b65966772202),
+            bytes8(0x850ce48e7291439b),
+            bytes8(0x4f5e8ea8862eff31),
+            bytes8(0xf2e92189cb6903b9),
+            bytes8(0xa33e6c7c5627ecab),
+            bytes8(0xaa84b30df806b46f),
+            bytes8(0x864a6ee98b9b21ac),
+            bytes8(0xfd60cd3811f00281),
+            bytes8(0xa8309447f8bd3b5e),
+            bytes8(0x3be719b0c3427972),
+            bytes8(0xca0da6b6309ed211),
+            bytes8(0x5ccb29670bb9de0e),
+            bytes8(0x3de8f27f386dab3d),
+            bytes8(0x026736ef8439ebcf),
+            bytes8(0xc1806ea961848ac0),
+            bytes8(0x87970b686eb72675),
+            bytes8(0xaa6277ab923279cf),
+            bytes8(0xdc1cecffc00e2f31)
         ][seed % 18];
 
         // We start at the middle of the board.
@@ -375,8 +376,9 @@ contract FlagRenderer {
     /// that the SVGs are returned positioned relative to the whole SVG for the
     /// Flag.
     /// @param _phase The phase of the solve.
+    /// @param _colors The colors of the Flag.
     /// @return string memory The SVG for the stars.
-    function _drawStars(uint8 _phase) internal pure returns (string memory) {
+    function _drawStars(uint8 _phase, uint128 _colors) internal pure returns (string memory) {
         // This will never underflow because `_phase` is always in the range
         // [0, 4].
         unchecked {
@@ -387,7 +389,9 @@ contract FlagRenderer {
                 (383 - width).toString(),
                 '" y="97" width="',
                 width.toString(),
-                '" height="24" rx="12"/><path id="s" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
+                '" height="24" rx="12"/><path id="s" fill="#',
+                uint256((_colors >> 72) & 0xFFFFFF).toHexStringNoPrefix(3),
+                '" d="M366.192 103.14c.299-.718 1.317-.718 1.616 '
                 "0l1.388 3.338 3.603.289c.776.062 1.09 1.03.499 1.536l-2.745 2.352.838 3.515c.181.7"
                 "57-.642 1.355-1.306.95L367 113.236l-3.085 1.884c-.664.405-1.487-.193-1.306-.95l.83"
                 '8-3.515-2.745-2.352c-.591-.506-.277-1.474.5-1.536l3.602-.289 1.388-3.337z"/>',

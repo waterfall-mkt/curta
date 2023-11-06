@@ -9,3 +9,6 @@ broadcast/
 
 # Coverage
 lcov.info
+
+# SVG preview
+script/preview
