@@ -126,11 +126,7 @@ Create a file named `.env` at the root of the project and copy the contents of `
             <td>The account to deploy <code>Curta</code></td>
         </tr>
         <tr>
-            <td rowspan="3">RPC endpoints</td>
-            <td><code>RPC_URL_CONSTELLATION</code></td>
-            <td>An RPC endpoint for the Constellation chain</td>
-        </tr>
-        <tr>
+            <td rowspan="4">RPC endpoints</td>
             <td><code>RPC_URL_GOERLI</code></td>
             <td>An RPC endpoint for Goerli</td>
         </tr>
@@ -139,9 +135,23 @@ Create a file named `.env` at the root of the project and copy the contents of `
             <td>An RPC endpoint for mainnet</td>
         </tr>
         <tr>
-            <td rowspan="1">API keys</td>
+            <td><code>RPC_URL_BASE_GOERLI</code></td>
+            <td>An RPC endpoint for Base Goerli</td>
+        </tr>
+        <tr>
+            <td><code>RPC_URL_BASE_MAINNET</code></td>
+            <td>An RPC endpoint for Base mainnet</td>
+        </tr>
+        <tr>
+            <td rowspan="2">API keys</td>
             <td><code>ETHERSCAN_KEY</code></td>
             <td>An <a href="https://etherscan.io" target="_blank" rel="noreferrer noopener"><b>Etherscan</b></a> API key for verifying contracts</td>
+        </tr>
+        <tr>
+            <td><code>BASESCAN_KEY</code></td>
+            <td>A <a href="https://basescan.org" target="_blank"
+            rel="noreferrer noopener"><b>Basescan</b></a> API key for verifying
+            contracts</td>
         </tr>
     </tbody>
 <table>
