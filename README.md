@@ -53,7 +53,7 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
 <table>
 
 ## Usage
-This project uses [**Foundry**](https://github.com/foundry-rs/foundry) as its development/testing framework and a [**Constellation**](https://constellation.so/) roll-up for testing.
+This project uses [**Foundry**](https://github.com/foundry-rs/foundry) as its development/testing framework.
 
 ### Installation
 
@@ -156,11 +156,6 @@ Create a file named `.env` at the root of the project and copy the contents of `
 If you are deploying to a public chain, replace `DeployMainnet` and `mainnet` with your desired chain and run the following commands:
 ```sh
 forge script script/deploy/DeployMainnet.s.sol:DeployMainnet -f mainnet --broadcast --verify
-```
-
-If you are deploying to the Constellation roll-up, remove `--verify` and add `--legacy`:
-```sh
-forge script script/deploy/DeployConstellation.s.sol:DeployConstellation -f constellation --broadcast --legacy --sender $SENDER_ADDRESS
 ```
 
 ## Acknowledgements
