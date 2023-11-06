@@ -40,9 +40,6 @@ interface ICurta {
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleDoesNotExist(uint32 _puzzleId);
 
-    /// @notice Emitted when a puzzle has a zero-length name.
-    error PuzzleNotNamed();
-
     /// @notice Emitted when a puzzle is the zero address or the Curta address.
     error PuzzleInvalidAddress();
 
@@ -50,6 +47,9 @@ interface ICurta {
     /// unsolved.
     /// @param _puzzleId The ID of a puzzle.
     error PuzzleNotFermat(uint32 _puzzleId);
+
+    /// @notice Emitted when a puzzle has a zero-length name.
+    error PuzzleNotNamed();
 
     /// @notice Emitted when a puzzle has not been solved yet.
     /// @param _puzzleId The ID of a puzzle.
