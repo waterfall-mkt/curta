@@ -64,7 +64,7 @@ contract BaseTest is Test {
         // Transaction #2.
         authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH, AUTHORS);
 
-        // Because AuthorshipToken sets the owner to tx.origin, it will set it 
+        // Because AuthorshipToken sets the owner to tx.origin, it will set it
         // to be the default sender in Foundry instead of AuthorshipTokenTest
         // so we have to change that.
         vm.prank(DEFAULT_SENDER);

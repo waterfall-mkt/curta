@@ -27,9 +27,10 @@ quote_style = "double"
 number_underscore = "thousands"
 
 [rpc_endpoints]
-constellation = "${RPC_URL_CONSTELLATION}"
 goerli = "${RPC_URL_GOERLI}"
 mainnet = "${RPC_URL_MAINNET}"
+base_goreli = "${RPC_URL_BASE_GOERLI"
+base_mainnet = "${RPC_URL_BASE_MAINNET}"
 
 [etherscan]
 goerli = {key = "${ETHERSCAN_KEY}", url = "https://api-goerli.etherscan.io/api"}

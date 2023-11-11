@@ -7,7 +7,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { DeployBaseGoerli } from "@/script/deploy/DeployBaseGoerli.s.sol";
 
-/// @notice Tests the Base Goerli deploy script. 
+/// @notice Tests the Base Goerli deploy script.
 contract DeployBaseGoerliTest is Test {
     // -------------------------------------------------------------------------
     // Contracts
@@ -34,9 +34,13 @@ contract DeployBaseGoerliTest is Test {
     /// @notice Test that the addresses were set correctly in each contract's
     /// deploy.
     function test_AddressInitializationCorrectness() public {
-        assertEq(address(deployBaseGoerli.curta().flagRenderer()), address(deployBaseGoerli.flagRenderer()));
         assertEq(
-            address(deployBaseGoerli.curta().authorshipToken()), address(deployBaseGoerli.authorshipToken())
+            address(deployBaseGoerli.curta().flagRenderer()),
+            address(deployBaseGoerli.flagRenderer())
+        );
+        assertEq(
+            address(deployBaseGoerli.curta().authorshipToken()),
+            address(deployBaseGoerli.authorshipToken())
         );
         assertEq(deployBaseGoerli.authorshipToken().curta(), address(deployBaseGoerli.curta()));
     }
@@ -53,7 +57,9 @@ contract DeployBaseGoerliTest is Test {
 
         unchecked {
             for (uint256 i; i < totalSupply; ++i) {
-                assertEq(deployBaseGoerli.authorshipToken().ownerOf(i + 1), deployBaseGoerli.authors(i));
+                assertEq(
+                    deployBaseGoerli.authorshipToken().ownerOf(i + 1), deployBaseGoerli.authors(i)
+                );
             }
         }
     }
@@ -74,13 +80,13 @@ contract DeployBaseGoerliTest is Test {
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {
-        assertEq(deployBaseGoerli.authorshipToken().owner(), deployBaseGoerli.authorshipTokenOwner());
+        assertEq(
+            deployBaseGoerli.authorshipToken().owner(), deployBaseGoerli.authorshipTokenOwner()
+        );
     }
 
     /// @notice Test that Curta's ownership was transferred correctly.
     function test_curtaOwnerEquality() public {
         assertEq(deployBaseGoerli.curta().owner(), deployBaseGoerli.curtaOwner());
     }
-
 }
-
