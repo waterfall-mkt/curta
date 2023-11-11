@@ -34,3 +34,4 @@ mainnet = "${RPC_URL_MAINNET}"
 [etherscan]
 goerli = {key = "${ETHERSCAN_KEY}", url = "https://api-goerli.etherscan.io/api"}
 mainnet = {key = "${ETHERSCAN_KEY}"}
+base_mainnet = {key = "${BASESCAN_KEY}", url = "https://basescan.org"}

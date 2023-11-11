@@ -11,8 +11,9 @@ pragma solidity ^0.8.17;
 // | drum was the key to miniaturizing the Curta.                              |
 // '==========================================================================='
 
+import { Base64 } from "solady/utils/Base64.sol";
+import { LibString } from "solady/utils/LibString.sol";
 import { Owned } from "solmate/auth/Owned.sol";
-import { LibString } from "solmate/utils/LibString.sol";
 import { SafeTransferLib } from "solmate/utils/SafeTransferLib.sol";
 
 import { FlagRenderer } from "./FlagRenderer.sol";
@@ -20,7 +21,6 @@ import { FlagsERC721 } from "./FlagsERC721.sol";
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
-import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title Curta
 /// @author fiveoutofnine

@@ -3,10 +3,11 @@ pragma solidity ^0.8.17;
 
 import { Script, console } from "forge-std/Script.sol";
 
+import { LibRLP } from "solady/utils/LibRLP.sol";
+
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
-import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A script to deploy 1 instance each of `AuthorshipToken`,
 /// `FlagRenderer`, and `Curta`. Each of these deploys will be used as each
