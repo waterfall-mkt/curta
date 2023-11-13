@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { DeployBase } from "../DeployBase.s.sol";
+import { DeployBase } from "../v0.0.1/DeployBase.s.sol";
 
 /// @notice A script to deploy the protocol on Constellation.
 contract DeployConstellation is DeployBase {

@@ -38,6 +38,18 @@ contract DeployBase is Script {
     // Deployment addresses
     // -------------------------------------------------------------------------
 
+    /// @notice The instance of `AuthorshipToken` that will be deployed after
+    /// the script runs.
+    AuthorshipToken public authorshipToken;
+
+    /// @notice The instance of `FlagRenderer` that will be deployed and set in
+    /// `curta` as its base `flagRenderer` after the script runs.
+    FlagRenderer public flagRenderer;
+
+    /// @notice The instance of `Curta` that will be deployed after the script
+    /// runs.
+    Curta public curta;
+
     /// @notice Address of the Create2Deployer
     /// @dev This address is different on all chains except Base mainnet
     /// where it is a predeploy.
@@ -114,12 +126,15 @@ contract DeployBase is Script {
         ));
 
         // Deploy Curta
-        new Curta(
+        curta = new Curta(
             AuthorshipToken(authorshipTokenAddress), 
             FlagRenderer(flagRendererAddress)
         );
 
         vm.stopBroadcast();
+
+        flagRenderer = FlagRenderer(flagRendererAddress);
+        authorshipToken = AuthorshipToken(authorshipTokenAddress);
     }
 
     function _printInitcodeHashes(address[] memory initialAuthors) internal view {

@@ -5,7 +5,7 @@ import { Test } from "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
-import { DeployMainnet } from "@/script/deploy/DeployMainnet.s.sol";
+import { DeployMainnet } from "@/script/deploy/v0.0.1/DeployMainnet.s.sol";
 
 /// @notice Tests the mainnet deploy script.
 contract DeployMainnetTest is Test {
