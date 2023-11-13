@@ -5,7 +5,7 @@ import { Test } from "forge-std/Test.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
-import { DeployBaseGoerli } from "@/script/deploy/DeployBaseGoerli.s.sol";
+import { DeployBaseGoerli } from "@/script/deploy/v0.0.2/DeployBaseGoerli.s.sol";
 
 /// @notice Tests the Base Goerli deploy script.
 contract DeployBaseGoerliTest is Test {
