@@ -2,12 +2,12 @@
 pragma solidity ^0.8.17;
 
 import { IShieldsAPI } from "shields-api/interfaces/IShieldsAPI.sol";
+import { Base64 } from "solady/utils/Base64.sol";
+import { LibString } from "solady/utils/LibString.sol";
 import { Owned } from "solmate/auth/Owned.sol";
 import { ERC721 } from "solmate/tokens/ERC721.sol";
-import { LibString } from "solmate/utils/LibString.sol";
 
 import { ICurta } from "@/contracts/interfaces/ICurta.sol";
-import { Base64 } from "@/contracts/utils/Base64.sol";
 
 /// @title The Authorship Token ERC-721 token contract
 /// @author fiveoutofnine
@@ -77,7 +77,7 @@ contract AuthorshipToken is ERC721, Owned {
     /// @param _authors The list of authors in the initial batch.
     constructor(address _curta, uint256 _issueLength, address[] memory _authors)
         ERC721("Authorship Token", "AUTH")
-        Owned(msg.sender)
+        Owned(tx.origin)
     {
         curta = _curta;
         issueLength = _issueLength;

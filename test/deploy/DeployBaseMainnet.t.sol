@@ -7,7 +7,7 @@ import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { DeployBaseMainnet } from "@/script/deploy/DeployBaseMainnet.s.sol";
 
-/// @notice Tests the Base mainnet deploy script. 
+/// @notice Tests the Base mainnet deploy script.
 contract DeployBaseMainnetTest is Test {
     // -------------------------------------------------------------------------
     // Contracts
@@ -35,7 +35,8 @@ contract DeployBaseMainnetTest is Test {
     /// deploy.
     function test_AddressInitializationCorrectness() public {
         assertEq(
-            address(deployBaseMainnet.curta().flagRenderer()), address(deployBaseMainnet.flagRenderer())
+            address(deployBaseMainnet.curta().flagRenderer()),
+            address(deployBaseMainnet.flagRenderer())
         );
         assertEq(
             address(deployBaseMainnet.curta().authorshipToken()),
@@ -56,7 +57,9 @@ contract DeployBaseMainnetTest is Test {
 
         unchecked {
             for (uint256 i; i < totalSupply; ++i) {
-                assertEq(deployBaseMainnet.authorshipToken().ownerOf(i + 1), deployBaseMainnet.authors(i));
+                assertEq(
+                    deployBaseMainnet.authorshipToken().ownerOf(i + 1), deployBaseMainnet.authors(i)
+                );
             }
         }
     }
@@ -77,7 +80,9 @@ contract DeployBaseMainnetTest is Test {
     /// @notice Test that the Authorship Token's ownership was transferred
     /// correctly.
     function test_authorshipTokenOwnerEquality() public {
-        assertEq(deployBaseMainnet.authorshipToken().owner(), deployBaseMainnet.authorshipTokenOwner());
+        assertEq(
+            deployBaseMainnet.authorshipToken().owner(), deployBaseMainnet.authorshipTokenOwner()
+        );
     }
 
     /// @notice Test that Curta's ownership was transferred correctly.

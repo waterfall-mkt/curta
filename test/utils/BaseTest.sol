@@ -2,13 +2,13 @@
 pragma solidity ^0.8.17;
 
 import { Test } from "forge-std/Test.sol";
+import { LibRLP } from "solady/utils/LibRLP.sol";
 
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
 import { IPuzzle } from "@/contracts/interfaces/IPuzzle.sol";
 import { MockPuzzle } from "@/contracts/utils/mock/MockPuzzle.sol";
-import { LibRLP } from "@/contracts/utils/LibRLP.sol";
 
 /// @notice A base test contract for Curta. In `setUp`, it deploys an instance
 /// of `AuthorshipToken` and `Curta`. Additionally, it funds 2 addresses
@@ -63,6 +63,12 @@ contract BaseTest is Test {
 
         // Transaction #2.
         authorshipToken = new AuthorshipToken(curtaAddress, ISSUE_LENGTH, AUTHORS);
+
+        // Because AuthorshipToken sets the owner to tx.origin, it will set it
+        // to be the default sender in Foundry instead of AuthorshipTokenTest
+        // so we have to change that.
+        vm.prank(DEFAULT_SENDER);
+        authorshipToken.transferOwnership(address(this));
 
         // Transaction #3.
         curta = new Curta(authorshipToken, flagRenderer);
