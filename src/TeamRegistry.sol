@@ -10,134 +10,79 @@ contract TeamRegistry is ITeamRegistry, Owned(msg.sender) {
     // Storage
     // -------------------------------------------------------------------------
 
-    mapping(uint32 => uint32[]) private eventPuzzleIds;
+    mapping(uint32 => uint32[]) public getEventPuzzleIds;
 
-    mapping(uint32 => Team) private teams;
+    /// @notice Mapping for keeping track of which members are part of teams.abi
+    /// @dev Returns a uint8 that determines status of the team member.abi
+    ///      `0`: Neither in team nor invited
+    ///      `1`: Invited to team but not yet accepted
+    ///      `2`: Accepted invite and is team member
+    ///      `3`: Is team leader
+    mapping(uint32 => mapping(address => uint8)) public teamMembers;
 
-    mapping(address => bool) private teamMembers;
+    // modify to bitmap
+    mapping(address => bool) public isTeamMember;
 
     // -------------------------------------------------------------------------
     // Constructor + Functions
     // -------------------------------------------------------------------------
 
-    function getEventPuzzleIds(
-        uint32 _eventId
-    ) external view override returns (uint32[] memory) {}
-
-    function getTeam(
-        uint32 _teamId
-    ) external view override returns (Team memory) {}
-
-    function isTeamMember(
-        address _member
-    ) external view override returns (bool) {
-        return teamMembers[_member];
-    }
-
     function setEventPuzzles(
         uint32 _eventId,
         uint32[] calldata _puzzleIds
     ) external onlyOwner {
-        eventPuzzleIds[_eventId] = _puzzleIds;
+        getEventPuzzleIds[_eventId] = _puzzleIds;
     }
 
     function createTeam(address[] calldata _members) external {
         // team leaders cannot create multiple teams
-        if (teamMembers[msg.sender] == true) revert AlreadyInTeam(msg.sender);
+        if (isTeamMember[msg.sender] == true) revert AlreadyInTeam(msg.sender);
         // generate team ID
-        uint32 _teamId = uint32(
-            uint256(keccak256(abi.encodePacked(msg.sender)))
+        uint32 teamId = uint32(
+            uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender)))
         );
-        // say that the team creator is part of a team
-        teamMembers[msg.sender] = true;
-        TeamMember[] memory tms = new TeamMember[](_members.length + 1);
-        tms[0] = TeamMember(msg.sender, true);
+        // make them team leader and say they are part of a team
+        teamMembers[teamId][msg.sender] = 3;
+        isTeamMember[msg.sender] = true;
+        // add members including leader
         for (uint32 i; i < _members.length; ) {
             // cannot create team with members of another team
-            if (teamMembers[_members[i]] == true)
+            if (isTeamMember[_members[i]] == true)
                 revert AlreadyInTeam(_members[i]);
-            tms[i + 1] = TeamMember(_members[i], false);
+            teamMembers[teamId][_members[i]] = 1;    // mark member as invited0
             unchecked {
                 i++;
             }
         }
-        Team memory team = Team(msg.sender, tms);
-        teams[_teamId] = team;
 
         emit TeamCreated(_teamId, msg.sender);
     }
 
     function acceptInvite(uint32 _teamId) external {
-        TeamMember[] memory tms = teams[_teamId].members;
-        for (uint32 i; i < tms.length; ) {
-            if (tms[i].member == msg.sender) {
-                tms[i].accepted = true;
-                teamMembers[msg.sender] = true;
-                break;
-            }
-            unchecked {
-                i++;
-            }
-        }
+        if(teamMembers[_teamId][msg.sender] != 1) revert NotInvited();
+        teamMembers[_teamId][msg.sender] == 2;
+        isTeamMember[msg.sender] = true;
     }
 
     function kickMember(uint32 _teamId, address _member) external {
-        Team memory team = teams[_teamId];
-        if (msg.sender != team.leader) revert NotTeamLeader();
-        for (uint32 i; i < team.members.length; ) {
-            if (team.members[i].member == _member) {
-                team.members[i].accepted = false;
-                teamMembers[_member] = false;
-                break;
-            }
-            unchecked {
-                i++;
-            }
-        }
+        if (teamMembers[_teamId][msg.sender] != 3) revert NotTeamLeader();
+        delete teamMembers[_teamId][_member];
+        isTeamMember[_member] = false;
     }
 
     function leaveTeam(uint32 _teamId) external {
-        Team memory team = teams[_teamId];
-        for (uint32 i; i < team.members.length; ) {
-            if (team.members[i].member == msg.sender) {
-                team.members[i].accepted = false;
-                teamMembers[msg.sender] = false;
-                break;
-            }
-            unchecked {
-                i++;
-            }
-        }
+        delete teamMembers[_teamId][msg.sender];
+        isTeamMember[msg.sender] = false;
     }
 
     function transferTeamOwnership(
         uint32 _teamId,
         address _newLeader
     ) external {
-        Team memory team = teams[_teamId];
-        if (msg.sender != team.leader) revert NotTeamLeader();
-        // cannot become leader if not already member
-        for (uint32 i; i < team.members.length; ) {
-            if (team.members[i].member == _newLeader) {
-                team.leader = _newLeader;
-                break;
-            }
-        }
+        if (teamMembers[_teamId][msg.sender] != 3) revert NotTeamLeader();
+        teamMembers[_teamId][msg.sender] = 2;
+        teamMembers[_teamId][_newLeader] = 3;
 
-        emit TeamLeadershipTransferred(_teamId, team.leader, _newLeader);
-    }
-
-    function deleteTeam(uint32 _teamId) external {
-        Team memory team = teams[_teamId];
-        if (team.leader != msg.sender) revert NotTeamLeader();
-        delete teams[_teamId];
-        for (uint32 i; i < team.members.length; ) {
-            teamMembers[team.members[i].member] = false;
-            unchecked {
-                i++;
-            }
-        }
-
-        emit TeamDeleted(_teamId);
+        emit TeamLeadershipTransferred(_teamId, msg.sender, _newLeader);
     }
 }

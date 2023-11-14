@@ -8,21 +8,14 @@ interface ITeamRegistry {
 
     error AlreadyInTeam(address player);
 
+    error NotInvited();
+
     error NotTeamLeader();
+
 
     // -------------------------------------------------------------------------
     // Structs
     // -------------------------------------------------------------------------
-
-    struct Team {
-        address leader;
-        TeamMember[] members;
-    }
-
-    struct TeamMember {
-        address member;
-        bool accepted;
-    }
 
     // -------------------------------------------------------------------------
     // Events
