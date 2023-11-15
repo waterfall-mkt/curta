@@ -65,7 +65,7 @@ contract TeamRegistry {
     mapping(address => bool) public isTeamMember;
 
     /// @notice Team ID counter. Starts at 1.
-    uint16 teamId;
+    uint16 private teamId;
 
     // -------------------------------------------------------------------------
     // Functions
@@ -131,7 +131,7 @@ contract TeamRegistry {
     function acceptInvite(uint32 _teamId) external {
         if (isTeamMember[msg.sender] == true) revert AlreadyInTeam(msg.sender);
         if (teamMemberStatus[_teamId][msg.sender] != 1) revert NoPendingInvite(_teamId, msg.sender);
-        teamMemberStatus[_teamId][msg.sender] == 2;
+        teamMemberStatus[_teamId][msg.sender] = 2;
         isTeamMember[msg.sender] = true;
 
         emit TeamInviteAccepted(_teamId, msg.sender);
@@ -144,7 +144,7 @@ contract TeamRegistry {
     ///         or if `_member` is not in the team.
     function kickMember(uint32 _teamId, address _member) external {
         if (teamMemberStatus[_teamId][msg.sender] < 3) revert NotTeamLeader(_teamId, msg.sender);
-        if (teamMemberStatus[_teamId][_member] < 2) revert NotInTeam(_teamId, msg.sender);
+        if (teamMemberStatus[_teamId][_member] < 2) revert NotInTeam(_teamId, _member);
         delete teamMemberStatus[_teamId][_member];
         isTeamMember[_member] = false;
     }
@@ -157,9 +157,12 @@ contract TeamRegistry {
     function kickMembers(uint32 _teamId, address[] calldata _members) external {
         if (teamMemberStatus[_teamId][msg.sender] < 3) revert NotTeamLeader(_teamId, msg.sender);
         for (uint8 i; i < _members.length;) {
-            if (teamMemberStatus[_teamId][_members[i]] < 2) revert NotInTeam(_teamId, msg.sender);
+            if (teamMemberStatus[_teamId][_members[i]] < 2) revert NotInTeam(_teamId, _members[i]);
             delete teamMemberStatus[_teamId][_members[i]];
             isTeamMember[_members[i]] = false;
+            unchecked {
+                i++;
+            }
         }
     }
 
@@ -178,7 +181,7 @@ contract TeamRegistry {
     /// @param  _newLeader The address of the new leader.
     /// @dev    Reverts if `msg.sender` is not the current leader
     ///         or `_newLeader` is not a team member.
-    function transferTeamOwnership(uint32 _teamId, address _newLeader) external {
+    function transferLeadership(uint32 _teamId, address _newLeader) external {
         if (teamMemberStatus[_teamId][msg.sender] < 3) revert NotTeamLeader(_teamId, msg.sender);
         if (teamMemberStatus[_teamId][_newLeader] != 2) revert NotInTeam(_teamId, _newLeader);
         teamMemberStatus[_teamId][msg.sender] = 2;
