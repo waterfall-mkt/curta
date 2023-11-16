@@ -38,7 +38,6 @@ contract TeamRegistyTest is Test {
     /// @param _to The address of the new leader of the team.
     event TransferTeamLeadership(uint256 indexed _id, address indexed _from, address indexed _to);
 
-
     // -------------------------------------------------------------------------
     // Contracts
     // -------------------------------------------------------------------------
@@ -64,7 +63,7 @@ contract TeamRegistyTest is Test {
     function test_createTeam_TeamLeaderCreatesNewTeam_Fails() public {
         _createTeam();
 
-        vm.expectRevert(TeamRegistry.IsTeamLeader.selector);
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1));
         _createTeam();
     }
 
@@ -128,7 +127,7 @@ contract TeamRegistyTest is Test {
 
         // Test that team leader cannot create a new team while they're a team
         // leader.
-        vm.expectRevert(TeamRegistry.IsTeamLeader.selector);
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1));
         tr.createTeam(_members);
     }
 
