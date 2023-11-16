@@ -85,39 +85,48 @@ contract TeamRegistry {
     /// @notice Create a team with invitations sent out to a list of members.
     /// @dev The function reverts if `msg.sender` is the leader of another team.
     /// @param _members A list of addresses to invite.
-    /// @return The ID of the created team.
+    /// @return newTeamId The ID of the created team.
     function createTeam(address[] calldata _members) external returns (uint256 newTeamId) {
-        uint256 newTeamId;
         unchecked {
             newTeamId = ++teamId;
         }
 
+        uint256 currentTeamId = getMemberTeamId[msg.sender];
         // Revert if `msg.sender` is already the leader of a team.
-        if (getTeamMemberStatus[getMemberTeamId[msg.sender]][msg.sender] == 4) {
+        if (getTeamMemberStatus[currentTeamId][msg.sender] & 4 == 4) {
             revert IsTeamLeader();
         }
-        // make `msg.sender` team leader and assign their team
-        getTeamMemberStatus[teamId][msg.sender] = 4;
-        getMemberTeamId[msg.sender] = teamId;
 
-        // Mark all members are invited.
-        for (uint8 i; i < _members.length;) {
-            getTeamMemberStatus[teamId][_members[i]] = 1;
+        // Mark `msg.sender` as leader of the new team.
+        getTeamMemberStatus[newTeamId][msg.sender] = 7;
+        // Mark new team as `msg.sender`'s team.
+        getMemberTeamId[msg.sender] = newTeamId;
+
+        // Mark all members are invited (2 = `0b010`).
+        uint256 length = _members.length;
+        for (uint256 i; i < length;) {
+            // We mark it via `|=` in case the member has already requested to
+            // join the team. By doing `|= 2`, we only change bit 1 (0-indexed
+            // LSb).
+            getTeamMemberStatus[newTeamId][_members[i]] |= 2;
+
+            // TODO: emit invitation event
+
             unchecked {
-                i++;
+                ++i;
             }
         }
 
+        // Emit event.
         emit CreateTeam(newTeamId, msg.sender);
     }
 
     /// @notice Request membership to a team.
-    /// @param  _teamId The ID of the team.
+    /// @param _teamId The ID of the team.
     function requestMembership(uint256 _teamId) external {
-        if (getTeamMemberStatus[getMemberTeamId[msg.sender]][msg.sender] == 4) {
-            revert IsTeamLeader();
-        }
-        getTeamMemberStatus[_teamId][msg.sender] = 2;
+        // We mark it via `|=` in case the member has already been invited to
+        // join the team. By doing `|= 1`, we only change bit 0.
+        getTeamMemberStatus[_teamId][msg.sender] |= 1;
     }
 
     /// @notice Invite a member to a team.
@@ -155,7 +164,7 @@ contract TeamRegistry {
             revert NotTeamLeader(memberId, msg.sender);
         }
         if (getTeamMemberStatus[memberId][_member] != 2) revert NoPendingRequest(memberId, _member);
-        getTeamMemberStatus[_member][memberId] = 3;
+        getTeamMemberStatus[memberId][_member] = 3;
         getMemberTeamId[_member] = memberId;
 
         emit AddTeamMember(memberId, _member);
@@ -172,7 +181,7 @@ contract TeamRegistry {
             if (getTeamMemberStatus[memberId][_members[i]] != 2) {
                 revert NoPendingRequest(memberId, _members[i]);
             }
-            getTeamMemberStatus[_members[i]][memberId] = 3;
+            getTeamMemberStatus[memberId][_members[i]] = 3;
             getMemberTeamId[_members[i]] = memberId;
 
             emit AddTeamMember(memberId, _members[i]);

@@ -5,57 +5,85 @@ import { Test, console } from "forge-std/Test.sol";
 
 import { TeamRegistry } from "@/contracts/TeamRegistry.sol";
 
+/// @notice Unit tests for {TeamRegistry}, organized by functions.
 contract TeamRegistyTest is Test {
     // -------------------------------------------------------------------------
     // Events
     // -------------------------------------------------------------------------
 
     /// @notice Emitted when a new team is created.
-    /// @param  teamId The ID of the team.
-    /// @param  leader The leader of the team.
-    event CreateTeam(uint32 teamId, address leader);
+    /// @param teamId The ID of the team.
+    /// @param leader The address of the leader of the team.
+    event CreateTeam(uint256 teamId, address leader);
 
     /// @notice Emitted when a team invite has been accepted.
     /// @param  teamId The ID of the team.
     /// @param  member The member of the team that accepted the invite.
-    event AcceptTeamInvite(uint32 teamId, address member);
+    event AddTeamMember(uint256 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
-    /// @param  oldLeader The old leader of the team.
-    /// @param  newLeader The new leader of the team.
-    event TransferTeamLeadership(uint32 teamId, address oldLeader, address newLeader);
+    /// @param oldLeader The address of the old leader of the team.
+    /// @param newLeader The address of the new leader of the team.
+    event TransferTeamLeadership(uint256 teamId, address oldLeader, address newLeader);
 
+    // -------------------------------------------------------------------------
+    // Contracts
+    // -------------------------------------------------------------------------
+
+    /// @notice The team registry contract.
     TeamRegistry public tr;
 
-    /* function setUp() public {
+    // -------------------------------------------------------------------------
+    // Set up
+    // -------------------------------------------------------------------------
+
+    /// @notice Set up the test contract by deploying an instance of
+    /// {TeamRegistry}.
+    function setUp() public {
         tr = new TeamRegistry();
     }
 
-    function test_createTeam(address[] calldata members) public {
-        vm.assume(members.length > 0);
+    // -------------------------------------------------------------------------
+    // Create team
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that a team leader can not create a new team.
+    function test_createTeam_TeamLeaderCreatesNewTeam_Fails() public {
+        _createTeam();
+
+        vm.expectRevert(TeamRegistry.IsTeamLeader.selector);
+        _createTeam();
+    }
+
+    /// @notice Test events emitted and state updates upon creating a team.
+    function test_createTeam(address[] calldata _members) public {
+        vm.assume(_members.length > 0);
 
         vm.expectEmit(false, false, false, true);
         emit CreateTeam(1, address(this));
-        tr.createTeam(members);
+        tr.createTeam(_members);
 
-        // Test that `msg.sender` is team leader and part of a team
-        assertEq(tr.teamMemberStatus(1, address(this)), 3);
-        assertTrue(tr.isTeamMember(address(this)));
+        // Test that `msg.sender` is team leader (7) and part of team 1.
+        assertEq(tr.getTeamMemberStatus(1, address(this)), 7);
+        assertEq(tr.getMemberTeamId(address(this)), 1);
 
-        // Test that all `members` have been invited
-        for (uint8 i; i < members.length;) {
-            assertEq(tr.teamMemberStatus(1, members[i]), 1);
+        // Test that all addresses in `_members` have been invited.
+        uint256 length = _members.length;
+        for (uint256 i; i < length;) {
+            assertTrue(tr.getTeamMemberStatus(1, _members[i]) & 2 == 2);
+
             unchecked {
                 i++;
             }
         }
 
-        // Test that team leader cannot create multiple teams
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, address(this)));
-        tr.createTeam(members);
+        // Test that team leader cannot create a new team while they're a team
+        // leader.
+        vm.expectRevert(TeamRegistry.IsTeamLeader.selector);
+        tr.createTeam(_members);
     }
 
-    function test_inviteMember() public {
+    /* function test_inviteMember() public {
         _createTeam();
 
         // Test that team leader can invite a member
@@ -254,7 +282,7 @@ contract TeamRegistyTest is Test {
         );
         vm.prank(makeAddr("sudolabel"));
         tr.transferLeadership(1, makeAddr("plotchy"));
-    }
+    } */
 
     function _createTeam() internal {
         // create an initial team
@@ -267,5 +295,5 @@ contract TeamRegistyTest is Test {
 
         vm.prank(makeAddr("chainlight"));
         tr.createTeam(tms);
-    } */
+    }
 }
