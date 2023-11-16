@@ -17,6 +17,11 @@ contract TeamRegistry {
     /// @param  member The member of the team.
     error NoPendingInvite(uint256 teamId, address member);
 
+    /// @notice Emitted when the user does not have a pending request.
+    /// @param  teamId The ID of the team.
+    /// @param  member The member of the team.
+    error NoPendingRequest(uint256 teamId, address member);
+
     /// @notice Emitted when the player is not a team member.
     /// @param  teamId The ID of the team.
     /// @param  player The player.
@@ -39,7 +44,7 @@ contract TeamRegistry {
     /// @notice Emitted when a team invite has been accepted.
     /// @param  teamId The ID of the team.
     /// @param  member The member of the team that accepted the invite.
-    event AcceptTeamInvite(uint256 teamId, address member);
+    event AddTeamMember(uint256 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
     /// @param  oldLeader The old leader of the team.
@@ -73,15 +78,16 @@ contract TeamRegistry {
 
     /// @notice Create a team with a list of members.
     /// @param  _members The team members to create the team with.
-    /// @dev    Reverts if `msg.sender` is already in a team.
-    function createTeam(address[] calldata _members) external {
+    /// @return The ID of the created team.
+    /// @dev    Reverts if `msg.sender` is a team leader.
+    function createTeam(address[] calldata _members) external returns (uint256) {
         // increment teamId
         teamId += 1;
         // team leaders cannot create multiple teams
         if (getTeamMemberStatus[getMemberTeamId[msg.sender]][msg.sender] == 4) {
             revert IsTeamLeader();
         }
-        // make `msg.sender` team leader and say they are part of a team
+        // make `msg.sender` team leader and assign their team
         getTeamMemberStatus[teamId][msg.sender] = 4;
         getMemberTeamId[msg.sender] = teamId;
         // send invites
@@ -93,28 +99,75 @@ contract TeamRegistry {
         }
 
         emit CreateTeam(teamId, msg.sender);
+
+        return teamId;
+    }
+
+    /// @notice Request membership to a team.
+    /// @param  _teamId The ID of the team.
+    function requestMembership(uint256 _teamId) external {
+        if (getTeamMemberStatus[getMemberTeamId[msg.sender]][msg.sender] == 4) {
+            revert IsTeamLeader();
+        }
+        getTeamMemberStatus[_teamId][msg.sender] = 2;
     }
 
     /// @notice Invite a member to a team.
-    /// @param  _teamId The ID of the team.
     /// @param  _member The team member to invite.
     /// @dev    Reverts if `msg.sender` is not the current leader.
-    function inviteMember(uint32 _teamId, address _member) external {
-        if (getTeamMemberStatus[_teamId][msg.sender] < 4) revert NotTeamLeader(_teamId, msg.sender);
-        getTeamMemberStatus[_teamId][_member] = 1;
+    function inviteMember(address _member) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
+        getTeamMemberStatus[memberId][_member] = 1;
     }
 
     /// @notice Invite members to a team.
-    /// @param  _teamId The ID of the team.
     /// @param  _members The team members to invite.
     /// @dev    Reverts if `msg.sender` is not the current leader.
-    function inviteMembers(uint32 _teamId, address[] calldata _members) external {
-        if (getTeamMemberStatus[_teamId][msg.sender] < 4) revert NotTeamLeader(_teamId, msg.sender);
+    function inviteMembers(address[] calldata _members) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
         for (uint8 i; i < _members.length;) {
-            getTeamMemberStatus[_teamId][_members[i]] = 1;
+            getTeamMemberStatus[memberId][_members[i]] = 1;
             unchecked {
                 i++;
             }
+        }
+    }
+
+    /// @notice Accept request for membership.
+    /// @param  _member The team member to accept.
+    function acceptRequest(address _member) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
+        if (getTeamMemberStatus[memberId][_member] != 2) revert NoPendingRequest(memberId, _member);
+        getTeamMemberStatus[_member][memberId] = 3;
+        getMemberTeamId[_member] = memberId;
+
+        emit AddTeamMember(memberId, _member);
+    }
+
+    /// @notice Accept requests for membership.
+    /// @param  _members The team members to accept.
+    function acceptRequests(address[] _members) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
+        for (uint8 i; i < _members.length;) {
+            if (getTeamMemberStatus[memberId][_members[i]] != 2) {
+                revert NoPendingRequest(memberId, _members[i]);
+            }
+            getTeamMemberStatus[_members[i]][memberId] = 3;
+            getMemberTeamId[_members[i]] = memberId;
+
+            emit AddTeamMember(memberId, _members[i]);
         }
     }
 
@@ -134,33 +187,39 @@ contract TeamRegistry {
         getTeamMemberStatus[_teamId][msg.sender] = 3;
         getMemberTeamId[msg.sender] = _teamId;
 
-        emit AcceptTeamInvite(_teamId, msg.sender);
+        emit AddTeamMember(_teamId, msg.sender);
     }
 
     /// @notice Kick a team member.
-    /// @param  _teamId The ID of the team.
     /// @param  _member The team member to kick.
     /// @dev    Reverts if `msg.sender` is not the current leader
     ///         or if `_member` is not in the team.
-    function kickMember(uint32 _teamId, address _member) external {
-        if (getTeamMemberStatus[_teamId][msg.sender] < 4) revert NotTeamLeader(_teamId, msg.sender);
-        if (getTeamMemberStatus[_teamId][_member] < 3) revert NotInTeam(_teamId, _member);
-        delete getTeamMemberStatus[_teamId][_member];
+    function kickMember(address _member) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
+        // don't want to delete teamId's of non-members
+        if (getTeamMemberStatus[memberId][_member] < 3) revert NotInTeam(memberId, _member);
+        delete getTeamMemberStatus[memberId][_member];
         delete getMemberTeamId[_member];
     }
 
     /// @notice Kick multiple team members.
-    /// @param  _teamId The ID of the team.
     /// @param  _members The team members to kick.
     /// @dev    Reverts if `msg.sender` is not the current leader.
     /// @dev    Leader can kick self but team will be leaderless.
-    function kickMembers(uint32 _teamId, address[] calldata _members) external {
-        if (getTeamMemberStatus[_teamId][msg.sender] < 4) revert NotTeamLeader(_teamId, msg.sender);
+    function kickMembers(address[] calldata _members) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberid, msg.sender);
+        }
         for (uint8 i; i < _members.length;) {
-            if (getTeamMemberStatus[_teamId][_members[i]] < 3) {
-                revert NotInTeam(_teamId, _members[i]);
+            // don't want to delete teamId's of non-members
+            if (getTeamMemberStatus[memberId][_members[i]] < 3) {
+                revert NotInTeam(memberId, _members[i]);
             }
-            delete getTeamMemberStatus[_teamId][_members[i]];
+            delete getTeamMemberStatus[memberId][_members[i]];
             delete getMemberTeamId[_members[i]];
             unchecked {
                 i++;
@@ -178,16 +237,18 @@ contract TeamRegistry {
     }
 
     /// @notice Transfer team leadership to another member.
-    /// @param  _teamId The ID of the team.
     /// @param  _newLeader The address of the new leader.
     /// @dev    Reverts if `msg.sender` is not the current leader
     ///         or `_newLeader` is not a team member.
-    function transferLeadership(uint32 _teamId, address _newLeader) external {
-        if (getTeamMemberStatus[_teamId][msg.sender] < 4) revert NotTeamLeader(_teamId, msg.sender);
-        if (getTeamMemberStatus[_teamId][_newLeader] != 3) revert NotInTeam(_teamId, _newLeader);
-        getTeamMemberStatus[_teamId][msg.sender] = 3;
-        getTeamMemberStatus[_teamId][_newLeader] = 4;
+    function transferLeadership(address _newLeader) external {
+        uint256 memberId = getMemberTeamId[msg.sender];
+        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
+            revert NotTeamLeader(memberId, msg.sender);
+        }
+        if (getTeamMemberStatus[memberId][_newLeader] != 3) revert NotInTeam(memberId, _newLeader);
+        getTeamMemberStatus[memberId][msg.sender] = 3;
+        getTeamMemberStatus[memberId][_newLeader] = 4;
 
-        emit TransferTeamLeadership(_teamId, msg.sender, _newLeader);
+        emit TransferTeamLeadership(memberId, msg.sender, _newLeader);
     }
 }
