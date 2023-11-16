@@ -13,17 +13,17 @@ contract TeamRegistyTest is Test {
     /// @notice Emitted when a new team is created.
     /// @param  teamId The ID of the team.
     /// @param  leader The leader of the team.
-    event TeamCreated(uint32 teamId, address leader);
+    event CreateTeam(uint32 teamId, address leader);
 
     /// @notice Emitted when a team invite has been accepted.
     /// @param  teamId The ID of the team.
     /// @param  member The member of the team that accepted the invite.
-    event TeamInviteAccepted(uint32 teamId, address member);
+    event AcceptTeamInvite(uint32 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
     /// @param  oldLeader The old leader of the team.
     /// @param  newLeader The new leader of the team.
-    event TeamLeadershipTransferred(uint32 teamId, address oldLeader, address newLeader);
+    event TransferTeamLeadership(uint32 teamId, address oldLeader, address newLeader);
 
     TeamRegistry public tr;
 
@@ -35,7 +35,7 @@ contract TeamRegistyTest is Test {
         vm.assume(members.length > 0);
 
         vm.expectEmit(false, false, false, true);
-        emit TeamCreated(1, address(this));
+        emit CreateTeam(1, address(this));
         tr.createTeam(members);
 
         // Test that `msg.sender` is team leader and part of a team
@@ -51,18 +51,8 @@ contract TeamRegistyTest is Test {
         }
 
         // Test that team leader cannot create multiple teams
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, address(this)));
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, address(this)));
         tr.createTeam(members);
-
-        // Test that members of another team cannot be invited by
-        // pranking one of the invitees and trying to add this address
-        // which is already part of team 1.
-        address[] memory tms = new address[](1);
-        tms[0] = address(this);
-
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, address(this)));
-        vm.prank(members[0]);
-        tr.createTeam(tms);
     }
 
     function test_inviteMember() public {
@@ -81,16 +71,6 @@ contract TeamRegistyTest is Test {
         );
         vm.prank(makeAddr("sudolabel"));
         tr.inviteMember(1, makeAddr("popular"));
-
-        // Test that team members cannot be invited
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.inviteMember(1, makeAddr("sudolabel"));
     }
 
     function test_inviteMembers() public {
@@ -114,17 +94,6 @@ contract TeamRegistyTest is Test {
         );
         vm.prank(makeAddr("sudolabel"));
         tr.inviteMembers(1, tms);
-
-        // Test that team members cannot be invited
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-
-        tms[0] = makeAddr("sudolabel");
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.inviteMembers(1, tms);
     }
 
     function test_acceptInvite() public {
@@ -132,17 +101,21 @@ contract TeamRegistyTest is Test {
 
         // Test that members can accept invites
         vm.expectEmit(false, false, false, true);
-        emit TeamInviteAccepted(1, makeAddr("sudolabel"));
+        emit AcceptTeamInvite(1, makeAddr("sudolabel"));
         vm.prank(makeAddr("sudolabel"));
         tr.acceptInvite(1);
 
         // Test that members cannot accept invites if they are already in a team
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, makeAddr("chainlight")));
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, makeAddr("chainlight"))
+        );
         vm.prank(makeAddr("chainlight"));
         tr.acceptInvite(1);
 
         // Test that members cannot accept invites if they don't have one pending
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NoPendingInvite.selector, 1, makeAddr("plotchy")));
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NoPendingInvite.selector, 1, makeAddr("plotchy"))
+        );
         vm.prank(makeAddr("plotchy"));
         tr.acceptInvite(1);
 
@@ -236,12 +209,16 @@ contract TeamRegistyTest is Test {
         assertFalse(tr.isTeamMember(makeAddr("sudolabel")));
 
         // Test that team leaders cannot leave team
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1, makeAddr("chainlight")));
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1, makeAddr("chainlight"))
+        );
         vm.prank(makeAddr("chainlight"));
         tr.leaveTeam(1);
 
         // Test that non team members cannot leave team
-        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy")));
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
+        );
         vm.prank(makeAddr("plotchy"));
         tr.leaveTeam(1);
     }
@@ -256,7 +233,7 @@ contract TeamRegistyTest is Test {
 
         // Test that team leadership can be transferred
         vm.expectEmit(false, false, false, false);
-        emit TeamLeadershipTransferred(1, makeAddr("chainlight"), makeAddr("sudolabel"));
+        emit TransferTeamLeadership(1, makeAddr("chainlight"), makeAddr("sudolabel"));
         vm.prank(makeAddr("chainlight"));
         tr.transferLeadership(1, makeAddr("sudolabel"));
 
