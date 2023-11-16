@@ -132,17 +132,7 @@ contract TeamRegistry {
         // Revert if `msg.sender` is not the leader of the team.
         if (!team.isLeader) revert NotTeamLeader(team.id);
 
-        // Revert if `_member` is not part of the team.
-        if (getTeam[_member].id != team.id) revert NotInTeam(team.id, _member);
-
-        // Mark removed member as unapproved to join, and remove them from the
-        // team.
-        getApproved[team.id][_member] = false;
-        getTeam[_member].id = 0;
-
-        // Emit events.
-        emit SetApprovalForMember(team.id, _member, false);
-        emit TransferTeam(team.id, 0, _member);
+        _kickMember(team.id, _member);
     }
 
     /// @notice Approve a member to join a team.
@@ -155,11 +145,7 @@ contract TeamRegistry {
         // Revert if `msg.sender` is not the leader of the team.
         if (!team.isLeader) revert NotTeamLeader(team.id);
 
-        // Set approval.
-        getApproved[team.id][_member] = _approved;
-
-        // Emit event.
-        emit SetApprovalForMember(team.id, _member, _approved);
+        _setApprovalForMember(team.id, _member, _approved);
     }
 
     /// @notice Transfer team from `_from` to `_to`.
@@ -202,5 +188,31 @@ contract TeamRegistry {
 
         // Emit event.
         emit TransferTeamLeadership(team.id, msg.sender, _newLeader);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helper functions
+    // -------------------------------------------------------------------------
+
+    function _kickMember(uint256 _teamId, address _member) internal {
+        // Revert if `_member` is not part of the team.
+        if (getTeam[_member].id != _teamId) revert NotInTeam(_teamId, _member);
+
+        // Mark removed member as unapproved to join, and remove them from the
+        // team.
+        getApproved[_teamId][_member] = false;
+        getTeam[_member].id = 0;
+
+        // Emit events.
+        emit SetApprovalForMember(_teamId, _member, false);
+        emit TransferTeam(_teamId, 0, _member);
+    }
+
+    function _setApprovalForMember(uint256 _teamId, address _member, bool _approved) internal {
+        // Set approval.
+        getApproved[_teamId][_member] = _approved;
+
+        // Emit event.
+        emit SetApprovalForMember(_teamId, _member, _approved);
     }
 }
