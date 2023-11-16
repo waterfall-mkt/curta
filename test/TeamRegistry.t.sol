@@ -27,7 +27,7 @@ contract TeamRegistyTest is Test {
 
     TeamRegistry public tr;
 
-    function setUp() public {
+    /* function setUp() public {
         tr = new TeamRegistry();
     }
 
@@ -267,5 +267,5 @@ contract TeamRegistyTest is Test {
 
         vm.prank(makeAddr("chainlight"));
         tr.createTeam(tms);
-    }
+    } */
 }

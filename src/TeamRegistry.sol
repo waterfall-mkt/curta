@@ -1,44 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-/// @title  TeamRegistry
+/// @title Curta Puzzles Team Registry
 /// @author Sabnock01
-/// @notice A registry for Curta Cup teams.
 contract TeamRegistry {
     // -------------------------------------------------------------------------
     // Errors
     // -------------------------------------------------------------------------
 
-    /// @notice Emitted when the caller is the team leader.
+    /// @notice Emitted when `msg.sender` is the team leader.
     error IsTeamLeader();
 
-    /// @notice Emitted when the user does not have a pending invite.
-    /// @param  teamId The ID of the team.
-    /// @param  member The member of the team.
+    /// @notice Emitted when `msg.sender` does not have a pending invite to the
+    /// team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
     error NoPendingInvite(uint256 teamId, address member);
 
-    /// @notice Emitted when the user does not have a pending request.
-    /// @param  teamId The ID of the team.
-    /// @param  member The member of the team.
+    /// @notice Emitted when `msg.sender` does not have a pending request to the
+    /// team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
     error NoPendingRequest(uint256 teamId, address member);
 
-    /// @notice Emitted when the player is not a team member.
-    /// @param  teamId The ID of the team.
-    /// @param  player The player.
-    error NotInTeam(uint256 teamId, address player);
+    /// @notice Emitted when `msg.sender` is not part of the team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    error NotInTeam(uint256 teamId, address member);
 
-    /// @notice Emitted when the caller is not the team leader.
-    /// @param  teamId The ID of the team.
-    /// @param  player The member of the team.
-    error NotTeamLeader(uint256 teamId, address player);
+    /// @notice Emitted when `msg.sender` is not the team leader.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    error NotTeamLeader(uint256 teamId, address member);
 
     // -------------------------------------------------------------------------
     // Events
     // -------------------------------------------------------------------------
 
     /// @notice Emitted when a new team is created.
-    /// @param  teamId The ID of the team.
-    /// @param  leader The leader of the team.
+    /// @param teamId The ID of the team.
+    /// @param leader The address of the leader of the team.
     event CreateTeam(uint256 teamId, address leader);
 
     /// @notice Emitted when a team invite has been accepted.
@@ -47,50 +48,59 @@ contract TeamRegistry {
     event AddTeamMember(uint256 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
-    /// @param  oldLeader The old leader of the team.
-    /// @param  newLeader The new leader of the team.
+    /// @param oldLeader The address of the old leader of the team.
+    /// @param newLeader The address of the new leader of the team.
     event TransferTeamLeadership(uint256 teamId, address oldLeader, address newLeader);
 
     // -------------------------------------------------------------------------
     // Storage
     // -------------------------------------------------------------------------
 
-    /// @notice Mapping for keeping track of which members are part of teams.
-    /// @dev Returns a uint8 that determines status of the team member.
-    /// | Status | Is leader | Approved to join | Accept to join |
-    /// |--------|-----------|------------------|----------------|
-    /// | 0b000  |        No |               No |             No |
-    /// | 0b001  |        No |               No |            Yes |
-    /// | 0b010  |        No |              Yes |             No |
-    /// | 0b011  |        No |              Yes |            Yes |
-    /// | 0b111  |       Yes |              Yes |            Yes |
+    /// @notice The total number of teams.
+    uint256 internal teamId;
+
+    /// @notice Mapping for keeping track of the status of members in teams.
+    /// @dev Returns a 3-bit value where the bits represent the following:
+    ///     * Bit 0 (LSb): Whether the member approved to join the team.
+    ///     * Bit 1 (LSb): Whether the member approved to join the team.
+    ///     * Bit 2 (LSb): Whether the member is the leader of the team.
+    /// The following table shows the possible values:
+    ///        | Value | Is leader | Leader approved | Member approved |
+    ///        |-------|-----------|-----------------|-----------------|
+    ///        | 0b000 |        No |              No |              No |
+    ///        | 0b001 |        No |              No |             Yes |
+    ///        | 0b010 |        No |             Yes |              No |
+    ///        | 0b011 |        No |             Yes |             Yes |
+    ///        | 0b111 |       Yes |             Yes |             Yes |
     mapping(uint256 => mapping(address => uint256)) public getTeamMemberStatus;
 
-    /// @notice Returns the ID of the member's team.
+    /// @notice A mapping of team member addresses to their team ID.
+    /// @dev If a member is not part of a team, their team ID will be `0`.
     mapping(address => uint256) public getMemberTeamId;
-
-    /// @notice Team ID counter. Starts at 1.
-    uint256 private teamId;
 
     // -------------------------------------------------------------------------
     // Functions
     // -------------------------------------------------------------------------
 
-    /// @notice Create a team with a list of members.
-    /// @param  _members The team members to create the team with.
+    /// @notice Create a team with invitations sent out to a list of members.
+    /// @dev The function reverts if `msg.sender` is the leader of another team.
+    /// @param _members A list of addresses to invite.
     /// @return The ID of the created team.
-    /// @dev    Reverts if `msg.sender` is a team leader.
-    function createTeam(address[] calldata _members) external returns (uint256) {
-        // increment teamId
-        teamId += 1;
-        // team leaders cannot create multiple teams
+    function createTeam(address[] calldata _members) external returns (uint256 newTeamId) {
+        uint256 newTeamId;
+        unchecked {
+            newTeamId = ++teamId;
+        }
+
+        // Revert if `msg.sender` is already the leader of a team.
         if (getTeamMemberStatus[getMemberTeamId[msg.sender]][msg.sender] == 4) {
             revert IsTeamLeader();
         }
         // make `msg.sender` team leader and assign their team
         getTeamMemberStatus[teamId][msg.sender] = 4;
         getMemberTeamId[msg.sender] = teamId;
-        // send invites
+
+        // Mark all members are invited.
         for (uint8 i; i < _members.length;) {
             getTeamMemberStatus[teamId][_members[i]] = 1;
             unchecked {
@@ -98,9 +108,7 @@ contract TeamRegistry {
             }
         }
 
-        emit CreateTeam(teamId, msg.sender);
-
-        return teamId;
+        emit CreateTeam(newTeamId, msg.sender);
     }
 
     /// @notice Request membership to a team.
@@ -155,7 +163,7 @@ contract TeamRegistry {
 
     /// @notice Accept requests for membership.
     /// @param  _members The team members to accept.
-    function acceptRequests(address[] _members) external {
+    function acceptRequests(address[] calldata _members) external {
         uint256 memberId = getMemberTeamId[msg.sender];
         if (getTeamMemberStatus[memberId][msg.sender] < 4) {
             revert NotTeamLeader(memberId, msg.sender);
@@ -212,7 +220,7 @@ contract TeamRegistry {
     function kickMembers(address[] calldata _members) external {
         uint256 memberId = getMemberTeamId[msg.sender];
         if (getTeamMemberStatus[memberId][msg.sender] < 4) {
-            revert NotTeamLeader(memberid, msg.sender);
+            revert NotTeamLeader(memberId, msg.sender);
         }
         for (uint8 i; i < _members.length;) {
             // don't want to delete teamId's of non-members
