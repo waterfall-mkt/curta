@@ -232,15 +232,15 @@ contract TeamRegistry {
         // Revert if `msg.sender` is not the leader of the team.
         if (!team.isLeader) revert NotTeamLeader(team.id);
 
-        // Revert if `_newLeader` is not part of the team.
-        if (getTeam[_newLeader].id != team.id) revert NotInTeam(team.id, _newLeader);
+        // Revert if `_member` is not part of the team.
+        if (getTeam[_member].id != team.id) revert NotInTeam(team.id, _member);
 
         // Transfer leadership.
         getTeam[msg.sender].isLeader = false;
-        getTeam[_newLeader].isLeader = true;
+        getTeam[_member].isLeader = true;
 
         // Emit event.
-        emit TransferTeamLeadership(team.id, msg.sender, _newLeader);
+        emit TransferTeamLeadership(team.id, msg.sender, _member);
     }
 
     // -------------------------------------------------------------------------
