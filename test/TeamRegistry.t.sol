@@ -11,15 +11,27 @@ contract TeamRegistyTest is Test {
     // Events
     // -------------------------------------------------------------------------
 
+    /// @notice Emitted when a team invite has been accepted.
+    /// @param  teamId The ID of the team.
+    /// @param  member The member of the team that accepted the invite.
+    event AddTeamMember(uint256 teamId, address member);
+
     /// @notice Emitted when a new team is created.
     /// @param teamId The ID of the team.
     /// @param leader The address of the leader of the team.
     event CreateTeam(uint256 teamId, address leader);
 
-    /// @notice Emitted when a team invite has been accepted.
-    /// @param  teamId The ID of the team.
-    /// @param  member The member of the team that accepted the invite.
-    event AddTeamMember(uint256 teamId, address member);
+    /// @notice Emitted when a leader invites a member or accepts a member's
+    /// request to join a team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    event LeaderApproveJoin(uint256 teamId, address member);
+
+    /// @notice Emitted when a member requests to join or accepts an invitation
+    /// to join a team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    event MemberApproveJoin(uint256 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
     /// @param oldLeader The address of the old leader of the team.
@@ -44,7 +56,7 @@ contract TeamRegistyTest is Test {
     }
 
     // -------------------------------------------------------------------------
-    // Create team
+    // `createTeam`
     // -------------------------------------------------------------------------
 
     /// @notice Test that a team leader can not create a new team.
@@ -81,6 +93,22 @@ contract TeamRegistyTest is Test {
         // leader.
         vm.expectRevert(TeamRegistry.IsTeamLeader.selector);
         tr.createTeam(_members);
+    }
+
+    // -------------------------------------------------------------------------
+    // `requestJoin`
+    // -------------------------------------------------------------------------
+
+    /// @notice Test events emitted and state updates upon creating a team.
+    function test_requestJoin() public {
+        _createTeam();
+
+        vm.expectEmit(false, false, false, true);
+        emit MemberApproveJoin(1, address(this));
+        tr.requestJoin(1);
+
+        // Test that `msg.sender` has requested to join team 1.
+        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 1 == 1);
     }
 
     /* function test_inviteMember() public {

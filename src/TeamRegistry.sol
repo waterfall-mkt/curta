@@ -37,15 +37,27 @@ contract TeamRegistry {
     // Events
     // -------------------------------------------------------------------------
 
+    /// @notice Emitted when a team invite has been accepted.
+    /// @param  teamId The ID of the team.
+    /// @param  member The member of the team that accepted the invite.
+    event AddTeamMember(uint256 teamId, address member);
+
     /// @notice Emitted when a new team is created.
     /// @param teamId The ID of the team.
     /// @param leader The address of the leader of the team.
     event CreateTeam(uint256 teamId, address leader);
 
-    /// @notice Emitted when a team invite has been accepted.
-    /// @param  teamId The ID of the team.
-    /// @param  member The member of the team that accepted the invite.
-    event AddTeamMember(uint256 teamId, address member);
+    /// @notice Emitted when a leader invites a member or accepts a member's
+    /// request to join a team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    event LeaderApproveJoin(uint256 teamId, address member);
+
+    /// @notice Emitted when a member requests to join or accepts an invitation
+    /// to join a team.
+    /// @param teamId The ID of the team.
+    /// @param member The address of the member.
+    event MemberApproveJoin(uint256 teamId, address member);
 
     /// @notice Emitted when team leadership is transferred.
     /// @param oldLeader The address of the old leader of the team.
@@ -110,7 +122,8 @@ contract TeamRegistry {
             // LSb).
             getTeamMemberStatus[newTeamId][_members[i]] |= 2;
 
-            // TODO: emit invitation event
+            // Emit event.
+            emit LeaderApproveJoin(newTeamId, _members[i]);
 
             unchecked {
                 ++i;
@@ -121,17 +134,20 @@ contract TeamRegistry {
         emit CreateTeam(newTeamId, msg.sender);
     }
 
-    /// @notice Request membership to a team.
+    /// @notice Request to join a team.
     /// @param _teamId The ID of the team.
-    function requestMembership(uint256 _teamId) external {
+    function requestJoin(uint256 _teamId) external {
         // We mark it via `|=` in case the member has already been invited to
         // join the team. By doing `|= 1`, we only change bit 0.
         getTeamMemberStatus[_teamId][msg.sender] |= 1;
+
+        // Emit event.
+        emit MemberApproveJoin(_teamId, msg.sender);
     }
 
     /// @notice Invite a member to a team.
-    /// @param  _member The team member to invite.
-    /// @dev    Reverts if `msg.sender` is not the current leader.
+    /// @dev Reverts if `msg.sender` is not the team's leader.
+    /// @param _member The address of the member to invite.
     function inviteMember(address _member) external {
         uint256 memberId = getMemberTeamId[msg.sender];
         if (getTeamMemberStatus[memberId][msg.sender] < 4) {
