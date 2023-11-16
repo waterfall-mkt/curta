@@ -90,16 +90,16 @@ contract TeamRegistry {
     /// @dev Reverts if `msg.sender` is not the leader of the team or if any of
     /// the addresses in `_members` are not part of the team.
     /// @param _members A list of addresses to remove from the team.
-    function batchKickMember(address[] calldata _members) external {
+    function batchRemoveMember(address[] calldata _members) external {
         Team memory team = getTeam[msg.sender];
 
         // Revert if `msg.sender` is not the leader of the team.
         if (!team.isLeader) revert NotTeamLeader(team.id);
 
-        // Go through the list and kick members.
+        // Go through the list and remove members.
         uint256 length = _members.length;
         for (uint256 i; i < length;) {
-            _kickMember(team.id, _members[i]);
+            _removeMemberFromTeam(team.id, _members[i]);
 
             unchecked {
                 ++i;
@@ -168,13 +168,13 @@ contract TeamRegistry {
     /// @notice Remove a member from a team.
     /// @dev Reverts if `msg.sender` is not the leader of the team.
     /// @param _member The address of the member to remove from the team.
-    function kickMember(address _member) external {
+    function removeMember(address _member) external {
         Team memory team = getTeam[msg.sender];
 
         // Revert if `msg.sender` is not the leader of the team.
         if (!team.isLeader) revert NotTeamLeader(team.id);
 
-        _kickMember(team.id, _member);
+        _removeMemberFromTeam(team.id, _member);
     }
 
     /// @notice Set approval for a member to join a team.
@@ -241,7 +241,7 @@ contract TeamRegistry {
     /// @notice Removes a member from a team and emits corresponding events.
     /// @param _teamId The ID of the team.
     /// @param _member The address of the member to remove.
-    function _kickMember(uint256 _teamId, address _member) internal {
+    function _removeMemberFromTeam(uint256 _teamId, address _member) internal {
         // Revert if `_member` is not part of the team.
         if (getTeam[_member].id != _teamId) revert NotInTeam(_teamId, _member);
 
