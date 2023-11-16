@@ -86,6 +86,48 @@ contract TeamRegistry {
     // Functions
     // -------------------------------------------------------------------------
 
+    /// @notice Batch remove members from a team.
+    /// @dev Reverts if `msg.sender` is not the leader of the team or if any of
+    /// the addresses in `_members` are not part of the team.
+    /// @param _members A list of addresses to remove from the team.
+    function batchKickMember(address[] calldata _members) external {
+        Team memory team = getTeam[msg.sender];
+
+        // Revert if `msg.sender` is not the leader of the team.
+        if (!team.isLeader) revert NotTeamLeader(team.id);
+
+        // Go through the list and kick members.
+        uint256 length = _members.length;
+        for (uint256 i; i < length;) {
+            _kickMember(team.id, _members[i]);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    /// @notice Batch set approvals for members to join a team.
+    /// @param _members A list of addresses to set approvals for.
+    /// @param _approved Whether or not the members are approved to join the
+    /// team.
+    function batchSetApprovalForMember(address[] calldata _members, bool _approved) external {
+        Team memory team = getTeam[msg.sender];
+
+        // Revert if `msg.sender` is not the leader of the team.
+        if (!team.isLeader) revert NotTeamLeader(team.id);
+
+        // Go through the list and set approval.
+        uint256 length = _members.length;
+        for (uint256 i; i < length;) {
+            _setApprovalForMember(team.id, _members[i], _approved);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
     /// @notice Create a team with invitations sent out to a list of members.
     /// @dev The function reverts if `msg.sender` is the leader of another team.
     /// @param _members A list of addresses to invite.
@@ -125,7 +167,7 @@ contract TeamRegistry {
 
     /// @notice Remove a member from a team.
     /// @dev Reverts if `msg.sender` is not the leader of the team.
-    /// @param _member The address of the member to remove.
+    /// @param _member The address of the member to remove from the team.
     function kickMember(address _member) external {
         Team memory team = getTeam[msg.sender];
 
@@ -135,10 +177,12 @@ contract TeamRegistry {
         _kickMember(team.id, _member);
     }
 
-    /// @notice Approve a member to join a team.
+    /// @notice Set approval for a member to join a team.
     /// @dev Since an address may only be part of 1 team at a time, the function
     /// automatically retrieves the team ID to approve for and reverts if
     /// `msg.sender` is not the leader.
+    /// @param _member The address of the member to set approval for.
+    /// @param _approved Whether or not the member is approved to join the team.
     function setApprovalForMember(address _member, bool _approved) external {
         Team memory team = getTeam[msg.sender];
 
@@ -194,6 +238,9 @@ contract TeamRegistry {
     // Helper functions
     // -------------------------------------------------------------------------
 
+    /// @notice Removes a member from a team and emits corresponding events.
+    /// @param _teamId The ID of the team.
+    /// @param _member The address of the member to remove.
     function _kickMember(uint256 _teamId, address _member) internal {
         // Revert if `_member` is not part of the team.
         if (getTeam[_member].id != _teamId) revert NotInTeam(_teamId, _member);
@@ -208,6 +255,11 @@ contract TeamRegistry {
         emit TransferTeam(_teamId, 0, _member);
     }
 
+    /// @notice Sets approval for a member to join a team and emits
+    /// corresponding events.
+    /// @param _teamId The ID of the team.
+    /// @param _member The address of the member to set approval for.
+    /// @param _approved Whether or not the member is approved to join the team.
     function _setApprovalForMember(uint256 _teamId, address _member, bool _approved) internal {
         // Set approval.
         getApproved[_teamId][_member] = _approved;
