@@ -11,32 +11,33 @@ contract TeamRegistyTest is Test {
     // Events
     // -------------------------------------------------------------------------
 
-    /// @notice Emitted when a team invite has been accepted.
-    /// @param  teamId The ID of the team.
-    /// @param  member The member of the team that accepted the invite.
-    event AddTeamMember(uint256 teamId, address member);
-
     /// @notice Emitted when a new team is created.
-    /// @param teamId The ID of the team.
-    /// @param leader The address of the leader of the team.
-    event CreateTeam(uint256 teamId, address leader);
+    /// @param _id The ID of the team.
+    /// @param _leader The address of the leader of the team.
+    event CreateTeam(uint256 indexed _id, address indexed _leader);
 
-    /// @notice Emitted when a leader invites a member or accepts a member's
-    /// request to join a team.
-    /// @param teamId The ID of the team.
-    /// @param member The address of the member.
-    event LeaderApproveJoin(uint256 teamId, address member);
+    /// @notice Emitted when a leader approves a member to join a team.
+    /// @param _id The ID of the team.
+    /// @param _member The address of the member.
+    /// @param _approved Whether `_member` is approved to join the team.
+    event SetApprovalForMember(
+        uint256 indexed _id, address indexed _member, bool indexed _approved
+    );
 
-    /// @notice Emitted when a member requests to join or accepts an invitation
-    /// to join a team.
-    /// @param teamId The ID of the team.
-    /// @param member The address of the member.
-    event MemberApproveJoin(uint256 teamId, address member);
+    /// @notice Emitted when a member transfers to another team.
+    /// @dev Team ID of 0 denotes that the member is not part of a team (i.e.
+    /// they are participating individually).
+    /// @param _from The team ID of the team the member is transferring from.
+    /// @param _to The team ID of the team the member is transferring to.
+    /// @param _member The address of the member.
+    event TransferTeam(uint256 indexed _from, uint256 indexed _to, address indexed _member);
 
     /// @notice Emitted when team leadership is transferred.
-    /// @param oldLeader The address of the old leader of the team.
-    /// @param newLeader The address of the new leader of the team.
-    event TransferTeamLeadership(uint256 teamId, address oldLeader, address newLeader);
+    /// @param _id The ID of the team.
+    /// @param _from The address of the old leader of the team.
+    /// @param _to The address of the new leader of the team.
+    event TransferTeamLeadership(uint256 indexed _id, address indexed _from, address indexed _to);
+
 
     // -------------------------------------------------------------------------
     // Contracts
@@ -74,31 +75,51 @@ contract TeamRegistyTest is Test {
 
         // Test that `address(this)` is not the leader of the team 1 yet, and
         // that they're not part of any team yet.
-        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 4 == 0);
-        assertEq(tr.getMemberTeamId(address(this)), 0);
+        {
+            assertFalse(tr.getApproved(1, address(this)));
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(address(this));
+            assertEq(teamId, 0);
+            assertFalse(isTeamLeader);
+        }
 
         // Test that `_members` have not been invited yet.
         uint256 length = _members.length;
         for (uint256 i; i < length;) {
-            assertTrue(tr.getTeamMemberStatus(1, _members[i]) & 2 == 0);
+            assertFalse(tr.getApproved(1, _members[i]));
 
             unchecked {
                 i++;
             }
         }
 
-        // Create team and invite `_members`.
-        vm.expectEmit(false, false, false, true);
+        // Create team and invite `_members` (and check emitted events).
+        for (uint256 i; i < length;) {
+            vm.expectEmit(true, true, true, true);
+            emit SetApprovalForMember(1, _members[i], true);
+
+            unchecked {
+                i++;
+            }
+        }
+        vm.expectEmit(true, true, true, true);
         emit CreateTeam(1, address(this));
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, address(this), true);
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(0, 1, address(this));
         tr.createTeam(_members);
 
-        // Test that `address(this)` is team leader (7) and part of team 1.
-        assertEq(tr.getTeamMemberStatus(1, address(this)), 7);
-        assertEq(tr.getMemberTeamId(address(this)), 1);
+        // Test that `address(this)` is team leader and part of team 1.
+        {
+            assertTrue(tr.getApproved(1, address(this)));
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(address(this));
+            assertEq(teamId, 1);
+            assertTrue(isTeamLeader);
+        }
 
         // Test that all addresses in `_members` have been invited.
         for (uint256 i; i < length;) {
-            assertTrue(tr.getTeamMemberStatus(1, _members[i]) & 2 == 2);
+            assertTrue(tr.getApproved(1, _members[i]));
 
             unchecked {
                 i++;
@@ -112,26 +133,26 @@ contract TeamRegistyTest is Test {
     }
 
     // -------------------------------------------------------------------------
-    // `requestJoin`
+    // `acceptRequest` and `batchAcceptRequest`
     // -------------------------------------------------------------------------
 
-    /// @notice Test events emitted and state updates upon creating a team.
-    function test_requestJoin() public {
-        _createTeam();
-
-        // Test that `address(this)` has not requested to join team 1 yet.
-        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 1 == 0);
-
-        // Request to join team 1 as `address(this)`.
-        vm.expectEmit(false, false, false, true);
-        emit MemberApproveJoin(1, address(this));
-        tr.requestJoin(1);
-
-        // Test that `address(this)` has requested to join team 1.
-        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 1 == 1);
-    }
+    // -------------------------------------------------------------------------
+    // `kickMember` and `batchKickMember`
+    // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
+    // `setApprovalForMember` and `batchSetApprovalForMember`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `transferTeam`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `transferTeamLeadership`
+    // -------------------------------------------------------------------------
+
+    /* // -------------------------------------------------------------------------
     // `inviteMember` and `batchInviteMember`
     // -------------------------------------------------------------------------
 
@@ -162,27 +183,7 @@ contract TeamRegistyTest is Test {
 
         // Test that `makeAddr("fiveoutofnine)` has been invited to team 1.
         assertTrue(tr.getTeamMemberStatus(1, makeAddr("fiveoutofnine")) & 2 == 2);
-    }
-
-    // -------------------------------------------------------------------------
-    // `acceptRequest` and `batchAcceptRequest`
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // `transferTeam`
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // `transferTeamLeadership`
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // `kickMember` and `batchKickMember`
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // `leaveTeam`
-    // -------------------------------------------------------------------------
+    } */
 
     /* function test_inviteMembers() public {
         _createTeam();
