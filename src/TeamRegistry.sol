@@ -149,11 +149,18 @@ contract TeamRegistry {
     /// @dev Reverts if `msg.sender` is not the team's leader.
     /// @param _member The address of the member to invite.
     function inviteMember(address _member) external {
-        uint256 memberId = getMemberTeamId[msg.sender];
-        if (getTeamMemberStatus[memberId][msg.sender] < 4) {
-            revert NotTeamLeader(memberId, msg.sender);
+        uint256 currentTeamId = getMemberTeamId[msg.sender];
+        // Revert if `msg.sender` is not the leader of the team.
+        if (getTeamMemberStatus[currentTeamId][msg.sender] & 4 != 4) {
+            revert NotTeamLeader(currentTeamId, msg.sender);
         }
-        getTeamMemberStatus[memberId][_member] = 1;
+
+        // We mark it via `|=` in case the member has already requested to join
+        // the team. By doing `|= 2`, we only change bit 1 (0-indexed LSb).
+        getTeamMemberStatus[currentTeamId][_member] |= 2;
+
+        // Emit event.
+        emit LeaderApproveJoin(currentTeamId, _member);
     }
 
     /// @notice Invite members to a team.
@@ -172,8 +179,8 @@ contract TeamRegistry {
         }
     }
 
-    /// @notice Accept request for membership.
-    /// @param  _member The team member to accept.
+    /// @notice Accept request to join a team.
+    /// @param _member The team member to accept.
     function acceptRequest(address _member) external {
         uint256 memberId = getMemberTeamId[msg.sender];
         if (getTeamMemberStatus[memberId][msg.sender] < 4) {

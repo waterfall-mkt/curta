@@ -68,19 +68,35 @@ contract TeamRegistyTest is Test {
     }
 
     /// @notice Test events emitted and state updates upon creating a team.
+    /// @param _members The member to invite to the team..
     function test_createTeam(address[] calldata _members) public {
         vm.assume(_members.length > 0);
 
+        // Test that `address(this)` is not the leader of the team 1 yet, and
+        // that they're not part of any team yet.
+        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 4 == 0);
+        assertEq(tr.getMemberTeamId(address(this)), 0);
+
+        // Test that `_members` have not been invited yet.
+        uint256 length = _members.length;
+        for (uint256 i; i < length;) {
+            assertTrue(tr.getTeamMemberStatus(1, _members[i]) & 2 == 0);
+
+            unchecked {
+                i++;
+            }
+        }
+
+        // Create team and invite `_members`.
         vm.expectEmit(false, false, false, true);
         emit CreateTeam(1, address(this));
         tr.createTeam(_members);
 
-        // Test that `msg.sender` is team leader (7) and part of team 1.
+        // Test that `address(this)` is team leader (7) and part of team 1.
         assertEq(tr.getTeamMemberStatus(1, address(this)), 7);
         assertEq(tr.getMemberTeamId(address(this)), 1);
 
         // Test that all addresses in `_members` have been invited.
-        uint256 length = _members.length;
         for (uint256 i; i < length;) {
             assertTrue(tr.getTeamMemberStatus(1, _members[i]) & 2 == 2);
 
@@ -103,33 +119,72 @@ contract TeamRegistyTest is Test {
     function test_requestJoin() public {
         _createTeam();
 
+        // Test that `address(this)` has not requested to join team 1 yet.
+        assertTrue(tr.getTeamMemberStatus(1, address(this)) & 1 == 0);
+
+        // Request to join team 1 as `address(this)`.
         vm.expectEmit(false, false, false, true);
         emit MemberApproveJoin(1, address(this));
         tr.requestJoin(1);
 
-        // Test that `msg.sender` has requested to join team 1.
+        // Test that `address(this)` has requested to join team 1.
         assertTrue(tr.getTeamMemberStatus(1, address(this)) & 1 == 1);
     }
 
-    /* function test_inviteMember() public {
+    // -------------------------------------------------------------------------
+    // `inviteMember` and `batchInviteMember`
+    // -------------------------------------------------------------------------
+
+    /// @notice Test that inviting members as not the team leader fails.
+    function test_inviteMember_NotTeamLeader_Fails() public {
         _createTeam();
 
-        // Test that team leader can invite a member
-        vm.prank(makeAddr("chainlight"));
-        tr.inviteMember(1, makeAddr("plotchy"));
-
-        // Test that the team member has been invited
-        assertEq(tr.teamMemberStatus(1, makeAddr("plotchy")), 1);
-
-        // Test that non team leaders cannont invite members
         vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1, makeAddr("sudolabel"))
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 0, makeAddr("sudolabel"))
         );
         vm.prank(makeAddr("sudolabel"));
-        tr.inviteMember(1, makeAddr("popular"));
+        tr.inviteMember(makeAddr("plotchy"));
     }
 
-    function test_inviteMembers() public {
+    /// @notice Test events emitted and state updates upon inviting a member.
+    function test_inviteMember() public {
+        _createTeam();
+
+        // Test that `makeAddr("fiveoutofnine)` has not been invited to team 1
+        // yet.
+        assertTrue(tr.getTeamMemberStatus(1, makeAddr("fiveoutofnine")) & 2 == 0);
+
+        // Invite a member.
+        vm.expectEmit(false, false, false, true);
+        emit LeaderApproveJoin(1, makeAddr("fiveoutofnine"));
+        vm.prank(makeAddr("chainlight"));
+        tr.inviteMember(makeAddr("fiveoutofnine"));
+
+        // Test that `makeAddr("fiveoutofnine)` has been invited to team 1.
+        assertTrue(tr.getTeamMemberStatus(1, makeAddr("fiveoutofnine")) & 2 == 2);
+    }
+
+    // -------------------------------------------------------------------------
+    // `acceptRequest` and `batchAcceptRequest`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `transferTeam`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `transferTeamLeadership`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `kickMember` and `batchKickMember`
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // `leaveTeam`
+    // -------------------------------------------------------------------------
+
+    /* function test_inviteMembers() public {
         _createTeam();
 
         address[] memory tms = new address[](2);
@@ -312,16 +367,22 @@ contract TeamRegistyTest is Test {
         tr.transferLeadership(1, makeAddr("plotchy"));
     } */
 
+    // -------------------------------------------------------------------------
+    // Helper functions
+    // -------------------------------------------------------------------------
+
+    /// @notice Create a team as `makeAddr("chainlight")`, and invite
+    /// `makeAddr("sudolabel")`, `makeAddr("igorline")`, `makeAddr("jinu")`,
+    /// `makeAddr("minimooger")`, and `makeAddr("kalzak")`.
     function _createTeam() internal {
-        // create an initial team
-        address[] memory tms = new address[](5);
-        tms[0] = makeAddr("sudolabel");
-        tms[1] = makeAddr("igorline");
-        tms[2] = makeAddr("jinu");
-        tms[3] = makeAddr("minimooger");
-        tms[4] = makeAddr("kalzak");
+        address[] memory members = new address[](5);
+        members[0] = makeAddr("sudolabel");
+        members[1] = makeAddr("igorline");
+        members[2] = makeAddr("jinu");
+        members[3] = makeAddr("minimooger");
+        members[4] = makeAddr("kalzak");
 
         vm.prank(makeAddr("chainlight"));
-        tr.createTeam(tms);
+        tr.createTeam(members);
     }
 }
