@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-/// @title Curta Puzzles Team Registry
+/// @title TeamRegistry
 /// @author Sabnock01
+/// @notice A registry of teams for Curta Puzzles.
 contract TeamRegistry {
     // -------------------------------------------------------------------------
     // Errors
@@ -87,8 +88,9 @@ contract TeamRegistry {
     // -------------------------------------------------------------------------
 
     /// @notice Batch remove members from a team.
-    /// @dev Reverts if `msg.sender` is not the leader of the team or if any of
-    /// the addresses in `_members` are not part of the team.
+    /// @dev Since an address may only be part of 1 team at a time, the function
+    /// automatically retrieves the team ID to remove from and reverts if
+    /// `msg.sender` is not the leader.
     /// @param _members A list of addresses to remove from the team.
     function batchRemoveMember(address[] calldata _members) external {
         Team memory team = getTeam[msg.sender];
@@ -108,6 +110,9 @@ contract TeamRegistry {
     }
 
     /// @notice Batch set approvals for members to join a team.
+    /// @dev Since an address may only be part of 1 team at a time, the function
+    /// automatically retrieves the team ID to set approvals for and reverts if
+    /// `msg.sender` is not the leader.
     /// @param _members A list of addresses to set approvals for.
     /// @param _approved Whether or not the members are approved to join the
     /// team.
@@ -166,7 +171,9 @@ contract TeamRegistry {
     }
 
     /// @notice Remove a member from a team.
-    /// @dev Reverts if `msg.sender` is not the leader of the team.
+    /// @dev Since an address may only be part of 1 team at a time, the function
+    /// automatically retrieves the team ID to remove from and reverts if
+    /// `msg.sender` is not the leader.
     /// @param _member The address of the member to remove from the team.
     function removeMember(address _member) external {
         Team memory team = getTeam[msg.sender];
@@ -214,10 +221,12 @@ contract TeamRegistry {
     }
 
     /// @notice Transfer team leadership to another member.
-    /// @dev Reverts if `msg.sender` is not the leader of a team or if
-    /// `_newLeader` is not part of the team.
-    /// @param _newLeader The address of the new leader.
-    function transferTeamLeadership(address _newLeader) external {
+    /// @dev Since an address may only be part of 1 team at a time, the function
+    /// automatically retrieves the team ID to transfer leadership for and
+    /// reverts if `msg.sender` is not the leader or if `_member` is not part
+    /// of the team.
+    /// @param _member The address of the new leader.
+    function transferTeamLeadership(address _member) external {
         Team memory team = getTeam[msg.sender];
 
         // Revert if `msg.sender` is not the leader of the team.
