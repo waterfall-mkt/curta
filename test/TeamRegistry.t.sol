@@ -135,13 +135,325 @@ contract TeamRegistyTest is Test {
     // `removeMember` and `batchRemoveMember`
     // -------------------------------------------------------------------------
 
+    /// @notice Test that removing a member as not the team leader fails.
+    function test_removeMember_NotTeamLeader_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("sudolabel"));
+        tr.removeMember(makeAddr("sudolabel"));
+    }
+
+    /// @notice Test that batch removing members as not the team leader fails.
+    function test_batchRemoveMember_NotTeamLeader_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        // Check that `makeAddr("sudolabel")` joined team 1, but is not the team
+        // leader.
+        {
+            (uint248 teamId, bool isLeader) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+            assertFalse(isLeader);
+        }
+
+        address[] memory members = new address[](1);
+        members[0] = makeAddr("sudolabel");
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("sudolabel"));
+        tr.batchRemoveMember(members);
+    }
+
+    /// @notice Test that removing an address that's not part of the team fails.
+    function test_removeMember_NotTeamMember_Fails() public {
+        _createTeam();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("fiveoutofnine"))
+        );
+        vm.prank(makeAddr("chainlight"));
+        tr.removeMember(makeAddr("fiveoutofnine"));
+    }
+
+    /// @notice Test that batch removing addresses that are part of the team
+    /// fails.
+    function test_batchRemoveMember_NotTeamMember_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        // Create an array where the first address is part of the team, and the
+        // second address is not part of the team.
+        address[] memory members = new address[](2);
+        members[0] = makeAddr("sudolabel");
+        members[1] = makeAddr("plotchy");
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
+        );
+        vm.prank(makeAddr("chainlight"));
+        tr.batchRemoveMember(members);
+    }
+
+    /// @notice Test events emitted and state updates upon removing a member
+    /// from a team.
+    function test_removeMember() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        // Test that `makeAddr("sudolabel")` is part of team 1.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+        }
+
+        // Remove `makeAddr("sudolabel")` from team 1.
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("sudolabel"), false);
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(1, 0, makeAddr("sudolabel"));
+        vm.prank(makeAddr("chainlight"));
+        tr.removeMember(makeAddr("sudolabel"));
+
+        // Test that `makeAddr("sudolabel")` is no longer approved to join the
+        // team, and that they're no longer part of team .
+        {
+            assertFalse(tr.getApproved(1, makeAddr("sudolabel")));
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 0);
+        }
+    }
+
+    /// @notice Test events emitted and state updates upon batch removing
+    /// members from a team.
+    function test_batchRemoveMember() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")` and `makeAddr("igorline")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+        vm.prank(makeAddr("igorline"));
+        tr.transferTeam(1);
+
+        // Test that `makeAddr("sudolabel")` is part of team 1.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+        }
+        // Test that `makeAddr("igorline")` is part of team 1.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("igorline"));
+            assertEq(teamId, 1);
+        }
+
+        address[] memory members = new address[](2);
+        members[0] = makeAddr("sudolabel");
+        members[1] = makeAddr("igorline");
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("sudolabel"), false);
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(1, 0, makeAddr("sudolabel"));
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("igorline"), false);
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(1, 0, makeAddr("igorline"));
+        vm.prank(makeAddr("chainlight"));
+        tr.batchRemoveMember(members);
+
+        // Test that `makeAddr("sudolabel")` is no longer approved to join the
+        // team, and that they're no longer part of team.
+        {
+            assertFalse(tr.getApproved(1, makeAddr("sudolabel")));
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 0);
+        }
+
+        // Test that `makeAddr("igorline")` is no longer approved to join the
+        // team, and that they're no longer part of team.
+        {
+            assertFalse(tr.getApproved(1, makeAddr("igorline")));
+            (uint248 teamId,) = tr.getTeam(makeAddr("igorline"));
+            assertEq(teamId, 0);
+        }
+    }
+
     // -------------------------------------------------------------------------
     // `setApprovalForMember` and `batchSetApprovalForMember`
     // -------------------------------------------------------------------------
 
+    /// @notice Test that setting approval for a member as not the team leader
+    /// fails.
+    function test_setApprovalForMember_NotTeamLeader_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("sudolabel"));
+        tr.setApprovalForMember(makeAddr("sudolabel"), true);
+    }
+
+    /// @notice Test that batch setting approval for members as not the team
+    /// leader fails.
+    function test_batchSetApprovalForMember_NotTeamLeader_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        // Check that `makeAddr("sudolabel")` joined team 1, but is not the team
+        // leader.
+        {
+            (uint248 teamId, bool isLeader) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+            assertFalse(isLeader);
+        }
+
+        address[] memory members = new address[](1);
+        members[0] = makeAddr("sudolabel");
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("sudolabel"));
+        tr.batchSetApprovalForMember(members, false);
+    }
+
+    /// @notice Test events emitted and state updates upon setting approval true
+    /// for a member, and then setting approval false for a member.
+    function test_setApprovalForMember() public {
+        _createTeam();
+
+        // Test that `makeAddr("fiveoutofnine")` is not approved to join team 1
+        // yet.
+        assertFalse(tr.getApproved(1, makeAddr("fiveoutofnine")));
+
+        // Approve `makeAddr("fiveoutofnine")` to join team 1.
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("fiveoutofnine"), true);
+        vm.prank(makeAddr("chainlight"));
+        tr.setApprovalForMember(makeAddr("fiveoutofnine"), true);
+
+        // Test that `makeAddr("fiveoutofnine")` is approved to join team 1.
+        assertTrue(tr.getApproved(1, makeAddr("fiveoutofnine")));
+
+        // Disapprove `makeAddr("fiveoutofnine")` to join team 1.
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("fiveoutofnine"), false);
+        vm.prank(makeAddr("chainlight"));
+        tr.setApprovalForMember(makeAddr("fiveoutofnine"), false);
+
+        // Test that `makeAddr("fiveoutofnine")` is no longer approved to join
+        // team 1.
+        assertFalse(tr.getApproved(1, makeAddr("fiveoutofnine")));
+    }
+
+    /// @notice Test events emitted and state updates upon batch setting
+    /// approval true for members, and then setting approval false for the same
+    /// members.
+    function test_batchSetApprovalForMember() public {
+        _createTeam();
+
+        // Test that `makeAddr("fiveoutofnine")` and `makeAddr("plotchy") are
+        // both not approved to join team 1 yet.
+        assertFalse(tr.getApproved(1, makeAddr("fiveoutofnine")));
+        assertFalse(tr.getApproved(1, makeAddr("plotchy")));
+
+        address[] memory members = new address[](2);
+        members[0] = makeAddr("fiveoutofnine");
+        members[1] = makeAddr("plotchy");
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("fiveoutofnine"), true);
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("plotchy"), true);
+        vm.prank(makeAddr("chainlight"));
+        tr.batchSetApprovalForMember(members, true);
+
+        // Test that `makeAddr("fiveoutofnine")` and `makeAddr("plotchy")` are
+        // both approved to join team 1.
+        assertTrue(tr.getApproved(1, makeAddr("fiveoutofnine")));
+        assertTrue(tr.getApproved(1, makeAddr("plotchy")));
+
+        // Disapprove `makeAddr("fiveoutofnine")` to join team 1.
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("fiveoutofnine"), false);
+        vm.expectEmit(true, true, true, true);
+        emit SetApprovalForMember(1, makeAddr("plotchy"), false);
+        vm.prank(makeAddr("chainlight"));
+        tr.batchSetApprovalForMember(members, false);
+
+        // Test that `makeAddr("fiveoutofnine")` and `makeAddr("plotchy")` are
+        // no longer approved to join team 1.
+        assertFalse(tr.getApproved(1, makeAddr("fiveoutofnine")));
+        assertFalse(tr.getApproved(1, makeAddr("plotchy")));
+    }
+
     // -------------------------------------------------------------------------
     // `transferTeam`
     // -------------------------------------------------------------------------
+
+    /// @notice Test that transferring teams as a team leader fails.
+    function test_transferTeam_IsTeamLeader_Fails() public {
+        _createTeam();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("chainlight"));
+        tr.transferTeam(1);
+    }
+
+    /// @notice Test that transferring to a team that an address is not approved
+    /// to join fails.
+    function test_transferTeam_ApprovalFalse_Fails() public {
+        _createTeam();
+
+        vm.expectRevert(TeamRegistry.Unauthorized.selector);
+        vm.prank(makeAddr("fiveoutofnine"));
+        tr.transferTeam(1);
+    }
+
+    /// @notice Test events emitted and state updates upon transferring teams.
+    function test_transferTeam() public {
+        _createTeam();
+
+        // Test that `makeAddr("sudolabel")` is not part of team 1 yet.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 0);
+        }
+
+        // Transfer team 1 to `makeAddr("sudolabel")`.
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(0, 1, makeAddr("sudolabel"));
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+
+        // Test that `makeAddr("sudolabel")` is part of team 1.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+        }
+    }
 
     // -------------------------------------------------------------------------
     // `transferTeamLeadership`
@@ -199,7 +511,7 @@ contract TeamRegistyTest is Test {
 
         // Transfer team leadership to `makeAddr("sudolabel")` (and check
         // emitted events).
-        vm.expectEmit(false, false, false, true);
+        vm.expectEmit(true, true, true, true);
         emit TransferTeamLeadership(1, makeAddr("chainlight"), makeAddr("sudolabel"));
         vm.prank(makeAddr("chainlight"));
         tr.transferTeamLeadership(makeAddr("sudolabel"));
@@ -219,222 +531,6 @@ contract TeamRegistyTest is Test {
         }
     }
 
-    /* // -------------------------------------------------------------------------
-    // `inviteMember` and `batchInviteMember`
-    // -------------------------------------------------------------------------
-
-    /// @notice Test that inviting members as not the team leader fails.
-    function test_inviteMember_NotTeamLeader_Fails() public {
-        _createTeam();
-
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 0, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("sudolabel"));
-        tr.inviteMember(makeAddr("plotchy"));
-    }
-
-    /// @notice Test events emitted and state updates upon inviting a member.
-    function test_inviteMember() public {
-        _createTeam();
-
-        // Test that `makeAddr("fiveoutofnine)` has not been invited to team 1
-        // yet.
-        assertTrue(tr.getTeamMemberStatus(1, makeAddr("fiveoutofnine")) & 2 == 0);
-
-        // Invite a member.
-        vm.expectEmit(false, false, false, true);
-        emit LeaderApproveJoin(1, makeAddr("fiveoutofnine"));
-        vm.prank(makeAddr("chainlight"));
-        tr.inviteMember(makeAddr("fiveoutofnine"));
-
-        // Test that `makeAddr("fiveoutofnine)` has been invited to team 1.
-        assertTrue(tr.getTeamMemberStatus(1, makeAddr("fiveoutofnine")) & 2 == 2);
-    } */
-
-    /* function test_inviteMembers() public {
-        _createTeam();
-
-        address[] memory tms = new address[](2);
-        tms[0] = makeAddr("plotchy");
-        tms[1] = makeAddr("popular");
-
-        // Test that team leader can invite members
-        vm.prank(makeAddr("chainlight"));
-        tr.inviteMembers(1, tms);
-
-        // Test that team members have been invited
-        assertEq(tr.teamMemberStatus(1, makeAddr("plotchy")), 1);
-        assertEq(tr.teamMemberStatus(1, makeAddr("popular")), 1);
-
-        // Test that non team leaders cannot invite members
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("sudolabel"));
-        tr.inviteMembers(1, tms);
-    }
-
-    function test_acceptInvite() public {
-        _createTeam();
-
-        // Test that members can accept invites
-        vm.expectEmit(false, false, false, true);
-        emit AcceptTeamInvite(1, makeAddr("sudolabel"));
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-
-        // Test that members cannot accept invites if they are already in a team
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.AlreadyInTeam.selector, makeAddr("chainlight"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.acceptInvite(1);
-
-        // Test that members cannot accept invites if they don't have one pending
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NoPendingInvite.selector, 1, makeAddr("plotchy"))
-        );
-        vm.prank(makeAddr("plotchy"));
-        tr.acceptInvite(1);
-
-        // Test that members are updated after accepting invites
-        assertEq(tr.teamMemberStatus(1, makeAddr("sudolabel")), 2);
-        assertTrue(tr.isTeamMember(makeAddr("sudolabel")));
-    }
-
-    function test_kickMember() public {
-        _createTeam();
-
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-
-        // Test that team leaders can kick a member
-        vm.prank(makeAddr("chainlight"));
-        tr.kickMember(1, makeAddr("sudolabel"));
-
-        // Test that member statuses have been updated
-        assertEq(tr.teamMemberStatus(1, makeAddr("sudolabel")), 0);
-        assertFalse(tr.isTeamMember(makeAddr("sudolabel")));
-
-        // Test that non team leaders cannot kick a member
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("sudolabel"));
-        tr.kickMember(1, makeAddr("sudolabel"));
-
-        // Test that team leaders cannot kick a non team member
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.kickMember(1, makeAddr("plotchy"));
-    }
-
-    function test_kickMembers() public {
-        _createTeam();
-
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-        vm.prank(makeAddr("igorline"));
-        tr.acceptInvite(1);
-
-        address[] memory tms = new address[](2);
-        tms[0] = makeAddr("sudolabel");
-        tms[1] = makeAddr("igorline");
-
-        // Test that team leaders can kick members
-        vm.prank(makeAddr("chainlight"));
-        tr.kickMembers(1, tms);
-
-        // Test that team member statuses have been updated
-        assertEq(tr.teamMemberStatus(1, makeAddr("sudolabel")), 0);
-        assertEq(tr.teamMemberStatus(1, makeAddr("igorline")), 0);
-        assertFalse(tr.isTeamMember(makeAddr("sudolabel")));
-        assertFalse(tr.isTeamMember(makeAddr("igorline")));
-
-        tms[0] = makeAddr("chainlight");
-
-        // Test that non team leaders cannot kick members
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1, makeAddr("sudolabel"))
-        );
-        vm.prank(makeAddr("sudolabel"));
-        tr.kickMembers(1, tms);
-
-        tms[0] = makeAddr("plotchy");
-
-        // Test that team leaders cannot kick non team members
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.kickMembers(1, tms);
-    }
-
-    function test_leaveTeam() public {
-        _createTeam();
-
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-
-        // Test that members can leave teams
-        vm.prank(makeAddr("sudolabel"));
-        tr.leaveTeam(1);
-
-        // Test that member status has been updated
-        assertEq(tr.teamMemberStatus(1, makeAddr("sudolabel")), 0);
-        assertFalse(tr.isTeamMember(makeAddr("sudolabel")));
-
-        // Test that team leaders cannot leave team
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1, makeAddr("chainlight"))
-        );
-        vm.prank(makeAddr("chainlight"));
-        tr.leaveTeam(1);
-
-        // Test that non team members cannot leave team
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
-        );
-        vm.prank(makeAddr("plotchy"));
-        tr.leaveTeam(1);
-    }
-
-    function test_transferLeadership() public {
-        _createTeam();
-
-        vm.prank(makeAddr("sudolabel"));
-        tr.acceptInvite(1);
-        vm.prank(makeAddr("igorline"));
-        tr.acceptInvite(1);
-
-        // Test that team leadership can be transferred
-        vm.expectEmit(false, false, false, false);
-        emit TransferTeamLeadership(1, makeAddr("chainlight"), makeAddr("sudolabel"));
-        vm.prank(makeAddr("chainlight"));
-        tr.transferLeadership(1, makeAddr("sudolabel"));
-
-        // Test that member statuses have been updated
-        assertEq(tr.teamMemberStatus(1, makeAddr("chainlight")), 2);
-        assertEq(tr.teamMemberStatus(1, makeAddr("sudolabel")), 3);
-
-        // Test that non leaders cannot transfer leadership
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1, makeAddr("igorline"))
-        );
-        vm.prank(makeAddr("igorline"));
-        tr.transferLeadership(1, makeAddr("chainlight"));
-
-        // Test that leadership cannot be transferred to non team members
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("plotchy"))
-        );
-        vm.prank(makeAddr("sudolabel"));
-        tr.transferLeadership(1, makeAddr("plotchy"));
-    } */
-
     // -------------------------------------------------------------------------
     // Helper functions
     // -------------------------------------------------------------------------
@@ -446,9 +542,6 @@ contract TeamRegistyTest is Test {
         address[] memory members = new address[](5);
         members[0] = makeAddr("sudolabel");
         members[1] = makeAddr("igorline");
-        members[2] = makeAddr("jinu");
-        members[3] = makeAddr("minimooger");
-        members[4] = makeAddr("kalzak");
 
         vm.prank(makeAddr("chainlight"));
         tr.createTeam(members);
