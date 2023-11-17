@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IShieldsAPI } from "shields-api/interfaces/IShieldsAPI.sol";
 import { Base64 } from "solady/utils/Base64.sol";
 import { LibString } from "solady/utils/LibString.sol";
 import { Owned } from "solmate/auth/Owned.sol";
@@ -21,17 +20,6 @@ import { ICurta } from "@/contracts/interfaces/ICurta.sol";
 /// Authorship Token will be to be the first solver to any puzzle on Curta.
 contract AuthorshipToken is ERC721, Owned {
     using LibString for uint256;
-
-    // -------------------------------------------------------------------------
-    // Constants
-    // -------------------------------------------------------------------------
-
-    /// @notice The shields API contract.
-    /// @dev This is the mainnet address.
-    IShieldsAPI constant shieldsAPI = IShieldsAPI(0x740CBbF0116a82F64e83E1AE68c92544870B0C0F);
-
-    /// @notice Salt used to compute the seed in {AuthorshipToken.tokenURI}.
-    bytes32 constant SALT = bytes32("Curta.AuthorshipToken");
 
     // -------------------------------------------------------------------------
     // Errors
@@ -140,36 +128,6 @@ contract AuthorshipToken is ERC721, Owned {
     /// @return URI for the token.
     function tokenURI(uint256 _tokenId) public view override returns (string memory) {
         require(_ownerOf[_tokenId] != address(0), "NOT_MINTED");
-
-        // Generate seed.
-        uint256 seed = uint256(keccak256(abi.encodePacked(_tokenId, SALT)));
-
-        // Bitpacked colors.
-        uint256 colors = 0x6351CEFF00FFB300FF6B00B5000A007FFF78503C323232FE7FFF6C28A2FF007A;
-
-        // Shuffle `colors` by performing 4 iterations of Fisher-Yates shuffle.
-        // We do this to pick 4 unique colors from `colors`.
-        unchecked {
-            uint256 shift = 24 * (seed % 11);
-            colors = (colors & ((type(uint256).max ^ (0xFFFFFF << shift)) ^ 0xFFFFFF))
-                | ((colors & 0xFFFFFF) << shift) | ((colors >> shift) & 0xFFFFFF);
-            seed >>= 4;
-
-            shift = 24 * (seed % 10);
-            colors = (colors & ((type(uint256).max ^ (0xFFFFFF << shift)) ^ (0xFFFFFF << 24)))
-                | (((colors >> 24) & 0xFFFFFF) << shift) | (((colors >> shift) & 0xFFFFFF) << 24);
-            seed >>= 4;
-
-            shift = 24 * (seed % 9);
-            colors = (colors & ((type(uint256).max ^ (0xFFFFFF << shift)) ^ (0xFFFFFF << 48)))
-                | (((colors >> 48) & 0xFFFFFF) << shift) | (((colors >> shift) & 0xFFFFFF) << 48);
-            seed >>= 4;
-
-            shift = 24 * (seed & 7);
-            colors = (colors & ((type(uint256).max ^ (0xFFFFFF << shift)) ^ (0xFFFFFF << 72)))
-                | (((colors >> 72) & 0xFFFFFF) << shift) | (((colors >> shift) & 0xFFFFFF) << 72);
-            seed >>= 3;
-        }
 
         return string.concat(
             "data:application/json;base64,",
@@ -375,20 +333,16 @@ contract AuthorshipToken is ERC721, Owned {
                             ".688 5.12 2.688 4.192 0 7.392-3.488 7.392-9.024 0-5.504-3.2-8.992-7.39"
                             '2-8.992-2.304 0-4.096.992-5.12 2.688v-2.304h-3.808Z" fill="#F0F6FC"/><'
                             'path class="k" stroke-dashoffset="5" stroke-dasharray="10" d="M215 545'
-                            'h320"/><g transform="translate(231 237) scale(0.384)">',
-                            shieldsAPI.getShieldSVG({
-                                field: uint16(seed % 300),
-                                colors: [
-                                    uint24(colors & 0xFFFFFF),
-                                    uint24((colors >> 24) & 0xFFFFFF),
-                                    uint24((colors >> 48) & 0xFFFFFF),
-                                    uint24((colors >> 72) & 0xFFFFFF)
-                                ],
-                                hardware: uint16((seed >> 9) % 120),
-                                frame: uint16((seed >> 17) % 5)
-                            }),
-                            '</g><text font-family="A" x="50%" y="605" fill="#F0F6FC" font-size="40'
-                            '" dominant-baseline="central" text-anchor="middle">#',
+                            'h320"/><g transform="translate(303.88888 295) scale(0.55555)"><svg wid'
+                            'th="256" height="288" viewBox="0 0 256 288" fill="#0D1017" stroke-widt'
+                            'h="12" stroke="#F0F6FC" xmlns="http://www.w3.org/2000/svg"><rect x="6"'
+                            ' y="6" width="52" height="196" rx="26"/><circle cx="32" cy="256" r="26'
+                            '"/><rect x="102" y="6" width="52" height="84" rx="26"/><circle cx="128'
+                            '" cy="144" r="26"/><rect x="102" y="198" width="52" height="84" rx="26'
+                            '"/><circle cx="224" cy="32" r="26"/><rect x="198" y="86" width="52" he'
+                            'ight="196" rx="26"/></svg></g><text font-family="A" x="50%" y="605" fi'
+                            'll="#F0F6FC" font-size="40" dominant-baseline="central" text-anchor="m'
+                            'iddle">#',
                             _zfill(_tokenId),
                             '</text><rect class="i k o" x="215" y="65" mask="url(#a)" rx="20"/><cir'
                             'cle class="j k o" cy="65" mask="url(#a)"/><circle class="j k o" cy="68'
