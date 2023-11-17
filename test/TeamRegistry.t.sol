@@ -143,9 +143,7 @@ contract TeamRegistyTest is Test {
         vm.prank(makeAddr("sudolabel"));
         tr.transferTeam(1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1));
         vm.prank(makeAddr("sudolabel"));
         tr.removeMember(makeAddr("sudolabel"));
     }
@@ -168,9 +166,7 @@ contract TeamRegistyTest is Test {
 
         address[] memory members = new address[](1);
         members[0] = makeAddr("sudolabel");
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1));
         vm.prank(makeAddr("sudolabel"));
         tr.batchRemoveMember(members);
     }
@@ -305,9 +301,7 @@ contract TeamRegistyTest is Test {
         vm.prank(makeAddr("sudolabel"));
         tr.transferTeam(1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1));
         vm.prank(makeAddr("sudolabel"));
         tr.setApprovalForMember(makeAddr("sudolabel"), true);
     }
@@ -331,9 +325,7 @@ contract TeamRegistyTest is Test {
 
         address[] memory members = new address[](1);
         members[0] = makeAddr("sudolabel");
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1));
         vm.prank(makeAddr("sudolabel"));
         tr.batchSetApprovalForMember(members, false);
     }
@@ -415,9 +407,7 @@ contract TeamRegistyTest is Test {
     function test_transferTeam_IsTeamLeader_Fails() public {
         _createTeam();
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.IsTeamLeader.selector, 1));
         vm.prank(makeAddr("chainlight"));
         tr.transferTeam(1);
     }
@@ -468,9 +458,7 @@ contract TeamRegistyTest is Test {
         vm.prank(makeAddr("sudolabel"));
         tr.transferTeam(1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
-        );
+        vm.expectRevert(abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1));
         vm.prank(makeAddr("sudolabel"));
         tr.transferTeamLeadership(makeAddr("sudolabel"));
     }
