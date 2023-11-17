@@ -132,11 +132,7 @@ contract TeamRegistyTest is Test {
     }
 
     // -------------------------------------------------------------------------
-    // `acceptRequest` and `batchAcceptRequest`
-    // -------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------
-    // `kickMember` and `batchKickMember`
+    // `removeMember` and `batchRemoveMember`
     // -------------------------------------------------------------------------
 
     // -------------------------------------------------------------------------
@@ -150,6 +146,78 @@ contract TeamRegistyTest is Test {
     // -------------------------------------------------------------------------
     // `transferTeamLeadership`
     // -------------------------------------------------------------------------
+
+    /// @notice Test that transferring team leadership as not the team leader
+    /// fails.
+    function test_transferTeamLeadership_NotTeamLeader_Fails() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(0, 1);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
+        );
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeamLeadership(makeAddr("sudolabel"));
+    }
+
+    /// @notice Test that transferring team leadership to an address that's not
+    /// part of the team fails.
+    function test_transferTeamLeadership_NotTeamMember_Fails() public {
+        _createTeam();
+
+        vm.expectRevert(
+            abi.encodeWithSelector(TeamRegistry.NotInTeam.selector, 1, makeAddr("fiveoutofnine"))
+        );
+        vm.prank(makeAddr("chainlight"));
+        tr.transferTeamLeadership(makeAddr("fiveoutofnine"));
+    }
+
+    /// @notice Test events emitted and state updates upon transferring team
+    /// leadership.
+    function test_transferTeamLeadership() public {
+        _createTeam();
+
+        // Join team 1 as `makeAddr("sudolabel")`.
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(0, 1);
+
+        // Test that `makeAddr("chainlight")` is the leader of team 1, and
+        // `makeAddr("sudolabel")` is not the team leader of team 1 yet.
+        {
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(makeAddr("chainlight"));
+            assertEq(teamId, 1);
+            assertTrue(isTeamLeader);
+        }
+        {
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+            assertFalse(isTeamLeader);
+        }
+
+        // Transfer team leadership to `makeAddr("sudolabel")` (and check
+        // emitted events).
+        vm.expectEmit(false, false, false, true);
+        emit TransferTeamLeadership(1, makeAddr("chainlight"), makeAddr("sudolabel"));
+        vm.prank(makeAddr("chainlight"));
+        tr.transferTeamLeadership(makeAddr("sudolabel"));
+
+        // Test that `makeAddr("chainlight)` is still part of the team (but no
+        // longer the leader), and `makeAddr("sudolabel")` is the team leader of
+        // team 1.
+        {
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(makeAddr("chainlight"));
+            assertEq(teamId, 1);
+            assertFalse(isTeamLeader);
+        }
+        {
+            (uint248 teamId, bool isTeamLeader) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 1);
+            assertTrue(isTeamLeader);
+        }
+    }
 
     /* // -------------------------------------------------------------------------
     // `inviteMember` and `batchInviteMember`
