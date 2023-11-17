@@ -422,7 +422,22 @@ contract TeamRegistyTest is Test {
         tr.transferTeam(1);
     }
 
-    /// @notice Test events emitted and state updates upon transferring teams.
+    /// @notice Test that transferring teams to 0 (individual) succeeds.
+    function test_transferFrom_ToZero_Succeeds() public {
+        _createTeam();
+
+        // Repeatedly transfer `makeAddr("sudolabel")` between team 1 and 0
+        // (individual).
+        vm.startPrank(makeAddr("sudolabel"));
+        tr.transferTeam(1);
+        tr.transferTeam(0);
+        tr.transferTeam(1);
+        tr.transferTeam(0);
+        vm.stopPrank();
+    }
+
+    /// @notice Test events emitted and state updates upon transferring teams,
+    /// then transferring to `0` (individual).
     function test_transferTeam() public {
         _createTeam();
 
@@ -432,7 +447,7 @@ contract TeamRegistyTest is Test {
             assertEq(teamId, 0);
         }
 
-        // Transfer team 1 to `makeAddr("sudolabel")`.
+        // Transfer `makeAddr("sudolabel")` to team 1.
         vm.expectEmit(true, true, true, true);
         emit TransferTeam(0, 1, makeAddr("sudolabel"));
         vm.prank(makeAddr("sudolabel"));
@@ -442,6 +457,18 @@ contract TeamRegistyTest is Test {
         {
             (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
             assertEq(teamId, 1);
+        }
+
+        // Transfer `makeAddr("sudolabel")` to individual.
+        vm.expectEmit(true, true, true, true);
+        emit TransferTeam(1, 0, makeAddr("sudolabel"));
+        vm.prank(makeAddr("sudolabel"));
+        tr.transferTeam(0);
+
+        // Test that `makeAddr("sudolabel")` is now marked as individual.
+        {
+            (uint248 teamId,) = tr.getTeam(makeAddr("sudolabel"));
+            assertEq(teamId, 0);
         }
     }
 
