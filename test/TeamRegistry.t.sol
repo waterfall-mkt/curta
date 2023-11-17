@@ -154,7 +154,7 @@ contract TeamRegistyTest is Test {
 
         // Join team 1 as `makeAddr("sudolabel")`.
         vm.prank(makeAddr("sudolabel"));
-        tr.transferTeam(0, 1);
+        tr.transferTeam(1);
 
         vm.expectRevert(
             abi.encodeWithSelector(TeamRegistry.NotTeamLeader.selector, 1)
@@ -182,7 +182,7 @@ contract TeamRegistyTest is Test {
 
         // Join team 1 as `makeAddr("sudolabel")`.
         vm.prank(makeAddr("sudolabel"));
-        tr.transferTeam(0, 1);
+        tr.transferTeam(1);
 
         // Test that `makeAddr("chainlight")` is the leader of team 1, and
         // `makeAddr("sudolabel")` is not the team leader of team 1 yet.

@@ -199,12 +199,11 @@ contract TeamRegistry {
         _setApprovalForMember(team.id, _member, _approved);
     }
 
-    /// @notice Transfer team from `_from` to `_to`.
+    /// @notice Transfer team to `_to`.
     /// @dev Reverts if `msg.sender` is the leader of a team or they are not
     /// approved to join team `_to`.
-    /// @param _from The ID of the team to transfer from.
     /// @param _to The ID of the team to transfer to.
-    function transferTeam(uint256 _from, uint256 _to) external {
+    function transferTeam(uint256 _to) external {
         Team memory team = getTeam[msg.sender];
 
         // Revert if `msg.sender` is the leader of the team.
@@ -217,7 +216,7 @@ contract TeamRegistry {
         getTeam[msg.sender].id = uint248(_to);
 
         // Emit event.
-        emit TransferTeam(_from, _to, msg.sender);
+        emit TransferTeam(team.id, _to, msg.sender);
     }
 
     /// @notice Transfer team leadership to another member.
