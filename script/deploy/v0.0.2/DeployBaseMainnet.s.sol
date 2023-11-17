@@ -15,13 +15,27 @@ contract DeployBaseMainnet is DeployBase {
     /// available for minting by the author.
     uint256 constant ISSUE_LENGTH = 3 days;
 
+    /// @notice Address of the create2 deployer used for deploying
+    /// the `FlagRenderer` and `AuthorshipToken` contracts.
+    /// @dev https://github.com/pcaversaccio/create2deployer
+    address constant CREATE2DEPLOYER = address(0);
+
     /// @notice The list of authors in the initial batch.
     address[] internal AUTHORS = [
         // fiveoutofnine.eth
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
+        0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
         0xA85572Cd96f1643458f17340b6f0D6549Af482F5,
         // sabnock.eth
         0xDbAacdcadD7c51a325B771ff75B261a1e7baE11c
     ];
 
-    constructor() DeployBase(AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH, AUTHORS) { }
+    constructor() DeployBase(CREATE2DEPLOYER, AUTHORSHIP_TOKEN_OWNER, CURTA_OWNER, ISSUE_LENGTH, AUTHORS) { }
 }
