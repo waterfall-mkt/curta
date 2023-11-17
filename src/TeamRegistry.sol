@@ -210,7 +210,7 @@ contract TeamRegistry {
         if (team.isLeader) revert IsTeamLeader(team.id);
 
         // Revert if `msg.sender` is not approved to join the team.
-        if (!getApproved[_to][msg.sender]) revert Unauthorized();
+        if (_to > 0 && !getApproved[_to][msg.sender]) revert Unauthorized();
 
         // Transfer team.
         getTeam[msg.sender].id = uint248(_to);
