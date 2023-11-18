@@ -2,9 +2,11 @@
 pragma solidity ^0.8.17;
 
 import { Script, console } from "forge-std/Script.sol";
+
 import { AuthorshipToken } from "@/contracts/AuthorshipToken.sol";
 import { Curta } from "@/contracts/Curta.sol";
 import { FlagRenderer } from "@/contracts/FlagRenderer.sol";
+import { TeamRegistry } from "@/contracts/TeamRegistry.sol";
 
 contract DeployBase is Script {
     // -------------------------------------------------------------------------
@@ -32,7 +34,7 @@ contract DeployBase is Script {
     mapping(uint256 => address) public authors;
 
     /// @notice Sender address used for the deployment.
-    address curtaDeployer = 0x63F1E3CCA306a9818F6F5c76AD491a9293C57d76;
+    address curtaDeployer = 0x5F3146D3D700245E998660dBCAe97DcD7a554c05;
 
     // -------------------------------------------------------------------------
     // Deployment addresses
@@ -46,32 +48,35 @@ contract DeployBase is Script {
     /// `curta` as its base `flagRenderer` after the script runs.
     FlagRenderer public flagRenderer;
 
-    /// @notice The instance of `Curta` that will be deployed after the script
-    /// runs.
+    /// @notice The instance of `Curta` that will be deployed.
     Curta public curta;
 
-    /// @notice Address of the Create2Deployer
-    /// @dev This address is different on all chains except Base mainnet
-    /// where it is a predeploy.
-    address create2Deployer; 
+    /// @notice The instance of `TeamRegistry` that will be deployed.
+    TeamRegistry public tr;
+
+    /// @notice Address of the create2 factory to use
+    address create2Factory; 
 
     /// @notice The expected address for the deployed `FlagRenderer`.
-    address flagRendererAddress = 0xF1a9000080AdCB839aC55E2996c3e0c9602C2Ae4;
+    address flagRendererAddress = 0xF1a900007c8b1d6266c186Aa2Ef0eE2e95ffCa80;
 
     /// @notice The expected address for the deployed `AuthorshipToken`.
-    address authorshipTokenAddress = 0xC0ffe50b579c2695F42049a5351FF3a37794c872;
+    address authorshipTokenAddress = 0xC0FFEE8b8e502403e51f37030E32c52bA4b37f7d;
 
     /// @notice The expected address for the deployed `Curta`.
-    address curtaAddress = 0x0000000041968e6fB76560021ee7D83175ed7eD1;
+    address curtaAddress = 0x00000000D1329c5cd5386091066d49112e590969;
+
+    /// @notice The expected address for the deployed `TeamRegistry`.
+    address teamRegistryAddress = 0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d;
 
     constructor(
-        address _create2Deployer,
+        address _create2Factory,
         address _authorshipTokenOwner,
         address _curtaOwner,
         uint256 _issueLength,
         address[] memory _authors
     ) {
-        create2Deployer = _create2Deployer;
+        create2Factory = _create2Factory;
         authorshipTokenOwner = _authorshipTokenOwner;
         curtaOwner = _curtaOwner;
         issueLength = _issueLength;
@@ -103,18 +108,16 @@ contract DeployBase is Script {
         vm.startBroadcast();
 
         // Deploy FlagRenderer
-        create2Deployer.call(abi.encodeWithSignature(
-            "deploy(uint256,bytes32,bytes)",
-            0,
-            bytes32(uint256(27228880951058027584878031418626584945025905217501640862369820082332481093632)),
+        create2Factory.call(abi.encodeWithSignature(
+            "safeCreate2(bytes32,bytes)",
+            0x5f3146d3d700245e998660dbcae97dcd7a554c05c8292664421e00010df48664,
             type(FlagRenderer).creationCode
         ));
 
         // Deploy AuthorshipToken
-        create2Deployer.call(abi.encodeWithSignature(
-            "deploy(uint256,bytes32,bytes)",
-            0,
-            bytes32(uint256(6447998015847004963245564656868529952164055284815449929101636674540665831424)),
+        create2Factory.call(abi.encodeWithSignature(
+            "safeCreate2(bytes32,bytes)",
+            0x5f3146d3d700245e998660dbcae97dcd7a554c05fcab3fcfdfb00000006ca6b7,
             abi.encodePacked(
                 type(AuthorshipToken).creationCode,
                 abi.encode(
@@ -130,6 +133,14 @@ contract DeployBase is Script {
             AuthorshipToken(authorshipTokenAddress), 
             FlagRenderer(flagRendererAddress)
         );
+
+        // Deploy TeamRegistry
+
+        create2Factory.call(abi.encodeWithSignature(
+            "safeCreate2(bytes32,bytes)",
+            0x5f3146d3d700245e998660dbcae97dcd7a554c05a867800e5eeb00000072a13f,
+            type(TeamRegistry).creationCode
+        ));
 
         vm.stopBroadcast();
 
@@ -151,5 +162,6 @@ contract DeployBase is Script {
                 )
             )
         );
+        console.logBytes32(keccak256(abi.encodePacked(type(TeamRegistry).creationCode)));
     }
 }
