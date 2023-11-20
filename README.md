@@ -100,7 +100,6 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
             <td>N/A</td>
             <td><code><a href="https://goerli.basescan.org/address/0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d">0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d</code></td>
         </tr>
-
     </tbody>
 <table>
 
