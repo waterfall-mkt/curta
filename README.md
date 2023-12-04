@@ -207,10 +207,10 @@ Create a file named `.env` at the root of the project and copy the contents of `
     </tbody>
 <table>
 
-> **Warning**
+> [!WARNING]
 > If accounts specified by `AUTHORSHIP_TOKEN_PRIVATE_KEY` or `CURTA_PRIVATE_KEY` have a nonzero account nonce (i.e. they have sent transactions) or are equal, the deploy script will most likely fail due to incorrect contract address precomputation (the script assumes each account has a nonce of 0).
 
-> **Note**
+> [!NOTE]
 > The reason the addresses are precomputed are because `AuthorshipToken` and `Curta` must know each other's addresses when being deployed. Also, it allows for vanity addresses :).
 
 #### 2. Run commands to run deploy scripts
