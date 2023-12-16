@@ -1,7 +1,7 @@
 <img align="right" width="150" height="150" top="100" src="./assets/curta.png">
 
 # Curta
-[**Website**](https://curta.wtf) - [**Docs**](https://curta.wtf/docs) - [**Twitter**](https://twitter.com/curta_wtf)
+[**Website**](https://curta.wtf) - [**Docs**](https://curta.wtf/docs) - [**Twitter**](https://twitter.com/curta_ctf)
 
 A CTF protocol, where players create and solve EVM puzzles to earn NFTs.
 
@@ -25,7 +25,7 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
         <tr>
             <td rowspan="3">Mainnet</td>
             <td rowspan="3">1</td>
-            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/2d5de33e3e08ff478ad9e33b6a6f00f819224122/src/Curta.soll">Curta</a></code></td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/2d5de33e3e08ff478ad9e33b6a6f00f819224122/src/Curta.sol">Curta</a></code></td>
             <td><code><a href="https://etherscan.io/address/0x0000000006bC8D9e5e9d436217B88De704a9F307">0x0000000006bC8D9e5e9d436217B88De704a9F307</code></td>
             <td>N/A</td>
         </tr>
