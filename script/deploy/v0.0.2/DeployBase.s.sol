@@ -102,9 +102,6 @@ contract DeployBase is Script {
             }
         }
 
-        // Compute and print initcode hashes for each contract
-        // _printInitcodeHashes(initialAuthors);
-
         vm.startBroadcast();
 
         // Deploy FlagRenderer
@@ -135,7 +132,6 @@ contract DeployBase is Script {
         );
 
         // Deploy TeamRegistry
-
         create2Factory.call(abi.encodeWithSignature(
             "safeCreate2(bytes32,bytes)",
             0x5f3146d3d700245e998660dbcae97dcd7a554c05a867800e5eeb00000072a13f,
@@ -146,22 +142,5 @@ contract DeployBase is Script {
 
         flagRenderer = FlagRenderer(flagRendererAddress);
         authorshipToken = AuthorshipToken(authorshipTokenAddress);
-    }
-
-    function _printInitcodeHashes(address[] memory initialAuthors) internal view {
-        console.logBytes32(keccak256(abi.encodePacked(type(FlagRenderer).creationCode)));
-        console.logBytes32(
-            keccak256(            
-                abi.encodePacked(
-                    type(AuthorshipToken).creationCode,
-                    abi.encode(
-                        curtaAddress,
-                        issueLength,
-                        initialAuthors
-                    )
-                )
-            )
-        );
-        console.logBytes32(keccak256(abi.encodePacked(type(TeamRegistry).creationCode)));
     }
 }
