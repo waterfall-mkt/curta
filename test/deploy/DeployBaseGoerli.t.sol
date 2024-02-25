@@ -21,7 +21,7 @@ contract DeployBaseGoerliTest is Test {
     // -------------------------------------------------------------------------
 
     function setUp() public {
-        vm.deal(vm.addr(vm.envUint("DEPLOYER_PRIVATE_KEY")), type(uint64).max);
+        vm.createSelectFork(base_mainnet);
 
         deployBaseGoerli = new DeployBaseGoerli();
         deployBaseGoerli.run();

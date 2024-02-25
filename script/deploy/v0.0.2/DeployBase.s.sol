@@ -111,6 +111,8 @@ contract DeployBase is Script {
             type(FlagRenderer).creationCode
         ));
 
+        flagRenderer = FlagRenderer(flagRendererAddress);
+
         // Deploy AuthorshipToken
         create2Factory.call(abi.encodeWithSignature(
             "safeCreate2(bytes32,bytes)",
@@ -124,6 +126,8 @@ contract DeployBase is Script {
                 )
             )
         ));
+
+        authorshipToken = AuthorshipToken(authorshipTokenAddress);
 
         // Deploy Curta
         curta = new Curta(
@@ -139,8 +143,5 @@ contract DeployBase is Script {
         ));
 
         vm.stopBroadcast();
-
-        flagRenderer = FlagRenderer(flagRendererAddress);
-        authorshipToken = AuthorshipToken(authorshipTokenAddress);
     }
 }
