@@ -100,6 +100,29 @@ Since puzzles are on-chain, everyone can view everyone else's submissions. The g
             <td>N/A</td>
             <td><code><a href="https://goerli.basescan.org/address/0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d">0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d</code></td>
         </tr>
+        <tr>
+            <td rowspan="4">Base Sepolia</td>
+            <td rowspan="4">84532</td>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/Curta.sol">Curta</a></code></td>
+            <td>N/A</td>
+            <td><code><a href="https://sepolia.basescan.org/address/0x00000000D1329c5cd5386091066d49112e590969">0x00000000D1329c5cd5386091066d49112e590969</code></td>
+        </tr>
+        <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/AuthorshipToken.sol">AuthorshipToken</a></code></td>
+            <td>N/A</td>
+            <td><code><a href="https://sepolia.basescan.org/address/0xC0FFEE8b8e502403e51f37030E32c52bA4b37f7d">0xC0FFEE8b8e502403e51f37030E32c52bA4b37f7d</code></td>
+        </tr>
+            <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/FlagRenderer.sol">FlagRenderer</a></code></td>
+            <td>N/A</td>
+            <td><code><a href="https://sepolia.basescan.org/address/0xF1a900007c8b1d6266c186Aa2Ef0eE2e95ffCa80">0xF1a900007c8b1d6266c186Aa2Ef0eE2e95ffCa80</code></td>
+        </tr>
+            </tr>
+            <tr>
+            <td><code><a href="https://github.com/waterfall-mkt/curta/blob/main/src/TeamRegistry.sol">TeamRegistry</a></code></td>
+            <td>N/A</td>
+            <td><code><a href="https://sepolia.basescan.org/address/0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d">0xFacaDE0BCAeBb9B48bd1f613d2fd9B9865A3E61d</code></td>
+        </tr>
     </tbody>
 <table>
 
